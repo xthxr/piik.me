@@ -563,90 +563,109 @@ header h1 {
     gap: 16px;
 }
 
-/* Buttons - Glassmorphic Design */
+/* Buttons - Bubble Animation Design */
 .primary-btn,
 .secondary-btn,
 .copy-btn {
-    cursor: pointer;
-    font-size: 1.4rem;
-    border-radius: 16px;
+    position: relative;
+    padding: 10px 22px;
+    border-radius: 6px;
     border: none;
-    padding: 2px;
-    background: radial-gradient(circle 80px at 80% -10%, #ffffff, #181b1b);
-    position: relative;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.primary-btn::after,
-.secondary-btn::after,
-.copy-btn::after {
-    content: "";
-    position: absolute;
-    width: 65%;
-    height: 60%;
-    border-radius: 120px;
-    top: 0;
-    right: 0;
-    box-shadow: 0 0 20px #ffffff38;
-    z-index: -1;
-}
-
-.primary-btn .blob1,
-.secondary-btn .blob1,
-.copy-btn .blob1 {
-    position: absolute;
-    width: 70px;
-    height: 100%;
-    border-radius: 16px;
-    bottom: 0;
-    left: 0;
-    background: radial-gradient(circle 60px at 0% 100%, #3fe9ff, #0000ff80, transparent);
-    box-shadow: -10px 10px 30px #0051ff2d;
-}
-
-/* Share button variant - gray/silver blob */
-.secondary-btn .blob1 {
-    background: radial-gradient(circle 60px at 0% 100%, #888888, #55555580, transparent);
-    box-shadow: -10px 10px 30px rgba(136, 136, 136, 0.18);
-}
-
-.primary-btn .inner,
-.secondary-btn .inner,
-.copy-btn .inner {
-    padding: 14px 25px;
-    border-radius: 14px;
     color: #fff;
-    z-index: 3;
-    position: relative;
-    background: radial-gradient(circle 80px at 80% -50%, #777777, #0f1111);
-    transition: all 0.3s ease;
-}
-
-.primary-btn .inner::before,
-.secondary-btn .inner::before,
-.copy-btn .inner::before {
-    content: "";
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    border-radius: 14px;
-    background: radial-gradient(circle 60px at 0% 100%, #00e1ff1a, #0000ff11, transparent);
-    position: absolute;
-}
-
-.primary-btn:hover,
-.secondary-btn:hover,
-.copy-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+    cursor: pointer;
+    background-color: #7d2ae8;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .primary-btn:active,
 .secondary-btn:active,
 .copy-btn:active {
-    transform: translateY(0);
+    transform: scale(0.96);
+}
+
+.primary-btn:before,
+.primary-btn:after,
+.secondary-btn:before,
+.secondary-btn:after,
+.copy-btn:before,
+.copy-btn:after {
+    position: absolute;
+    content: "";
+    width: 150%;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: -1000;
+    background-repeat: no-repeat;
+}
+
+.primary-btn:hover:before,
+.secondary-btn:hover:before,
+.copy-btn:hover:before {
+    top: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #7d2ae8 20%, transparent 30%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+        10% 10%, 18% 18%;
+    background-position: 50% 120%;
+    animation: greentopBubbles 0.6s ease;
+}
+
+@keyframes greentopBubbles {
+    0% {
+        background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%,
+            40% 90%, 55% 90%, 70% 90%;
+    }
+    50% {
+        background-position: 0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%,
+            50% 50%, 65% 20%, 90% 30%;
+    }
+    100% {
+        background-position: 0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%,
+            50% 40%, 65% 10%, 90% 20%;
+        background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    }
+}
+
+.primary-btn:hover::after,
+.secondary-btn:hover::after,
+.copy-btn:hover::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+    background-position: 50% 0%;
+    animation: greenbottomBubbles 0.6s ease;
+}
+
+@keyframes greenbottomBubbles {
+    0% {
+        background-position: 10% -10%, 30% 10%, 55% -10%, 70% -10%, 85% -10%,
+            70% -10%, 70% 0%;
+    }
+    50% {
+        background-position: 0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 95% 60%,
+            105% 0%;
+    }
+    100% {
+        background-position: 0% 90%, 20% 90%, 45% 70%, 60% 110%, 75% 80%, 95% 70%,
+            110% 10%;
+        background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    }
 }
 
 .primary-btn:disabled {
@@ -657,55 +676,473 @@ header h1 {
 
 .primary-btn:disabled:hover {
     transform: none;
-    box-shadow: none;
 }
 
-/* Secondary Button Variant */
+/* Secondary Button Variant - Gray bubbles */
 .secondary-btn {
-    background: radial-gradient(circle 80px at 80% -10%, #777777, #181b1b);
+    background-color: #4a5568;
     margin-right: 12px;
 }
 
-.secondary-btn .inner {
-    background: radial-gradient(circle 80px at 80% -50%, #27272a, #0f1111);
+.secondary-btn:hover:before {
+    background-image: radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #4a5568 20%, transparent 30%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #4a5568 15%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%);
 }
 
-/* Copy Button Variant */
+.secondary-btn:hover::after {
+    background-image: radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #4a5568 15%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%),
+        radial-gradient(circle, #4a5568 20%, transparent 20%);
+}
+
+/* Copy Button Variant - Green bubbles */
 .copy-btn {
-    background: radial-gradient(circle 80px at 80% -10%, #10b981, #181b1b);
-    padding: 2px;
+    background-color: #10b981;
+    padding: 10px 22px;
     margin-right: 0;
 }
 
-.copy-btn .inner {
-    padding: 12px 24px;
-    background: radial-gradient(circle 80px at 80% -50%, #10b981, #0f1111);
+.copy-btn:hover:before {
+    background-image: radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #10b981 20%, transparent 30%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #10b981 15%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%);
 }
 
-.copy-btn .inner::before {
-    background: radial-gradient(
-        circle 60px at 0% 100%,
-        #10b9811a,
-        #10b98111,
-        transparent
-    );
+.copy-btn:hover::after {
+    background-image: radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #10b981 15%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%);
 }
 
 /* Link Action Buttons */
 .link-action-btn {
-    cursor: pointer;
-    font-size: 0.9rem;
-    border-radius: 16px;
-    border: none;
-    padding: 2px;
-    background: radial-gradient(circle 80px at 80% -10%, #ffffff, #181b1b);
     position: relative;
-    flex: 1;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: #7d2ae8;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
     font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1;
 }
 
-.link-action-btn::after {
+.link-action-btn:active {
+    transform: scale(0.96);
+}
+
+.link-action-btn:before,
+.link-action-btn:after {
+    position: absolute;
+    content: "";
+    width: 150%;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: -1000;
+    background-repeat: no-repeat;
+}
+
+.link-action-btn:hover:before {
+    top: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #7d2ae8 20%, transparent 30%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+        10% 10%, 18% 18%;
+    background-position: 50% 120%;
+    animation: greentopBubbles 0.6s ease;
+}
+
+.link-action-btn:hover::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+    background-position: 50% 0%;
+    animation: greenbottomBubbles 0.6s ease;
+}
+
+/* Delete Button Variant - Red bubbles */
+.link-action-btn.delete-btn {
+    background-color: #ef4444;
+}
+
+.link-action-btn.delete-btn:hover:before {
+    background-image: radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #ef4444 20%, transparent 30%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #ef4444 15%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%);
+}
+
+.link-action-btn.delete-btn:hover::after {
+    background-image: radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #ef4444 15%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%);
+}
+
+/* Link Copy Button */
+.link-copy-btn {
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: #10b981;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.link-copy-btn:active {
+    transform: scale(0.96);
+}
+
+.link-copy-btn:before,
+.link-copy-btn:after {
+    position: absolute;
+    content: "";
+    width: 150%;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: -1000;
+    background-repeat: no-repeat;
+}
+
+.link-copy-btn:hover:before {
+    top: -70%;
+    background-image: radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #10b981 20%, transparent 30%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #10b981 15%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+        10% 10%, 18% 18%;
+    background-position: 50% 120%;
+    animation: greentopBubbles 0.6s ease;
+}
+
+.link-copy-btn:hover::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #10b981 15%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%),
+        radial-gradient(circle, #10b981 20%, transparent 20%);
+    background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+    background-position: 50% 0%;
+    animation: greenbottomBubbles 0.6s ease;
+}
+
+/* Share Platform Buttons */
+.share-platform-btn {
+    position: relative;
+    padding: 14px 18px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: #7d2ae8;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.share-platform-btn:active {
+    transform: scale(0.96);
+}
+
+.share-platform-btn:before,
+.share-platform-btn:after {
+    position: absolute;
+    content: "";
+    width: 150%;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: -1000;
+    background-repeat: no-repeat;
+}
+
+.share-platform-btn:hover:before {
+    top: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #7d2ae8 20%, transparent 30%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+        10% 10%, 18% 18%;
+    background-position: 50% 120%;
+    animation: greentopBubbles 0.6s ease;
+}
+
+.share-platform-btn:hover::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+    background-position: 50% 0%;
+    animation: greenbottomBubbles 0.6s ease;
+}
+
+.share-modal-close {
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: #ef4444;
+    transition: all 0.2s ease;
+    font-size: 1.5rem;
+    font-weight: 600;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-modal-close:active {
+    transform: scale(0.96);
+}
+
+.share-modal-close:before,
+.share-modal-close:after {
+    position: absolute;
+    content: "";
+    width: 150%;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: -1000;
+    background-repeat: no-repeat;
+}
+
+.share-modal-close:hover:before {
+    top: -70%;
+    background-image: radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #ef4444 20%, transparent 30%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #ef4444 15%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+        10% 10%, 18% 18%;
+    background-position: 50% 120%;
+    animation: greentopBubbles 0.6s ease;
+}
+
+.share-modal-close:hover::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #ef4444 15%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%);
+    background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+    background-position: 50% 0%;
+    animation: greenbottomBubbles 0.6s ease;
+}
+
+/* Google Login Button */
+.google-login-btn {
+    position: relative;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: #7d2ae8;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.google-login-btn:active {
+    transform: scale(0.96);
+}
+
+.google-login-btn:before,
+.google-login-btn:after {
+    position: absolute;
+    content: "";
+    width: 150%;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: -1000;
+    background-repeat: no-repeat;
+}
+
+.google-login-btn:hover:before {
+    top: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #7d2ae8 20%, transparent 30%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+        10% 10%, 18% 18%;
+    background-position: 50% 120%;
+    animation: greentopBubbles 0.6s ease;
+}
+
+.google-login-btn:hover::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+        radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+    background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+    background-position: 50% 0%;
+    animation: greenbottomBubbles 0.6s ease;
+}
+
+/* Logout Button */
+.logout-btn {
+    position: relative;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: #ef4444;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.logout-btn:active {
+    transform: scale(0.96);
+}
+
+.logout-btn:before,
+.logout-btn:after {
+    position: absolute;
+    content: "";
+    width: 150%;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: -1000;
+    background-repeat: no-repeat;
+}
+
+.logout-btn:hover:before {
+    top: -70%;
+    background-image: radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #ef4444 20%, transparent 30%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #ef4444 15%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+        10% 10%, 18% 18%;
+    background-position: 50% 120%;
+    animation: greentopBubbles 0.6s ease;
+}
+
+.logout-btn:hover::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, transparent 10%, #ef4444 15%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%),
+        radial-gradient(circle, #ef4444 20%, transparent 20%);
+    background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+    background-position: 50% 0%;
+    animation: greenbottomBubbles 0.6s ease;
+}
+
+/* Result Section */
+.result-section {
     content: "";
     position: absolute;
     width: 65%;

@@ -117,10 +117,7 @@ function displayLinks(links) {
             <div class="link-card" data-shortcode="${link.shortCode}">
                 <div class="link-card-header">
                     <h3 class="link-title">${truncateUrl(link.originalUrl, 40)}</h3>
-                    <button class="link-copy-btn" onclick="copyLinkUrl('${link.shortUrl}')">
-                        <div class="blob1"></div>
-                        <div class="inner">📋</div>
-                    </button>
+                    <button class="link-copy-btn" onclick="copyLinkUrl('${link.shortUrl}')">📋</button>
                 </div>
                 <div class="link-short-url">
                     <a href="${link.shortUrl}" target="_blank">${link.shortUrl}</a>
@@ -145,16 +142,13 @@ function displayLinks(links) {
                 </div>
                 <div class="link-actions">
                     <button class="link-action-btn" onclick="viewLinkAnalytics('${link.shortCode}')">
-                        <div class="blob1"></div>
-                        <div class="inner">📊 View Analytics</div>
+                        📊 View Analytics
                     </button>
                     <button class="link-action-btn" onclick="shareLink('${link.shortUrl}', '${link.shortCode}')">
-                        <div class="blob1"></div>
-                        <div class="inner">🔗 Share</div>
+                        🔗 Share
                     </button>
                     <button class="link-action-btn delete-btn" onclick="deleteLink('${link.shortCode}')">
-                        <div class="blob1"></div>
-                        <div class="inner">🗑️ Delete</div>
+                        🗑️ Delete
                     </button>
                 </div>
                 <div class="link-date">
@@ -699,10 +693,7 @@ function showShareMenu(baseUrl, shortCode) {
         <div class="share-modal-content">
             <div class="share-modal-header">
                 <h3>📤 Share Link</h3>
-                <button class="share-modal-close" onclick="closeShareMenu()">
-                    <div class="blob1"></div>
-                    <div class="inner">&times;</div>
-                </button>
+                <button class="share-modal-close" onclick="closeShareMenu()">&times;</button>
             </div>
             <div class="share-info">
                 <p>💡 Each click from your shared link counts as a share!</p>
@@ -710,11 +701,8 @@ function showShareMenu(baseUrl, shortCode) {
             <div class="share-modal-body">
                 ${platforms.map(platform => `
                     <button class="share-platform-btn" onclick="shareToplatform('${platform.utm}', '${baseUrl}', ${platform.copyOnly || false}, '${platform.url || ''}', '${shortCode}')">
-                        <div class="blob1"></div>
-                        <div class="inner">
-                            <span class="platform-icon">${platform.icon}</span>
-                            <span class="platform-name">${platform.name}</span>
-                        </div>
+                        <span class="platform-icon">${platform.icon}</span>
+                        <span class="platform-name">${platform.name}</span>
                     </button>
                 `).join('')}
             </div>
