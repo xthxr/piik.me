@@ -64,24 +64,44 @@ function showCreateForm() {
 async function loadUserLinks() {
     try {
         const token = await getAuthToken();
+        
+        if (!token) {
+            console.log('No auth token available');
+            emptyState.style.display = 'block';
+            linksGrid.style.display = 'none';
+            return;
+        }
+        
+        console.log('Fetching user links...');
         const response = await fetch('/api/user/links', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('Error response:', error);
+            throw new Error(error.error || 'Failed to fetch links');
+        }
+        
         const data = await response.json();
+        console.log('Fetched links:', data.links?.length || 0);
         
         if (data.links && data.links.length > 0) {
             displayLinks(data.links);
             emptyState.style.display = 'none';
             linksGrid.style.display = 'grid';
         } else {
+            console.log('No links found, showing empty state');
             emptyState.style.display = 'block';
             linksGrid.style.display = 'none';
         }
     } catch (error) {
         console.error('Error loading links:', error);
+        // Show empty state on error
+        emptyState.style.display = 'block';
+        linksGrid.style.display = 'none';
     }
 }
 

@@ -237,10 +237,20 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
   const userId = req.user.uid;
   
   try {
-    const linksSnapshot = await db.collection(COLLECTIONS.LINKS)
-      .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
-      .get();
+    // Try with orderBy first
+    let linksSnapshot;
+    try {
+      linksSnapshot = await db.collection(COLLECTIONS.LINKS)
+        .where('userId', '==', userId)
+        .orderBy('createdAt', 'desc')
+        .get();
+    } catch (orderError) {
+      // If orderBy fails (missing index), try without it
+      console.log('OrderBy failed, trying without ordering:', orderError.message);
+      linksSnapshot = await db.collection(COLLECTIONS.LINKS)
+        .where('userId', '==', userId)
+        .get();
+    }
     
     const userLinks = [];
     
@@ -258,10 +268,13 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
       });
     }
     
+    // Sort by createdAt in JavaScript if we couldn't use orderBy
+    userLinks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
     res.json({ links: userLinks });
   } catch (error) {
     console.error('Error fetching user links:', error);
-    res.status(500).json({ error: 'Failed to fetch links' });
+    res.status(500).json({ error: 'Failed to fetch links', details: error.message });
   }
 });
 
