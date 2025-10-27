@@ -305,21 +305,78 @@ header h1 {
 }
 
 .link-copy-btn {
-    background: var(--secondary);
-    border: 1px solid var(--border);
-    padding: 8px 12px;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 100% 100%, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                radial-gradient(circle at 0 0, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                radial-gradient(circle at 100% 0, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                radial-gradient(circle at 0 100%, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    background-size: 3px 3px, 3px 3px, 3px 3px, 3px 3px, 100% 100%;
+    background-position: bottom right, top left, top right, bottom left, center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0;
     border-radius: 10px;
     cursor: pointer;
     font-size: 1.1rem;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.link-copy-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    filter: blur(10px);
+    opacity: 0.5;
+}
+
+.link-copy-btn .blob1 {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 50%);
+    transform: translate3d(0, 0, 0) scale(1);
+}
+
+.link-copy-btn .inner {
+    position: relative;
+    z-index: 2;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: inherit;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+    color: #18181b;
+    font-weight: 600;
+}
+
+.link-copy-btn .inner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(168, 85, 247, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .link-copy-btn:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    box-shadow: var(--glow-primary);
     transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.link-copy-btn:hover .inner {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4));
 }
 
 .link-short-url {
@@ -517,49 +574,75 @@ header h1 {
     gap: 16px;
 }
 
-/* Buttons */
+/* Buttons - Glassmorphic Design */
 .primary-btn,
 .secondary-btn,
 .copy-btn {
-    padding: 14px 32px;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1rem;
+    border-radius: 16px;
     border: none;
-}
-
-.primary-btn {
-    width: 100%;
-    background: var(--gradient-primary);
-    color: var(--foreground);
-    box-shadow: var(--shadow);
+    padding: 2px;
+    background: radial-gradient(circle 80px at 80% -10%, #ffffff, #181b1b);
     position: relative;
-    overflow: hidden;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.primary-btn::before {
-    content: '';
+.primary-btn::after,
+.secondary-btn::after,
+.copy-btn::after {
+    content: "";
     position: absolute;
+    width: 65%;
+    height: 60%;
+    border-radius: 120px;
     top: 0;
-    left: -100%;
+    right: 0;
+    box-shadow: 0 0 20px #ffffff38;
+    z-index: -1;
+}
+
+.primary-btn .inner,
+.secondary-btn .inner,
+.copy-btn .inner {
+    padding: 14px 32px;
+    border-radius: 14px;
+    color: #fff;
+    z-index: 3;
+    position: relative;
+    background: radial-gradient(circle 80px at 80% -50%, #a855f7, #0f1111);
+    transition: all 0.3s ease;
+}
+
+.primary-btn .inner::before,
+.secondary-btn .inner::before,
+.copy-btn .inner::before {
+    content: "";
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
+    left: 0;
+    top: 0;
+    border-radius: 14px;
+    background: radial-gradient(
+        circle 60px at 0% 100%,
+        #a855f71a,
+        #8b5cf611,
+        transparent
+    );
+    position: absolute;
 }
 
-.primary-btn:hover::before {
-    left: 100%;
-}
-
-.primary-btn:hover {
+.primary-btn:hover,
+.secondary-btn:hover,
+.copy-btn:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), var(--glow-primary);
+    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
 }
 
-.primary-btn:active {
+.primary-btn:active,
+.secondary-btn:active,
+.copy-btn:active {
     transform: translateY(0);
 }
 
@@ -569,24 +652,242 @@ header h1 {
     transform: none;
 }
 
+.primary-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Secondary Button Variant */
 .secondary-btn {
-    background: var(--secondary);
-    color: var(--foreground);
-    border: 1px solid var(--border);
+    background: radial-gradient(circle 80px at 80% -10%, #777777, #181b1b);
     margin-right: 12px;
 }
 
-.secondary-btn:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    box-shadow: var(--glow-accent);
+.secondary-btn .inner {
+    background: radial-gradient(circle 80px at 80% -50%, #27272a, #0f1111);
 }
 
+/* Copy Button Variant */
 .copy-btn {
-    background: var(--success);
-    color: var(--foreground);
+    background: radial-gradient(circle 80px at 80% -10%, #10b981, #181b1b);
+    padding: 2px;
+    margin-right: 0;
+}
+
+.copy-btn .inner {
     padding: 12px 24px;
-    box-shadow: var(--shadow);
+    background: radial-gradient(circle 80px at 80% -50%, #10b981, #0f1111);
+}
+
+.copy-btn .inner::before {
+    background: radial-gradient(
+        circle 60px at 0% 100%,
+        #10b9811a,
+        #10b98111,
+        transparent
+    );
+}
+
+/* Link Action Buttons */
+.link-action-btn {
+    cursor: pointer;
+    font-size: 0.875rem;
+    border-radius: 12px;
+    border: none;
+    padding: 2px;
+    background: radial-gradient(circle 60px at 80% -10%, #ffffff, #181b1b);
+    position: relative;
+    flex: 1;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.link-action-btn::after {
+    content: "";
+    position: absolute;
+    width: 65%;
+    height: 60%;
+    border-radius: 100px;
+    top: 0;
+    right: 0;
+    box-shadow: 0 0 15px #ffffff38;
+    z-index: -1;
+}
+
+.link-action-btn .inner {
+    padding: 11px 16px;
+    border-radius: 10px;
+    color: #fff;
+    z-index: 3;
+    position: relative;
+    background: radial-gradient(circle 60px at 80% -50%, #27272a, #0f1111);
+}
+
+.link-action-btn .inner::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+    background: radial-gradient(
+        circle 40px at 0% 100%,
+        #a855f71a,
+        #8b5cf611,
+        transparent
+    );
+    position: absolute;
+}
+
+.link-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+}
+
+.link-action-btn:hover .inner {
+    background: radial-gradient(circle 60px at 80% -50%, #a855f7, #0f1111);
+}
+
+/* Delete Button Variant */
+.link-action-btn.delete-btn {
+    background: radial-gradient(circle 60px at 80% -10%, #ef4444, #181b1b);
+}
+
+.link-action-btn.delete-btn .inner {
+    background: radial-gradient(circle 60px at 80% -50%, rgba(239, 68, 68, 0.3), #0f1111);
+}
+
+.link-action-btn.delete-btn:hover .inner {
+    background: radial-gradient(circle 60px at 80% -50%, #ef4444, #0f1111);
+}
+
+/* Google Login Button */
+.google-login-btn {
+    cursor: pointer;
+    font-size: 0.95rem;
+    border-radius: 16px;
+    border: none;
+    padding: 2px;
+    background: radial-gradient(circle 80px at 80% -10%, #ffffff, #181b1b);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.google-login-btn::after {
+    content: "";
+    position: absolute;
+    width: 65%;
+    height: 60%;
+    border-radius: 120px;
+    top: 0;
+    right: 0;
+    box-shadow: 0 0 20px #ffffff38;
+    z-index: -1;
+}
+
+.google-login-btn .inner {
+    padding: 12px 28px;
+    border-radius: 14px;
+    color: #fff;
+    z-index: 3;
+    position: relative;
+    background: radial-gradient(circle 80px at 80% -50%, #18181b, #0f1111);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.google-login-btn .inner::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 14px;
+    background: radial-gradient(
+        circle 60px at 0% 100%,
+        #ffffff1a,
+        #77777711,
+        transparent
+    );
+    position: absolute;
+}
+
+.google-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+}
+
+/* Share Platform Buttons */
+.share-platform-btn {
+    cursor: pointer;
+    font-size: 0.875rem;
+    border-radius: 16px;
+    border: none;
+    padding: 2px;
+    background: radial-gradient(circle 60px at 80% -10%, #ffffff, #181b1b);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.share-platform-btn::after {
+    content: "";
+    position: absolute;
+    width: 65%;
+    height: 60%;
+    border-radius: 100px;
+    top: 0;
+    right: 0;
+    box-shadow: 0 0 15px #ffffff38;
+    z-index: -1;
+}
+
+.share-platform-btn .inner {
+    padding: 24px 18px;
+    border-radius: 14px;
+    color: #fff;
+    z-index: 3;
+    position: relative;
+    background: radial-gradient(circle 60px at 80% -50%, #27272a, #0f1111);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.share-platform-btn .inner::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 14px;
+    background: radial-gradient(
+        circle 40px at 0% 100%,
+        #a855f71a,
+        #8b5cf611,
+        transparent
+    );
+    position: absolute;
+}
+
+.share-platform-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(168, 85, 247, 0.4);
+}
+
+.share-platform-btn:hover .inner {
+    background: radial-gradient(circle 60px at 80% -50%, #a855f7, #0f1111);
 }
 
 .copy-btn:hover {
@@ -1150,10 +1451,18 @@ header h1 {
 }
 
 .share-modal-close {
-    background: var(--secondary);
-    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 100% 100%, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                radial-gradient(circle at 0 0, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                radial-gradient(circle at 100% 0, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                radial-gradient(circle at 0 100%, #ffffff 0, #ffffff 3px, transparent 3px) no-repeat, 
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    background-size: 3px 3px, 3px 3px, 3px 3px, 3px 3px, 100% 100%;
+    background-position: bottom right, top left, top right, bottom left, center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0;
     font-size: 1.5rem;
-    color: var(--muted-foreground);
     cursor: pointer;
     width: 40px;
     height: 40px;
@@ -1164,10 +1473,58 @@ header h1 {
     transition: all 0.3s ease;
 }
 
+.share-modal-close::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    filter: blur(10px);
+    opacity: 0.5;
+}
+
+.share-modal-close .blob1 {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.6) 0%, transparent 50%);
+    transform: translate3d(0, 0, 0) scale(1);
+}
+
+.share-modal-close .inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+    color: #18181b;
+    font-weight: 600;
+}
+
+.share-modal-close .inner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 68, 68, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
 .share-modal-close:hover {
-    background: var(--destructive);
-    border-color: var(--destructive);
-    color: var(--foreground);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.share-modal-close:hover .inner {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4));
 }
 
 .share-info {
