@@ -146,6 +146,9 @@ function displayLinks(links) {
                     <button class="link-action-btn" onclick="shareLink('${link.shortUrl}', '${link.shortCode}')">
                         🔗 Share
                     </button>
+                    <button class="link-action-btn delete-btn" onclick="deleteLink('${link.shortCode}')">
+                        🗑️ Delete
+                    </button>
                 </div>
                 <div class="link-date">
                     Created ${formatDate(link.createdAt)}
@@ -190,6 +193,50 @@ function copyLinkUrl(url) {
 function viewLinkAnalytics(shortCode) {
     currentShortCode = shortCode;
     showAnalytics();
+}
+
+// Delete Link
+async function deleteLink(shortCode) {
+    if (!confirm('Are you sure you want to delete this link? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        const token = await getAuthToken();
+        const response = await fetch(`/api/links/${shortCode}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to delete link');
+        }
+        
+        // Remove the link card from UI with animation
+        const linkCard = document.querySelector(`[data-shortcode="${shortCode}"]`);
+        if (linkCard) {
+            linkCard.style.opacity = '0';
+            linkCard.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                linkCard.remove();
+                // Check if there are any links left
+                const remainingLinks = document.querySelectorAll('.link-card');
+                if (remainingLinks.length === 0) {
+                    emptyState.style.display = 'block';
+                    linksGrid.style.display = 'none';
+                }
+            }, 300);
+        }
+        
+        // Show success message
+        alert('Link deleted successfully!');
+    } catch (error) {
+        console.error('Error deleting link:', error);
+        alert('Failed to delete link: ' + error.message);
+    }
 }
 
 // Create Short Link

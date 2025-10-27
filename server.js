@@ -278,6 +278,41 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
   }
 });
 
+// Delete a link (requires authentication and ownership)
+app.delete('/api/links/:shortCode', verifyToken, async (req, res) => {
+  const { shortCode } = req.params;
+  const userId = req.user.uid;
+  
+  try {
+    // Check if link exists and belongs to user
+    const linkRef = db.collection(COLLECTIONS.LINKS).doc(shortCode);
+    const linkDoc = await linkRef.get();
+    
+    if (!linkDoc.exists) {
+      return res.status(404).json({ error: 'Link not found' });
+    }
+    
+    const linkData = linkDoc.data();
+    
+    // Verify ownership
+    if (linkData.userId !== userId) {
+      return res.status(403).json({ error: 'You do not have permission to delete this link' });
+    }
+    
+    // Delete the link
+    await linkRef.delete();
+    
+    // Delete associated analytics
+    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(shortCode);
+    await analyticsRef.delete();
+    
+    res.json({ success: true, message: 'Link deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting link:', error);
+    res.status(500).json({ error: 'Failed to delete link', details: error.message });
+  }
+});
+
 // Track impression (when analytics page is viewed)
 app.post('/api/track/impression/:shortCode', async (req, res) => {
   const { shortCode } = req.params;

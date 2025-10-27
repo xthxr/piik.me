@@ -275,6 +275,20 @@ header h1 {
     color: var(--white);
 }
 
+.link-action-btn.delete-btn {
+    background: #fee;
+    color: var(--danger-color);
+}
+
+.link-action-btn.delete-btn:hover {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+.link-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
 .link-date {
     font-size: 0.85rem;
     color: var(--gray);
