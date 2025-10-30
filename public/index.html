@@ -68,26 +68,14 @@
                 </div>
 
                 <!-- UTM Parameters -->
-                <div class="link-options">
-                    <div class="utm-params">
-                        <h3>UTM Parameters (Optional)</h3>
-                        <div class="utm-grid">
-                            <input type="text" id="utmSource" placeholder="Source (e.g., google, newsletter)" />
-                            <input type="text" id="utmMedium" placeholder="Medium (e.g., email, cpc)" />
-                            <input type="text" id="utmCampaign" placeholder="Campaign (e.g., spring_sale)" />
-                            <input type="text" id="utmTerm" placeholder="Term (e.g., running shoes)" />
-                            <input type="text" id="utmContent" placeholder="Content (e.g., banner_ad)" />
-                        </div>
-                    </div>
-                    
-                    <div class="qr-options">
-                        <h3>QR Code (Optional)</h3>
-                        <div class="qr-grid">
-                            <div class="qr-validity">
-                                <label for="qrValidity">QR Code Validity (days)</label>
-                                <input type="number" id="qrValidity" min="1" max="365" value="30" />
-                            </div>
-                        </div>
+                <div class="utm-params">
+                    <h3>UTM Parameters (Optional)</h3>
+                    <div class="utm-grid">
+                        <input type="text" id="utmSource" placeholder="Source (e.g., google, newsletter)" />
+                        <input type="text" id="utmMedium" placeholder="Medium (e.g., email, cpc)" />
+                        <input type="text" id="utmCampaign" placeholder="Campaign (e.g., spring_sale)" />
+                        <input type="text" id="utmTerm" placeholder="Term (e.g., running shoes)" />
+                        <input type="text" id="utmContent" placeholder="Content (e.g., banner_ad)" />
                     </div>
                 </div>
 
@@ -101,16 +89,15 @@
                             <input type="text" id="shortUrlDisplay" readonly />
                             <button id="copyBtn" class="copy-btn">📋 Copy</button>
                         </div>
-                        <div id="qrCodeSection" class="qr-code-section" style="display: none;">
-                            <div class="qr-preview">
-                                <img id="qrCodeImage" alt="QR Code" />
-                            </div>
-                            <button id="downloadQrBtn" class="secondary-btn">💾 Download QR Code</button>
-                        </div>
                         <div class="action-buttons">
                             <button id="viewAnalyticsBtn" class="secondary-btn">📊 View Analytics</button>
                             <button id="shareBtn" class="secondary-btn">🔗 Share</button>
-                            <button id="viewQrBtn" class="secondary-btn">📱 View QR Code</button>
+                            <button id="qrCodeBtn" class="secondary-btn">📱 QR Code</button>
+                        </div>
+                        <div id="qrCodeSection" class="qr-code-section" style="display: none;">
+                            <h3>📱 QR Code</h3>
+                            <div id="qrCodeDisplay" class="qr-code-display"></div>
+                            <button id="downloadQrBtn" class="primary-btn">⬇️ Download QR Code</button>
                         </div>
                     </div>
                 </div>
@@ -120,18 +107,8 @@
             <section id="analyticsSection" class="analytics-section" style="display: none;">
                 <div class="analytics-header">
                     <h2>📊 Real-time Analytics</h2>
-                    <div class="analytics-controls">
-                        <div class="analytics-filter">
-                            <label>Show Analytics For:</label>
-                            <select id="analyticsFilter">
-                                <option value="all">All Traffic</option>
-                                <option value="utm">UTM Links Only</option>
-                                <option value="qr">QR Codes Only</option>
-                            </select>
-                        </div>
-                        <div class="live-indicator">
-                            <span class="pulse"></span> LIVE
-                        </div>
+                    <div class="live-indicator">
+                        <span class="pulse"></span> LIVE
                     </div>
                 </div>
 
@@ -242,13 +219,13 @@
     
     <!-- Chart.js for donut chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- QRCode.js for QR code generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <script src="/socket.io/socket.io.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="/node_modules/qrcode/build/qrcode.min.js"></script>
-    <script src="js/qr.js"></script>
-    <script src="js/analytics.js"></script>
-    <script src="js/qr-handler.js"></script>
-    <script src="app.js"></script>
+    <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

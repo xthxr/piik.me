@@ -4,7 +4,6 @@ const socket = io();
 // State
 let currentShortCode = null;
 let referrerChart = null; // Store chart instance
-let currentAnalyticsFilter = 'all';
 
 // DOM Elements
 const urlInput = document.getElementById('urlInput');
@@ -13,8 +12,6 @@ const utmMedium = document.getElementById('utmMedium');
 const utmCampaign = document.getElementById('utmCampaign');
 const utmTerm = document.getElementById('utmTerm');
 const utmContent = document.getElementById('utmContent');
-const qrValidity = document.getElementById('qrValidity');
-const analyticsFilter = document.getElementById('analyticsFilter');
 const shortenBtn = document.getElementById('shortenBtn');
 const resultSection = document.getElementById('resultSection');
 const shortUrlDisplay = document.getElementById('shortUrlDisplay');
@@ -29,16 +26,21 @@ const createNewBtn = document.getElementById('createNewBtn');
 const createFirstBtn = document.getElementById('createFirstBtn');
 const linksGrid = document.getElementById('linksGrid');
 const emptyState = document.getElementById('emptyState');
+const qrCodeBtn = document.getElementById('qrCodeBtn');
+const qrCodeSection = document.getElementById('qrCodeSection');
+const qrCodeDisplay = document.getElementById('qrCodeDisplay');
+const downloadQrBtn = document.getElementById('downloadQrBtn');
 
 // Event Listeners
 if (shortenBtn) shortenBtn.addEventListener('click', createShortLink);
 if (copyBtn) copyBtn.addEventListener('click', copyToClipboard);
 if (viewAnalyticsBtn) viewAnalyticsBtn.addEventListener('click', showAnalytics);
 if (shareBtn) shareBtn.addEventListener('click', shareLink);
+if (qrCodeBtn) qrCodeBtn.addEventListener('click', showQRCode);
+if (downloadQrBtn) downloadQrBtn.addEventListener('click', downloadQRCode);
 if (backBtn) backBtn.addEventListener('click', goBack);
 if (createNewBtn) createNewBtn.addEventListener('click', showCreateForm);
 if (createFirstBtn) createFirstBtn.addEventListener('click', showCreateForm);
-if (analyticsFilter) analyticsFilter.addEventListener('change', handleAnalyticsFilter);
 
 // Allow Enter key to submit
 if (urlInput) {
@@ -147,6 +149,9 @@ function displayLinks(links) {
                 <div class="link-actions">
                     <button class="link-action-btn" onclick="viewLinkAnalytics('${link.shortCode}')">
                         📊 View Analytics
+                    </button>
+                    <button class="link-action-btn" onclick="showLinkQRCode('${link.shortUrl}', '${link.shortCode}')">
+                        📱 QR Code
                     </button>
                     <button class="link-action-btn" onclick="shareLink('${link.shortUrl}', '${link.shortCode}')">
                         🔗 Share
@@ -303,6 +308,7 @@ async function createShortLink() {
             currentShortCode = data.shortCode;
             shortUrlDisplay.value = data.shortUrl;
             resultSection.style.display = 'block';
+            qrCodeSection.style.display = 'none'; // Hide QR code section for new link
             resultSection.classList.add('success-animation');
             
             // Clear animation class after animation completes
@@ -324,13 +330,16 @@ async function createShortLink() {
 // Copy to Clipboard
 function copyToClipboard() {
     shortUrlDisplay.select();
-    navigator.clipboard.writeText(shortUrlDisplay.value).then(() => {
-        copyBtn.classList.add('success-animation');
-        showToast('Link copied to clipboard! 🔗');
-    }).catch(err => {
-        showToast('Failed to copy link', '❌');
-        console.error('Failed to copy:', err);
-    });
+    document.execCommand('copy');
+    
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = '✅ Copied!';
+    copyBtn.classList.add('success-animation');
+    
+    setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.classList.remove('success-animation');
+    }, 2000);
 }
 
 // Show Analytics
@@ -773,6 +782,140 @@ function goBack() {
     }
     
     currentShortCode = null;
+}
+
+// QR Code Functions
+let qrCodeInstance = null;
+
+function showQRCode() {
+    const shortUrl = document.getElementById('shortUrlDisplay').value;
+    
+    if (!shortUrl) {
+        alert('No URL to generate QR code');
+        return;
+    }
+    
+    // Toggle QR code section
+    if (qrCodeSection.style.display === 'none' || qrCodeSection.style.display === '') {
+        qrCodeSection.style.display = 'block';
+        
+        // Clear previous QR code
+        qrCodeDisplay.innerHTML = '';
+        
+        // Generate new QR code
+        qrCodeInstance = new QRCode(qrCodeDisplay, {
+            text: shortUrl,
+            width: 256,
+            height: 256,
+            colorDark: "#09090b",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Scroll to QR code
+        qrCodeSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        qrCodeSection.style.display = 'none';
+    }
+}
+
+function showLinkQRCode(shortUrl, shortCode) {
+    // Create modal for QR code
+    const modal = document.createElement('div');
+    modal.className = 'qr-modal';
+    modal.innerHTML = `
+        <div class="qr-modal-content">
+            <div class="qr-modal-header">
+                <h3>📱 QR Code</h3>
+                <button class="share-modal-close" onclick="closeQRModal()">&times;</button>
+            </div>
+            <div class="qr-modal-body">
+                <div class="qr-code-display-modal" id="qrCodeDisplayModal"></div>
+                <p class="qr-url-text">${shortUrl}</p>
+            </div>
+            <div class="qr-modal-footer">
+                <button class="primary-btn" onclick="downloadQRCodeModal('${shortCode}')">⬇️ Download QR Code</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Generate QR code
+    new QRCode(document.getElementById('qrCodeDisplayModal'), {
+        text: shortUrl,
+        width: 256,
+        height: 256,
+        colorDark: "#09090b",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+window.closeQRModal = function() {
+    const modal = document.querySelector('.qr-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+window.downloadQRCodeModal = function(shortCode) {
+    const canvas = document.querySelector('.qr-code-display-modal canvas');
+    
+    if (!canvas) {
+        alert('No QR code to download');
+        return;
+    }
+    
+    canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        
+        link.href = url;
+        link.download = `zaplink-qr-${shortCode}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        // Show success and close modal
+        alert('✅ QR Code downloaded!');
+        closeQRModal();
+    });
+}
+
+function downloadQRCode() {
+    const canvas = qrCodeDisplay.querySelector('canvas');
+    
+    if (!canvas) {
+        alert('No QR code to download');
+        return;
+    }
+    
+    // Convert canvas to blob and download
+    canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const shortUrl = document.getElementById('shortUrlDisplay').value;
+        const shortCode = shortUrl.split('/').pop();
+        
+        link.href = url;
+        link.download = `zaplink-qr-${shortCode}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        // Show success message
+        const originalText = downloadQrBtn.textContent;
+        downloadQrBtn.textContent = '✅ Downloaded!';
+        setTimeout(() => {
+            downloadQrBtn.textContent = originalText;
+        }, 2000);
+    });
 }
 
 // Socket connection status

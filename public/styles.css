@@ -288,72 +288,6 @@ header h1 {
     border-color: var(--primary);
 }
 
-.link-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
-.utm-params, .qr-options {
-    background: var(--surface);
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-}
-
-.utm-grid, .qr-grid {
-    display: grid;
-    gap: 12px;
-    margin-top: 12px;
-}
-
-.qr-validity {
-    display: grid;
-    gap: 8px;
-}
-
-.qr-validity label {
-    font-size: 0.9rem;
-    color: var(--foreground-dim);
-}
-
-.qr-validity input {
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-}
-
-.analytics-controls {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    margin-top: 16px;
-}
-
-.analytics-filter {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.analytics-filter label {
-    color: var(--foreground-dim);
-    font-size: 0.9rem;
-}
-
-.analytics-filter select {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    font-size: 0.9rem;
-}
-
 .link-card-header {
     display: flex;
     justify-content: space-between;
@@ -1451,25 +1385,44 @@ header h1 {
     gap: 12px;
 }
 
+/* QR Code Section */
 .qr-code-section {
-    margin: 20px 0;
-    padding: 20px;
-    border-radius: 12px;
-    background: var(--surface);
+    margin-top: 32px;
+    padding: 32px;
+    background: var(--card);
     border: 1px solid var(--border);
+    border-radius: 16px;
+    text-align: center;
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.qr-preview {
+.qr-code-section h3 {
+    margin-bottom: 24px;
+    color: var(--foreground);
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.qr-code-display {
     display: flex;
     justify-content: center;
-    margin-bottom: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.qr-preview img {
-    max-width: 200px;
+.qr-code-display canvas,
+.qr-code-display img {
+    max-width: 100%;
+    height: auto;
     border-radius: 8px;
-    padding: 12px;
-    background: white;
+}
+
+#downloadQrBtn {
+    margin-top: 16px;
 }
 
 /* Analytics Section */
@@ -2110,6 +2063,103 @@ header h1 {
 .share-footer small {
     color: var(--muted-foreground);
     font-size: 0.85rem;
+}
+
+/* QR Code Modal */
+.qr-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.qr-modal.show {
+    opacity: 1;
+}
+
+.qr-modal-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: var(--shadow-xl);
+    max-width: 480px;
+    width: 90%;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.qr-modal.show .qr-modal-content {
+    transform: scale(1);
+}
+
+.qr-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+}
+
+.qr-modal-header h3 {
+    margin: 0;
+    color: var(--foreground);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.qr-modal-body {
+    padding: 32px 28px;
+    text-align: center;
+}
+
+.qr-code-display-modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.qr-code-display-modal canvas {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.qr-url-text {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted-foreground);
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+}
+
+.qr-modal-footer {
+    padding: 20px 28px;
+    background: var(--secondary);
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+
+.qr-modal-footer .primary-btn {
+    width: 100%;
 }
 
 .click-history {
