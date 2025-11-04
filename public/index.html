@@ -12,7 +12,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <span class="logo-icon">⚡</span>
+                <span class="logo-icon">♾️</span>
                 <span class="logo-text">Zaplink</span>
             </div>
             <button class="sidebar-toggle" id="sidebarToggle">
@@ -521,10 +521,18 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <!-- Other Libraries -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script type="module" src="auth.js"></script>
+    
+    <!-- App Scripts -->
     <script src="app.js"></script>
 </body>
 </html>

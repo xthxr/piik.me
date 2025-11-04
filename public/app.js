@@ -240,11 +240,52 @@ function initializeEventListeners() {
             sortLinks(sortSelect.value);
         });
     }
+    
+    // Google Login Button
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', handleGoogleLogin);
+    }
 }
 
 // ================================
 // AUTHENTICATION
 // ================================
+
+async function handleGoogleLogin() {
+    try {
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            showToast('Firebase is not initialized', 'error');
+            return;
+        }
+        
+        const provider = new firebase.auth.GoogleAuthProvider();
+        
+        // Try popup method first
+        try {
+            const result = await firebase.auth().signInWithPopup(provider);
+            console.log('Signed in:', result.user.displayName);
+            showToast('Welcome ' + result.user.displayName + '!', 'success');
+        } catch (popupError) {
+            // If popup fails, try redirect
+            if (popupError.code === 'auth/popup-blocked') {
+                console.log('Popup blocked, trying redirect...');
+                await firebase.auth().signInWithRedirect(provider);
+            } else if (popupError.code === 'auth/popup-closed-by-user') {
+                // User closed popup, do nothing
+            } else {
+                throw popupError;
+            }
+        }
+    } catch (error) {
+        console.error('Error signing in:', error);
+        
+        if (error.code === 'auth/unauthorized-domain') {
+            showToast('This domain is not authorized. Please add it to Firebase Console.', 'error');
+        } else {
+            showToast('Error signing in: ' + error.message, 'error');
+        }
+    }
+}
 
 async function initializeAuth() {
     // Check if user is authenticated
@@ -266,6 +307,19 @@ async function initializeAuth() {
         }
     } else {
         showLoginModal();
+    }
+    
+    // Handle redirect result
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().getRedirectResult().then((result) => {
+            if (result.user) {
+                console.log('Signed in via redirect:', result.user.displayName);
+                showToast('Welcome ' + result.user.displayName + '!', 'success');
+            }
+        }).catch((error) => {
+            console.error('Redirect error:', error);
+            showToast('Error signing in: ' + error.message, 'error');
+        });
     }
 }
 
