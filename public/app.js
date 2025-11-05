@@ -870,15 +870,30 @@ async function loadAnalyticsData(linkFilter) {
             const linkData = linkDoc.data();
             const shortCode = linkData.shortCode;
             
-            // Get clicks for this link
+            // Get clicks for this link (removed orderBy to avoid composite index requirement)
             const clicksSnapshot = await db.collection('analytics')
                 .where('shortCode', '==', shortCode)
-                .orderBy('timestamp', 'desc')
                 .limit(1000)
                 .get();
             
+            // Collect clicks and sort them in memory
+            const clicks = [];
             clicksSnapshot.forEach(doc => {
                 const click = doc.data();
+                if (click.timestamp) {
+                    clicks.push(click);
+                }
+            });
+            
+            // Sort by timestamp in memory
+            clicks.sort((a, b) => {
+                const timeA = a.timestamp?.toDate?.() || new Date(0);
+                const timeB = b.timestamp?.toDate?.() || new Date(0);
+                return timeB - timeA;
+            });
+            
+            // Process clicks
+            clicks.forEach(click => {
                 totalClicks++;
                 
                 // Track unique visitors
