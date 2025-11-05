@@ -142,6 +142,9 @@ function initializeNavigation() {
 function navigateToPage(page) {
     currentPage = page;
     
+    // Save current page to localStorage
+    localStorage.setItem('link360-current-page', page);
+    
     // Update nav items
     navItems.forEach(item => {
         item.classList.toggle('active', item.dataset.page === page);
@@ -343,6 +346,14 @@ async function handleGoogleLogin() {
             const result = await firebase.auth().signInWithPopup(provider);
             console.log('Signed in:', result.user.displayName);
             showToast('Welcome ' + result.user.displayName + '!', 'success');
+            
+            // Close login modal on successful sign-in
+            loginModal.style.display = 'none';
+            
+            // Restore last visited page or go to home
+            const savedPage = localStorage.getItem('link360-current-page') || 'home';
+            navigateToPage(savedPage);
+            
         } catch (popupError) {
             // If popup fails, try redirect
             if (popupError.code === 'auth/popup-blocked') {
@@ -375,7 +386,14 @@ async function initializeAuth() {
             if (user) {
                 currentUser = user;
                 showAuthenticatedUI();
-                loadLinks();
+                
+                // Restore last visited page or default to home
+                const savedPage = localStorage.getItem('link360-current-page');
+                if (savedPage) {
+                    navigateToPage(savedPage);
+                } else {
+                    loadLinks();
+                }
             } else {
                 showLoginModal();
             }
@@ -393,6 +411,11 @@ async function initializeAuth() {
             if (result.user) {
                 console.log('Signed in via redirect:', result.user.displayName);
                 showToast('Welcome ' + result.user.displayName + '!', 'success');
+                
+                // Close login modal and restore page
+                loginModal.style.display = 'none';
+                const savedPage = localStorage.getItem('link360-current-page') || 'home';
+                navigateToPage(savedPage);
             }
         }).catch((error) => {
             console.error('Redirect error:', error);
