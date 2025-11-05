@@ -1904,8 +1904,7 @@ textarea.form-input {
         gap: 8px;
     }
 
-    .github-btn,
-    .notification-btn {
+    .github-btn {
         display: none;
     }
 
