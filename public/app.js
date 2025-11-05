@@ -1,5 +1,5 @@
 // ================================
-// MODERN ZAPLINK UI - APP LOGIC
+// MODERN LINK360 UI - APP LOGIC
 // ================================
 
 // Initialize Socket.IO
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeTheme() {
     // Check saved theme or use system preference
-    const savedTheme = localStorage.getItem('zaplink-theme');
+    const savedTheme = localStorage.getItem('link360-theme');
     
     if (savedTheme) {
         setTheme(savedTheme);
@@ -122,7 +122,7 @@ function setTheme(theme) {
         btn.classList.toggle('active', btn.dataset.theme === theme);
     });
     
-    localStorage.setItem('zaplink-theme', theme);
+    localStorage.setItem('link360-theme', theme);
 }
 
 // ================================
@@ -926,7 +926,7 @@ function downloadQR(shortCode) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `zaplink-qr-${shortCode}.png`;
+            a.download = `link360-qr-${shortCode}.png`;
             a.click();
             URL.revokeObjectURL(url);
             showToast('QR code downloaded!', 'success');

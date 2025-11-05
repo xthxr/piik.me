@@ -1,7 +1,7 @@
 {
-  "name": "zaplink",
+  "name": "link360",
   "version": "1.0.0",
-  "description": "Real-time UTM link generator with analytics tracking",
+  "description": "Real-time link shortener with analytics tracking and QR code generation",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
