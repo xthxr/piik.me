@@ -440,46 +440,64 @@ body {
     right: 0;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
-    min-width: 200px;
+    min-width: 220px;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(0.95);
     transition: var(--transition-normal);
     z-index: 1000;
+    overflow: hidden;
 }
 
 .dropdown-menu.show {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 .dropdown-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 14px 18px;
     color: var(--text-primary);
     text-decoration: none;
     font-size: 14px;
+    font-weight: 500;
     transition: var(--transition-fast);
+    position: relative;
+}
+
+.dropdown-item:first-child {
+    margin-top: 4px;
+}
+
+.dropdown-item:last-child {
+    margin-bottom: 4px;
 }
 
 .dropdown-item:hover {
     background: var(--bg-hover);
+    padding-left: 22px;
+}
+
+.dropdown-item:hover i {
+    color: var(--accent-purple);
+    transform: scale(1.1);
 }
 
 .dropdown-item i {
     width: 18px;
     color: var(--text-secondary);
+    transition: var(--transition-fast);
 }
 
 .dropdown-divider {
     border: none;
     border-top: 1px solid var(--border-primary);
-    margin: 6px 0;
+    margin: 8px 0;
 }
 
 /* ================================
@@ -518,6 +536,13 @@ body {
 .header-actions {
     display: flex;
     gap: 12px;
+    align-items: center;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }
 
 /* ================================
@@ -736,19 +761,68 @@ body {
 }
 
 .filter-select {
-    padding: 8px 16px;
+    padding: 10px 40px 10px 16px;
     background: var(--input-bg);
     border: 1px solid var(--input-border);
     border-radius: var(--radius-md);
     color: var(--text-primary);
     font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     outline: none;
-    transition: var(--transition-fast);
+    transition: all var(--transition-fast);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.filter-select:hover {
+    border-color: var(--accent-purple);
+    background-color: var(--bg-hover);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+    transform: translateY(-1px);
 }
 
 .filter-select:focus {
     border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1), 0 2px 8px rgba(139, 92, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+.filter-select:active {
+    transform: translateY(0);
+}
+
+.filter-select.enhanced {
+    position: relative;
+}
+
+.filter-select option {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    font-weight: 500;
+}
+
+.filter-select option:hover,
+.filter-select option:checked {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+    color: var(--accent-purple);
+}
+
+/* Light theme select arrow */
+html[data-theme="light"] .filter-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .filter-select:hover {
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
 }
 
 /* ================================

@@ -245,6 +245,29 @@ function initializeEventListeners() {
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', handleGoogleLogin);
     }
+    
+    // Initialize custom styled selects
+    initializeCustomSelects();
+}
+
+// ================================
+// CUSTOM SELECT ENHANCEMENT
+// ================================
+
+function initializeCustomSelects() {
+    const selects = document.querySelectorAll('.filter-select');
+    
+    selects.forEach(select => {
+        // Add icon if not already present
+        if (!select.classList.contains('enhanced')) {
+            select.classList.add('enhanced');
+            
+            // Update select styling on change
+            select.addEventListener('change', () => {
+                select.style.fontWeight = '600';
+            });
+        }
+    });
 }
 
 // ================================
