@@ -656,7 +656,8 @@ function updateStats(links) {
     const activeWithClicks = activeLinks.filter(link => link.clicks > 0).length;
     const avgRate = activeLinks.length > 0 ? (totalClicks / activeLinks.length).toFixed(1) : 0;
     
-    totalLinksEl.textContent = activeLinks.length;
+    // Show total count of all links (active + inactive)
+    totalLinksEl.textContent = links.length;
     totalClicksEl.textContent = totalClicks.toLocaleString();
     activeLinksEl.textContent = activeWithClicks;
     avgClickRateEl.textContent = avgRate;
