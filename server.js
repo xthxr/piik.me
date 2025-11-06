@@ -408,6 +408,13 @@ app.post('/api/track/share/:shortCode', async (req, res) => {
   res.json({ success: true, message: 'Shares tracked via UTM parameters' });
 });
 
+// Catch-all route for client-side routing
+// This ensures all app routes (/home, /analytics, /profile) serve the index.html
+// Must be BEFORE the /:shortCode route to avoid conflicts
+app.get(['/', '/home', '/analytics', '/profile'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Redirect short link and track click
 app.get('/:shortCode', async (req, res) => {
   const { shortCode } = req.params;

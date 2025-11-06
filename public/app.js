@@ -137,17 +137,42 @@ function setTheme(theme) {
 // ================================
 
 function initializeNavigation() {
+    // Handle navigation clicks
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            e.preventDefault();
             const page = item.dataset.page;
-            navigateToPage(page);
+            if (page) { // Only handle nav items with data-page
+                e.preventDefault();
+                navigateToPage(page, true); // true = update browser history
+            }
         });
     });
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', (e) => {
+        const path = window.location.pathname;
+        const page = path.substring(1) || 'home'; // Remove leading slash
+        navigateToPage(page, false); // false = don't push to history again
+    });
+    
+    // Load initial page based on URL
+    const initialPath = window.location.pathname;
+    const initialPage = initialPath.substring(1) || 'home';
+    navigateToPage(initialPage, false);
 }
 
-function navigateToPage(page) {
+function navigateToPage(page, updateHistory = true) {
+    // Default to home if page is root or empty
+    if (!page || page === '' || page === '/') {
+        page = 'home';
+    }
+    
     currentPage = page;
+    
+    // Update browser URL without reloading
+    if (updateHistory) {
+        window.history.pushState({ page }, '', `/${page}`);
+    }
     
     // Save current page to localStorage
     localStorage.setItem('link360-current-page', page);
@@ -169,6 +194,7 @@ function navigateToPage(page) {
         profile: 'Profile'
     };
     pageTitle.textContent = titles[page] || page;
+    document.title = `Link360 - ${titles[page] || page}`;
     
     // Load page data
     if (page === 'home') {
