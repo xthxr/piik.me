@@ -1480,6 +1480,82 @@ textarea.form-input {
     gap: 16px;
 }
 
+/* Bug Report Modal */
+.bug-report-modal {
+    max-width: 560px;
+}
+
+.bug-report-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.bug-report-modal .modal-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px;
+    margin: 0;
+}
+
+.bug-report-modal .modal-header h2 i {
+    color: var(--accent-red);
+}
+
+.bug-report-modal .modal-body {
+    padding: 28px;
+}
+
+.bug-report-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.bug-report-modal .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.bug-report-modal .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    transition: var(--transition-fast);
+}
+
+.bug-report-modal .form-input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+.bug-report-modal textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.bug-report-modal .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.report-bug-btn {
+    border-top: 1px solid var(--border-primary);
+    margin-top: auto;
+}
+
 /* Login Modal */
 .login-modal {
     max-width: 480px;

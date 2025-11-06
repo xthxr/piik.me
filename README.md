@@ -5,8 +5,8 @@ A powerful URL shortener with real-time analytics tracking and Google Authentica
 ## Features
 
 ✨ **URL Shortening** - Generate short, memorable links instantly  
-🔐 **Google Authentication** - Secure login with Firebase Auth  
-📊 **Real-time Analytics** - Track impressions, clicks, and shares with WebSocket updates  
+� **Google Authentication** - Secure login with Firebase Auth  
+�📊 **Real-time Analytics** - Track impressions, clicks, and shares with WebSocket updates  
 💾 **Persistent Storage** - All data stored in Firebase Firestore  
 👤 **User Dashboard** - View and manage all your links in one place  
 🎯 **UTM Parameters** - Add marketing campaign parameters to your links  

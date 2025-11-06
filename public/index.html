@@ -36,6 +36,10 @@
                 <i class="fas fa-user"></i>
                 <span>Profile</span>
             </a>
+            <a href="#" class="nav-item report-bug-btn" id="reportBugBtn">
+                <i class="fas fa-bug"></i>
+                <span>Report Bug</span>
+            </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -516,6 +520,48 @@
                 <button class="btn btn-primary" id="createLinkSubmit">
                     <i class="fas fa-plus"></i> Create Link
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bug Report Modal -->
+    <div class="modal" id="bugReportModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content bug-report-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-bug"></i> Report a Bug</h2>
+                <button class="modal-close" id="closeBugReportModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                    Found an issue? Let us know and we'll fix it as soon as possible!
+                </p>
+                <form id="bugReportForm">
+                    <div class="form-group">
+                        <label for="bugTitle">Bug Title <span style="color: var(--accent-red);">*</span></label>
+                        <input type="text" id="bugTitle" class="form-input" placeholder="Brief description of the issue" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bugDescription">Description <span style="color: var(--accent-red);">*</span></label>
+                        <textarea id="bugDescription" class="form-input" rows="5" placeholder="Please describe the bug in detail..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="bugSteps">Steps to Reproduce</label>
+                        <textarea id="bugSteps" class="form-input" rows="3" placeholder="1. Go to...&#10;2. Click on...&#10;3. See error"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="bugEmail">Your Email (optional)</label>
+                        <input type="email" id="bugEmail" class="form-input" placeholder="your@email.com">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelBugReport">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -52,6 +52,13 @@ const createLinkSubmit = document.getElementById('createLinkSubmit');
 const loginModal = document.getElementById('loginModal');
 const googleLoginBtn = document.getElementById('googleLoginBtn');
 
+// Bug Report Modal Elements
+const bugReportModal = document.getElementById('bugReportModal');
+const reportBugBtn = document.getElementById('reportBugBtn');
+const closeBugReportModal = document.getElementById('closeBugReportModal');
+const cancelBugReport = document.getElementById('cancelBugReport');
+const bugReportForm = document.getElementById('bugReportForm');
+
 // Home Page Elements
 const linksContainer = document.getElementById('linksContainer');
 const emptyState = document.getElementById('emptyState');
@@ -281,6 +288,26 @@ function initializeEventListeners() {
     // Search
     if (searchInput) {
         searchInput.addEventListener('input', handleSearch);
+    }
+    
+    // Bug Report Modal
+    if (reportBugBtn) {
+        reportBugBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openBugReportModal();
+        });
+    }
+    
+    if (closeBugReportModal) {
+        closeBugReportModal.addEventListener('click', closeBugReport);
+    }
+    
+    if (cancelBugReport) {
+        cancelBugReport.addEventListener('click', closeBugReport);
+    }
+    
+    if (bugReportForm) {
+        bugReportForm.addEventListener('submit', handleBugReport);
     }
     
     // Filter tabs
@@ -1673,3 +1700,60 @@ window.showQRCode = showQRCode;
 window.downloadQR = downloadQR;
 window.shareLink = shareLink;
 window.deleteLink = deleteLink;
+
+// ================================
+// BUG REPORT FUNCTIONALITY
+// ================================
+
+function openBugReportModal() {
+    bugReportModal.style.display = 'flex';
+    
+    // Pre-fill email if user is logged in
+    if (currentUser && currentUser.email) {
+        document.getElementById('bugEmail').value = currentUser.email;
+    }
+}
+
+function closeBugReport() {
+    bugReportModal.style.display = 'none';
+    bugReportForm.reset();
+}
+
+async function handleBugReport(e) {
+    e.preventDefault();
+    
+    const bugTitle = document.getElementById('bugTitle').value.trim();
+    const bugDescription = document.getElementById('bugDescription').value.trim();
+    const bugSteps = document.getElementById('bugSteps').value.trim();
+    const bugEmail = document.getElementById('bugEmail').value.trim();
+    
+    if (!bugTitle || !bugDescription) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // Prepare email content
+    const emailSubject = `Bug Report: ${bugTitle}`;
+    const emailBody = `Bug Report from Link360
+    
+Title: ${bugTitle}
+
+Description:
+${bugDescription}
+
+${bugSteps ? `Steps to Reproduce:\n${bugSteps}\n` : ''}
+${bugEmail ? `Reporter Email: ${bugEmail}\n` : ''}
+${currentUser ? `User ID: ${currentUser.uid}\nUser Email: ${currentUser.email}\n` : ''}
+Browser: ${navigator.userAgent}
+Date: ${new Date().toISOString()}`;
+    
+    // Create mailto link
+    const mailtoLink = `mailto:atharakram@zohomail.in?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    
+    // Open email client
+    window.location.href = mailtoLink;
+    
+    // Close modal and show success message
+    closeBugReport();
+    showToast('Thank you for your bug report! Your email client will open.', 'success');
+}
