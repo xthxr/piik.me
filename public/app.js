@@ -1168,22 +1168,58 @@ async function loadAnalytics() {
     // Load analytics overview
     const analyticsLinkSelect = document.getElementById('analyticsLinkSelect');
     
-    // Populate link selector
-    if (analyticsLinkSelect && userLinks.length > 0) {
-        analyticsLinkSelect.innerHTML = '<option value="all">All Links</option>' +
-            userLinks.map(link => `<option value="${link.shortCode}">${link.shortUrl}</option>`).join('');
+    // Fetch user's links if not already loaded
+    if (!currentUser) return;
+    
+    try {
+        if (typeof firebase === 'undefined' || !firebase.firestore) {
+            console.log('Firestore not available');
+            return;
+        }
         
-        // Add change listener
-        analyticsLinkSelect.addEventListener('change', () => {
-            loadAnalyticsData(analyticsLinkSelect.value);
+        const db = firebase.firestore();
+        
+        // Fetch links to populate dropdown
+        const linksSnapshot = await db.collection('links')
+            .where('userId', '==', currentUser.uid)
+            .get();
+        
+        const links = [];
+        linksSnapshot.forEach(doc => {
+            const linkData = doc.data();
+            links.push({
+                shortCode: linkData.shortCode,
+                shortUrl: linkData.shortUrl,
+                originalUrl: linkData.originalUrl
+            });
         });
+        
+        // Populate link selector
+        if (analyticsLinkSelect && links.length > 0) {
+            analyticsLinkSelect.innerHTML = '<option value="all">All Links</option>' +
+                links.map(link => `<option value="${link.shortCode}">${link.shortUrl}</option>`).join('');
+            
+            // Remove previous listener if exists
+            const newSelect = analyticsLinkSelect.cloneNode(true);
+            analyticsLinkSelect.parentNode.replaceChild(newSelect, analyticsLinkSelect);
+            
+            // Add change listener to new element
+            newSelect.addEventListener('change', () => {
+                loadAnalyticsData(newSelect.value);
+                setupAnalyticsRealtime(newSelect.value);
+            });
+        }
+        
+        // Load analytics data
+        loadAnalyticsData('all');
+        
+        // Set up real-time listener
+        setupAnalyticsRealtime('all');
+        
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+        showToast('Failed to load analytics links', 'error');
     }
-    
-    // Load analytics data
-    loadAnalyticsData('all');
-    
-    // Set up real-time listener
-    setupAnalyticsRealtime('all');
 }
 
 async function loadLinkAnalytics(shortCode) {
