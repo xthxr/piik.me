@@ -26,7 +26,7 @@ Link360 is a comprehensive link management and analytics platform that empowers 
 - **🚀 Real-Time Analytics** - Watch clicks happen live with WebSocket-powered updates
 - **📱 QR Code Generation** - Instantly generate and download QR codes for any shortened link
 - **🎯 Campaign Tracking** - Built-in UTM parameter support for marketing attribution
-- **🔒 Secure & Private** - Google OAuth authentication with Firebase security rules
+- **🔒 Secure & Private** - FirebaseAuth authentication with Firebase security rules
 - **💾 Persistent Storage** - All data safely stored in Google Cloud Firestore
 - **⚡ Low Latency** - Sub-second analytics updates for immediate insights
 - **🌐 Open Source** - Free to use, modify, and deploy for any purpose
