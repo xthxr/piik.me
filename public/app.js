@@ -1445,10 +1445,11 @@ async function loadAnalyticsData(linkFilter) {
         renderReferrersList(topReferrers);
         
         console.log('✅ Analytics loaded successfully:', {
+            totalImpressions,
             totalClicks,
+            ctr: ctr.toFixed(1) + '%',
             uniqueVisitors: uniqueVisitorsCount,
-            countries: countries.size,
-            avgDaily
+            countries: countries.size
         });
         
     } catch (error) {
