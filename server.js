@@ -408,6 +408,68 @@ app.post('/api/track/share/:shortCode', async (req, res) => {
   res.json({ success: true, message: 'Shares tracked via UTM parameters' });
 });
 
+// Create GitHub Issue for Bug Report
+app.post('/api/bug-report', async (req, res) => {
+  try {
+    const { title, description, steps, email, userId, userEmail } = req.body;
+    
+    if (!title || !description) {
+      return res.status(400).json({ error: 'Title and description are required' });
+    }
+    
+    // Create issue body
+    let issueBody = `## Bug Description\n${description}\n\n`;
+    
+    if (steps) {
+      issueBody += `## Steps to Reproduce\n${steps}\n\n`;
+    }
+    
+    issueBody += `## Reporter Information\n`;
+    if (email) issueBody += `- Email: ${email}\n`;
+    if (userId) issueBody += `- User ID: ${userId}\n`;
+    if (userEmail) issueBody += `- User Email: ${userEmail}\n`;
+    issueBody += `- Browser: ${req.headers['user-agent']}\n`;
+    issueBody += `- Timestamp: ${new Date().toISOString()}\n`;
+    
+    // Create GitHub issue using fetch
+    const response = await fetch('https://api.github.com/repos/xthxr/Link360/issues', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json',
+        'User-Agent': 'Link360-Bug-Reporter'
+      },
+      body: JSON.stringify({
+        title: `[Bug Report] ${title}`,
+        body: issueBody,
+        labels: ['bug', 'user-reported']
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('GitHub API Error:', errorData);
+      throw new Error('Failed to create GitHub issue');
+    }
+    
+    const issue = await response.json();
+    
+    res.json({ 
+      success: true, 
+      issueNumber: issue.number,
+      issueUrl: issue.html_url 
+    });
+  } catch (error) {
+    console.error('Bug report error:', error);
+    res.status(500).json({ 
+      error: 'Failed to create bug report',
+      details: error.message 
+    });
+  }
+});
+
 // Catch-all route for client-side routing
 // This ensures all app routes (/home, /analytics, /profile) serve the index.html
 // Must be BEFORE the /:shortCode route to avoid conflicts
