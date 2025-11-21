@@ -45,24 +45,52 @@ const COLLECTIONS = {
   USERS: 'users'
 };
 
-// Middleware to verify Firebase token
+// Middleware to verify Firebase token OR API key
+const userApiKeys = new Map(); // in-memory cache of apiKey -> userId
+
 async function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const apiKeyHeader = req.headers['x-api-key'] || req.headers['x_apikey'] || req.query.apiKey;
+
+  // If Bearer token present, validate with Firebase Admin
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split('Bearer ')[1];
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      req.user = decodedToken;
+      return next();
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      return res.status(401).json({ error: 'Invalid token' });
+    }
   }
 
-  const token = authHeader.split('Bearer ')[1];
-  
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    console.error('Error verifying token:', error);
-    return res.status(401).json({ error: 'Invalid token' });
+  // If API key provided, validate against stored keys
+  if (apiKeyHeader) {
+    try {
+      // Check in-memory cache first
+      if (userApiKeys.has(apiKeyHeader)) {
+        req.user = { uid: userApiKeys.get(apiKeyHeader), apiKey: apiKeyHeader };
+        return next();
+      }
+
+      // Check Firestore users collection for matching apiKey
+      const usersSnap = await db.collection(COLLECTIONS.USERS).where('apiKey', '==', apiKeyHeader).limit(1).get();
+      if (!usersSnap.empty) {
+        const doc = usersSnap.docs[0];
+        const userId = doc.id;
+        userApiKeys.set(apiKeyHeader, userId);
+        req.user = { uid: userId, apiKey: apiKeyHeader };
+        return next();
+      }
+    } catch (err) {
+      console.error('Error verifying api key:', err);
+    }
+
+    return res.status(401).json({ error: 'Invalid API key' });
   }
+
+  return res.status(401).json({ error: 'Unauthorized' });
 }
 
 // In-memory database (fallback if Firebase not configured)
@@ -319,6 +347,53 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
   }
 });
 
+// API Key management: get or regenerate API key for authenticated user
+app.get('/api/user/apikey', verifyToken, async (req, res) => {
+  const userId = req.user.uid;
+  try {
+    // Try Firestore
+    const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
+    if (userDoc.exists) {
+      const data = userDoc.data();
+      if (data.apiKey) return res.json({ apiKey: data.apiKey });
+    }
+
+    // If not found, generate one and store
+    const newKey = nanoid(32);
+    await db.collection(COLLECTIONS.USERS).doc(userId).set({ apiKey: newKey }, { merge: true });
+    userApiKeys.set(newKey, userId);
+    res.json({ apiKey: newKey });
+  } catch (error) {
+    console.error('Error fetching api key:', error);
+    // Fallback to in-memory store
+    if (!userApiKeys.size) userApiKeys.set(nanoid(32), userId);
+    const key = Array.from(userApiKeys.entries()).find(([k,v]) => v === userId)?.[0];
+    return res.json({ apiKey: key });
+  }
+});
+
+app.post('/api/user/apikey/regenerate', verifyToken, async (req, res) => {
+  const userId = req.user.uid;
+  try {
+    const newKey = nanoid(32);
+    await db.collection(COLLECTIONS.USERS).doc(userId).set({ apiKey: newKey }, { merge: true });
+    userApiKeys.set(newKey, userId);
+    // remove any old keys mapping to this user in cache
+    for (const [k, v] of userApiKeys.entries()) {
+      if (v === userId && k !== newKey) userApiKeys.delete(k);
+    }
+    res.json({ apiKey: newKey });
+  } catch (error) {
+    console.error('Error regenerating api key:', error);
+    // fallback: update in-memory map
+    const newKey = nanoid(32);
+    userApiKeys.set(newKey, userId);
+    res.json({ apiKey: newKey });
+  }
+});
+
+// UTM analytics endpoints removed per user request. API key and other API changes are preserved.
+
 // Delete a link (requires authentication and ownership)
 app.delete('/api/links/:shortCode', verifyToken, async (req, res) => {
   const { shortCode } = req.params;
@@ -406,68 +481,6 @@ app.post('/api/track/share/:shortCode', async (req, res) => {
   // Shares are now tracked automatically when links with utm_source are clicked
   // No need to manually increment here
   res.json({ success: true, message: 'Shares tracked via UTM parameters' });
-});
-
-// Create GitHub Issue for Bug Report
-app.post('/api/bug-report', async (req, res) => {
-  try {
-    const { title, description, steps, email, userId, userEmail } = req.body;
-    
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
-    }
-    
-    // Create issue body
-    let issueBody = `## Bug Description\n${description}\n\n`;
-    
-    if (steps) {
-      issueBody += `## Steps to Reproduce\n${steps}\n\n`;
-    }
-    
-    issueBody += `## Reporter Information\n`;
-    if (email) issueBody += `- Email: ${email}\n`;
-    if (userId) issueBody += `- User ID: ${userId}\n`;
-    if (userEmail) issueBody += `- User Email: ${userEmail}\n`;
-    issueBody += `- Browser: ${req.headers['user-agent']}\n`;
-    issueBody += `- Timestamp: ${new Date().toISOString()}\n`;
-    
-    // Create GitHub issue using fetch
-    const response = await fetch('https://api.github.com/repos/xthxr/Link360/issues', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Content-Type': 'application/json',
-        'User-Agent': 'Link360-Bug-Reporter'
-      },
-      body: JSON.stringify({
-        title: `[Bug Report] ${title}`,
-        body: issueBody,
-        labels: ['bug', 'user-reported']
-      })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('GitHub API Error:', errorData);
-      throw new Error('Failed to create GitHub issue');
-    }
-    
-    const issue = await response.json();
-    
-    res.json({ 
-      success: true, 
-      issueNumber: issue.number,
-      issueUrl: issue.html_url 
-    });
-  } catch (error) {
-    console.error('Bug report error:', error);
-    res.status(500).json({ 
-      error: 'Failed to create bug report',
-      details: error.message 
-    });
-  }
 });
 
 // Catch-all route for client-side routing

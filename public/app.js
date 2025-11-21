@@ -563,6 +563,83 @@ function showAuthenticatedUI() {
         
         // Hide login modal
         loginModal.style.display = 'none';
+        // Initialize API key section once user is authenticated
+        initializeApiKeySection();
+    }
+}
+
+// ================================
+// API Key UI Handling
+// ================================
+
+async function initializeApiKeySection() {
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const toggleBtn = document.getElementById('toggleApiKey');
+    const copyBtn = document.getElementById('copyApiKey');
+    const regenBtn = document.getElementById('regenerateApiKey');
+
+    if (!apiKeyInput) return;
+
+    // Fetch current API key from server
+    try {
+        const token = await getAuthToken();
+        const resp = await fetch('/api/user/apikey', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await resp.json();
+        if (data.apiKey) apiKeyInput.value = data.apiKey;
+    } catch (err) {
+        console.error('Failed to load API key:', err);
+    }
+
+    // Toggle visibility
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                apiKeyInput.type = 'password';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        });
+    }
+
+    // Copy to clipboard
+    if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(apiKeyInput.value);
+                showToast('API key copied to clipboard!', 'success');
+            } catch (err) {
+                console.error('Copy failed:', err);
+                showToast('Failed to copy API key', 'error');
+            }
+        });
+    }
+
+    // Regenerate API key
+    if (regenBtn) {
+        regenBtn.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to regenerate your API key? This will invalidate the previous key.')) return;
+            try {
+                const token = await getAuthToken();
+                const resp = await fetch('/api/user/apikey/regenerate', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                });
+                const data = await resp.json();
+                if (data.apiKey) {
+                    apiKeyInput.value = data.apiKey;
+                    showToast('API key regenerated', 'success');
+                } else {
+                    showToast('Failed to regenerate API key', 'error');
+                }
+            } catch (err) {
+                console.error('Regenerate failed:', err);
+                showToast('Failed to regenerate API key', 'error');
+            }
+        });
     }
 }
 
@@ -991,7 +1068,7 @@ function initializeGlobalSearch() {
         { name: 'Analytics Dashboard', description: 'View detailed analytics', icon: 'chart-line', action: () => navigateToPage('analytics') },
         { name: 'QR Code Generator', description: 'Generate QR codes for links', icon: 'qrcode', action: () => openCreateLinkModal() },
         { name: 'Custom Short Code', description: 'Create custom branded links', icon: 'edit', action: () => openCreateLinkModal() },
-        { name: 'UTM Parameters', description: 'Add tracking parameters', icon: 'tags', action: () => openCreateLinkModal() },
+        
         { name: 'Report Bug', description: 'Report an issue', icon: 'bug', action: () => openBugReportModal() },
         { name: 'Dark Mode', description: 'Toggle dark theme', icon: 'moon', action: () => setTheme('dark') },
         { name: 'Light Mode', description: 'Toggle light theme', icon: 'sun', action: () => setTheme('light') },
@@ -999,9 +1076,9 @@ function initializeGlobalSearch() {
     
     // Define searchable pages
     searchableContent.pages = [
-        { name: 'Home', description: 'View all your links', icon: 'home', path: 'home' },
-        { name: 'Analytics', description: 'Detailed analytics dashboard', icon: 'chart-line', path: 'analytics' },
-        { name: 'Profile', description: 'Manage your profile', icon: 'user', path: 'profile' },
+    { name: 'Home', description: 'View all your links', icon: 'home', path: 'home' },
+    { name: 'Analytics', description: 'Detailed analytics dashboard', icon: 'chart-line', path: 'analytics' },
+    { name: 'Profile', description: 'Manage your profile', icon: 'user', path: 'profile' },
     ];
 }
 
@@ -1981,6 +2058,9 @@ function updateStatChange(elementId, changeData) {
     element.textContent = `${changeData.isPositive ? '+' : '-'}${changeData.value.toFixed(1)}%`;
 }
 
+// UTM analytics removed per request (server-side APIs preserved separately)
+
+
 // ================================
 // PROFILE
 // ================================
@@ -2107,51 +2187,28 @@ async function handleBugReport(e) {
         return;
     }
     
-    // Show loading state
-    const submitBtn = e.target.querySelector('button[type="submit"]') || document.querySelector('.bug-report-modal button[type="submit"]');
-    const originalText = submitBtn ? submitBtn.textContent : 'Submit';
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating Issue...';
-    }
+    // Prepare email content
+    const emailSubject = `Bug Report: ${bugTitle}`;
+    const emailBody = `Bug Report from Link360
     
-    try {
-        // Create GitHub issue via API
-        const response = await fetch('/api/bug-report', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                title: bugTitle,
-                description: bugDescription,
-                steps: bugSteps,
-                email: bugEmail,
-                userId: currentUser?.uid,
-                userEmail: currentUser?.email
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-            closeBugReport();
-            showToast(`Bug report created successfully! Issue #${data.issueNumber}`, 'success');
-            
-            // Optionally open the issue in a new tab
-            setTimeout(() => {
-                window.open(data.issueUrl, '_blank');
-            }, 1000);
-        } else {
-            throw new Error(data.error || 'Failed to create bug report');
-        }
-    } catch (error) {
-        console.error('Bug report error:', error);
-        showToast('Failed to create bug report. Please try again.', 'error');
-    } finally {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
-    }
+Title: ${bugTitle}
+
+Description:
+${bugDescription}
+
+${bugSteps ? `Steps to Reproduce:\n${bugSteps}\n` : ''}
+${bugEmail ? `Reporter Email: ${bugEmail}\n` : ''}
+${currentUser ? `User ID: ${currentUser.uid}\nUser Email: ${currentUser.email}\n` : ''}
+Browser: ${navigator.userAgent}
+Date: ${new Date().toISOString()}`;
+    
+    // Create mailto link
+    const mailtoLink = `mailto:atharakram@zohomail.in?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    
+    // Open email client
+    window.location.href = mailtoLink;
+    
+    // Close modal and show success message
+    closeBugReport();
+    showToast('Thank you for your bug report! Your email client will open.', 'success');
 }
