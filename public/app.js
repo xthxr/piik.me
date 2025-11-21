@@ -395,6 +395,15 @@ function initializeEventListeners() {
         googleLoginBtn.addEventListener('click', handleGoogleLogin);
     }
     
+    // API Key actions (profile page)
+    const toggleApiKeyBtn = document.getElementById('toggleApiKey');
+    const copyApiKeyBtn = document.getElementById('copyApiKey');
+    const regenerateApiKeyBtn = document.getElementById('regenerateApiKey');
+
+    if (toggleApiKeyBtn) toggleApiKeyBtn.addEventListener('click', handleToggleApiKey);
+    if (copyApiKeyBtn) copyApiKeyBtn.addEventListener('click', handleCopyApiKey);
+    if (regenerateApiKeyBtn) regenerateApiKeyBtn.addEventListener('click', handleRegenerateApiKey);
+
     // Initialize custom styled selects
     initializeCustomSelects();
 }
@@ -1995,8 +2004,116 @@ function loadProfile() {
     if (profileAvatar) profileAvatar.src = currentUser.photoURL || 'https://via.placeholder.com/100';
     if (profileName) profileName.value = currentUser.displayName || '';
     if (profileEmail) profileEmail.value = currentUser.email || '';
+
+    // Load API key for the user and wire up UI
+    loadApiKey();
 }
 
+// Load API key from Firestore (or create one if missing)
+async function loadApiKey() {
+    try {
+        if (!currentUser) return;
+        if (typeof firebase === 'undefined' || !firebase.firestore) {
+            console.warn('Firebase not available - cannot load API key');
+            return;
+        }
+
+        const db = firebase.firestore();
+        const userDocRef = db.collection('users').doc(currentUser.uid);
+        const userDoc = await userDocRef.get();
+
+        let apiKey = userDoc.exists ? userDoc.data().apiKey : null;
+
+        // If no key exists yet, generate and save one
+        if (!apiKey) {
+            apiKey = generateRandomApiKey();
+            await userDocRef.set({ apiKey }, { merge: true });
+        }
+
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        if (apiKeyInput) {
+            apiKeyInput.value = apiKey;
+            apiKeyInput.type = 'password';
+        }
+    } catch (error) {
+        console.error('Error loading API key:', error);
+        showToast('Failed to load API key', 'error');
+    }
+}
+
+// Generate a secure-ish random API key in the browser
+function generateRandomApiKey() {
+    try {
+        const arr = new Uint8Array(16);
+        window.crypto.getRandomValues(arr);
+        return 'zpl_' + Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+        // Fallback if crypto is not available
+        const fallback = Math.random().toString(36).slice(2) + Date.now().toString(36);
+        return 'zpl_' + fallback.slice(0, 32);
+    }
+}
+
+// Copy API key to clipboard
+function handleCopyApiKey(e) {
+    e && e.preventDefault();
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    if (!apiKeyInput) return;
+    const key = apiKeyInput.value || '';
+    navigator.clipboard.writeText(key).then(() => {
+        showToast('API key copied to clipboard!', 'success');
+    }).catch((err) => {
+        console.error('Copy failed:', err);
+        showToast('Failed to copy API key', 'error');
+    });
+}
+
+// Toggle visibility of API key
+function handleToggleApiKey(e) {
+    e && e.preventDefault();
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const btn = document.getElementById('toggleApiKey');
+    if (!apiKeyInput || !btn) return;
+
+    const icon = btn.querySelector('i');
+    if (apiKeyInput.type === 'password') {
+        apiKeyInput.type = 'text';
+        if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+    } else {
+        apiKeyInput.type = 'password';
+        if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+    }
+}
+
+// Regenerate API key and save to Firestore
+async function handleRegenerateApiKey(e) {
+    e && e.preventDefault();
+    if (!confirm('Regenerating your API key will invalidate the previous key. Continue?')) return;
+
+    try {
+        if (!currentUser) {
+            showToast('You must be signed in to regenerate the API key', 'error');
+            return;
+        }
+
+        if (typeof firebase === 'undefined' || !firebase.firestore) {
+            showToast('Firestore not available', 'error');
+            return;
+        }
+
+        const db = firebase.firestore();
+        const newKey = generateRandomApiKey();
+        await db.collection('users').doc(currentUser.uid).set({ apiKey: newKey }, { merge: true });
+
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        if (apiKeyInput) apiKeyInput.value = newKey;
+
+        showToast('API key regenerated successfully!', 'success');
+    } catch (error) {
+        console.error('Error regenerating API key:', error);
+        showToast('Failed to regenerate API key', 'error');
+    }
+}
 // ================================
 // UTILITY FUNCTIONS
 // ================================

@@ -7,7 +7,8 @@ const { nanoid } = require('nanoid');
 const admin = require('firebase-admin');
 require('dotenv').config();
 
-// Initialize Firebase Admin
+// Initialize Firebase Admin (optional)
+let db = null;
 try {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -16,13 +17,12 @@ try {
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
     })
   });
+  db = admin.firestore();
   console.log('✅ Firebase Admin initialized');
 } catch (error) {
   console.log('⚠️  Firebase Admin not configured. Using in-memory storage.');
   console.log('   See FIREBASE_SETUP.md for setup instructions.');
 }
-
-const db = admin.firestore();
 
 const app = express();
 const server = http.createServer(app);
