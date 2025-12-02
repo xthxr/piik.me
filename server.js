@@ -208,6 +208,7 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
     devices: {},
     browsers: {},
     countries: {},
+    locations: {},
     referrers: {}
   };
 
@@ -602,13 +603,44 @@ app.get('/:shortCode', async (req, res) => {
   else if (ua.includes('firefox')) browser = 'Firefox';
   else if (ua.includes('opera') || ua.includes('opr')) browser = 'Opera';
   
+  // Get client IP address
+  const clientIP = req.headers['x-forwarded-for']?.split(',')[0] || 
+                   req.headers['x-real-ip'] || 
+                   req.connection.remoteAddress || 
+                   'unknown';
+  
+  // Fetch geolocation data
+  let locationData = {
+    country: 'Unknown',
+    city: 'Unknown',
+    region: 'Unknown'
+  };
+  
+  try {
+    // Use ip-api.com for free geolocation (no API key required)
+    const geoResponse = await fetch(`http://ip-api.com/json/${clientIP}?fields=status,country,regionName,city`);
+    if (geoResponse.ok) {
+      const geoData = await geoResponse.json();
+      if (geoData.status === 'success') {
+        locationData = {
+          country: geoData.country || 'Unknown',
+          city: geoData.city || 'Unknown',
+          region: geoData.regionName || 'Unknown'
+        };
+      }
+    }
+  } catch (geoError) {
+    console.log('Geolocation lookup failed:', geoError.message);
+  }
+  
   const clickData = {
     timestamp: new Date().toISOString(),
     device: deviceType,
     browser,
     referrer: referrerSource,
     userAgent: userAgent.substring(0, 200), // Store truncated UA for debugging
-    isShared: utmSource ? true : false // Track if this click came from a share
+    isShared: utmSource ? true : false, // Track if this click came from a share
+    location: locationData
   };
 
   try {
@@ -622,12 +654,17 @@ app.get('/:shortCode', async (req, res) => {
       // Increment impressions AND clicks
       // Impressions represent total views (including clicks)
       // This way: impressions >= clicks always
+      // Create location key (City, Region)
+      const locationKey = `${locationData.city}, ${locationData.region}`;
+      
       const updateData = {
         impressions: admin.firestore.FieldValue.increment(1),
         clicks: admin.firestore.FieldValue.increment(1),
         [`devices.${deviceType}`]: admin.firestore.FieldValue.increment(1),
         [`browsers.${browser}`]: admin.firestore.FieldValue.increment(1),
         [`referrers.${referrerSource}`]: admin.firestore.FieldValue.increment(1),
+        [`countries.${locationData.country}`]: admin.firestore.FieldValue.increment(1),
+        [`locations.${locationKey}`]: admin.firestore.FieldValue.increment(1),
         clickHistory: admin.firestore.FieldValue.arrayUnion(clickData)
       };
       
@@ -658,6 +695,14 @@ app.get('/:shortCode', async (req, res) => {
       stats.devices[deviceType] = (stats.devices[deviceType] || 0) + 1;
       stats.browsers[browser] = (stats.browsers[browser] || 0) + 1;
       stats.referrers[referrerSource] = (stats.referrers[referrerSource] || 0) + 1;
+      
+      // Track location
+      const locationKey = `${locationData.city}, ${locationData.region}`;
+      if (!stats.countries) stats.countries = {};
+      if (!stats.locations) stats.locations = {};
+      stats.countries[locationData.country] = (stats.countries[locationData.country] || 0) + 1;
+      stats.locations[locationKey] = (stats.locations[locationKey] || 0) + 1;
+      
       stats.clickHistory.push(clickData);
       
       // Count as share if UTM source exists

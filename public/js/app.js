@@ -1612,6 +1612,7 @@ async function loadAnalyticsData(linkFilter) {
         let totalImpressions = 0;
         let uniqueVisitors = new Set();
         let countries = new Set();
+        let locations = {};
         let devices = {};
         let browsers = {};
         let referrers = {};
@@ -1670,6 +1671,13 @@ async function loadAnalyticsData(linkFilter) {
                 if (analytics.referrers) {
                     Object.entries(analytics.referrers).forEach(([referrer, count]) => {
                         referrers[referrer] = (referrers[referrer] || 0) + count;
+                    });
+                }
+                
+                // Merge locations (City, Region format)
+                if (analytics.locations) {
+                    Object.entries(analytics.locations).forEach(([location, count]) => {
+                        locations[location] = (locations[location] || 0) + count;
                     });
                 }
                 
@@ -1765,10 +1773,13 @@ async function loadAnalyticsData(linkFilter) {
             .sort((a, b) => b[1] - a[1])
             .map(([browser, count]) => ({ browser, count }));
         
-        const geographicList = Array.from(countries).map(country => ({
-            country,
-            count: 0 // Would need additional tracking for exact counts per country
-        }));
+        // Convert locations object to sorted array (descending order by count)
+        const geographicList = Object.entries(locations)
+            .map(([location, count]) => ({
+                location,
+                count
+            }))
+            .sort((a, b) => b.count - a.count); // Sort by count descending
         
         // Render charts and lists
         renderClicksChart(clicksOverTimeData);
@@ -1975,12 +1986,17 @@ function renderGeographicList(data) {
     const container = document.getElementById('geographicList');
     if (!container) return;
     
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No data available</p>';
+        return;
+    }
+    
     container.innerHTML = data.map(item => `
         <div class="analytics-item">
-            <span class="analytics-item-label">${item.country}</span>
+            <span class="analytics-item-label">${item.location}</span>
             <span class="analytics-item-value">${item.count}</span>
         </div>
-    `).join('') || '<p style="color: var(--text-secondary); text-align: center;">No data available</p>';
+    `).join('');
 }
 
 function renderDevicesList(data) {
