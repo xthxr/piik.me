@@ -12,12 +12,24 @@
   ],
   "routes": [
     {
-      "src": "/(css|js|assets|images)/.*",
-      "dest": "/public/"
+      "src": "/css/(.*)",
+      "dest": "/public/css/$1"
     },
     {
-      "src": "/.*\\.(ico|png|jpg|jpeg|gif|svg|webp|css|js)",
-      "dest": "/public/"
+      "src": "/js/(.*)",
+      "dest": "/public/js/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/public/assets/$1"
+    },
+    {
+      "src": "/(.*\\.geojson)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/(.*\\.(ico|png|jpg|jpeg|gif|svg|webp))",
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
