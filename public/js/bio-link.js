@@ -556,8 +556,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
+                // Find the upload button
+                const uploadBtn = e.target.parentElement.querySelector('button.btn-secondary');
+                if (!uploadBtn) {
+                    console.error('Upload button not found');
+                    throw new Error('Upload button not found');
+                }
+
                 // Show loading state
-                const uploadBtn = e.target.previousElementSibling;
                 const originalText = uploadBtn.innerHTML;
                 uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
                 uploadBtn.disabled = true;
@@ -592,9 +598,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.value = '';
                 
                 // Reset button
-                const uploadBtn = e.target.previousElementSibling;
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Picture';
-                uploadBtn.disabled = false;
+                const uploadBtn = e.target.parentElement.querySelector('button.btn-secondary');
+                if (uploadBtn) {
+                    uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Picture';
+                    uploadBtn.disabled = false;
+                }
             }
         });
     }
