@@ -706,14 +706,34 @@ function loadBioLinkIntoEditor(bioLink) {
 }
 
 // Setup live preview listeners
+let livePreviewListenersSetup = false;
+
 function setupLivePreviewListeners() {
-    const fields = ['editorBioName', 'editorBioDescription', 'editorThemeColor', 'editorThemeColorHex'];
+    if (livePreviewListenersSetup) return; // Only setup once
+    
+    const fields = [
+        'editorBioName', 
+        'editorBioDescription', 
+        'editorThemeColor', 
+        'editorThemeColorHex',
+        'editorInstagram',
+        'editorTwitter',
+        'editorLinkedIn',
+        'editorGithub',
+        'editorYoutube',
+        'editorWebsite'
+    ];
+    
     fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
+            el.removeEventListener('input', updateLivePreview); // Remove old listeners
             el.addEventListener('input', updateLivePreview);
+            console.log('Added listener to', id);
         }
     });
+    
+    livePreviewListenersSetup = true;
 }
 
 // Render editor bio link items
@@ -769,77 +789,82 @@ function removeEditorBioLinkItem(index) {
 
 // Update live preview
 function updateLivePreview() {
-    const name = document.getElementById('editorBioName').value || 'Your Name';
-    const description = document.getElementById('editorBioDescription').value || 'Your bio description';
-    const themeColor = document.getElementById('editorThemeColor').value || '#06b6d4';
-    const profilePicture = document.getElementById('editorProfilePicture').value;
+    const name = document.getElementById('editorBioName')?.value || 'Your Name';
+    const description = document.getElementById('editorBioDescription')?.value || 'Your bio description';
+    const themeColor = document.getElementById('editorThemeColor')?.value || '#06b6d4';
+    const profilePicture = document.getElementById('editorProfilePicture')?.value;
+    
+    const previewName = document.getElementById('previewName');
+    const previewDescription = document.getElementById('previewDescription');
+    const previewAvatar = document.getElementById('previewAvatar');
+    const preview = document.getElementById('bioLinkPreview');
+    const previewSocial = document.getElementById('previewSocial');
+    const previewLinks = document.getElementById('previewLinks');
+    
+    // Check if elements exist
+    if (!previewName || !previewDescription || !previewAvatar || !preview) {
+        console.log('Preview elements not found');
+        return;
+    }
     
     // Update preview name and description
-    document.getElementById('previewName').textContent = name;
-    document.getElementById('previewDescription').textContent = description;
+    previewName.textContent = name;
+    previewDescription.textContent = description;
     
     // Update avatar
-    const previewAvatar = document.getElementById('previewAvatar');
     if (profilePicture) {
         previewAvatar.innerHTML = `<img src="${profilePicture}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        previewAvatar.style.background = '';
     } else {
         previewAvatar.style.background = themeColor;
         previewAvatar.innerHTML = '<i class="fas fa-user"></i>';
     }
     
-    // Update background
-    const preview = document.getElementById('bioLinkPreview');
-    if (profilePicture) {
-        preview.style.background = 'none';
-        preview.style.backgroundImage = `url(${profilePicture})`;
-        preview.style.backgroundSize = 'cover';
-        preview.style.backgroundPosition = 'center';
-        preview.style.filter = 'blur(60px) brightness(0.8)';
-        preview.style.transform = 'scale(1.2)';
-    } else {
-        preview.style.background = `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}dd 100%)`;
-        preview.style.backgroundImage = 'none';
-        preview.style.filter = 'none';
-        preview.style.transform = 'none';
-    }
+    // Update background - use gradient for container, not blur
+    preview.style.background = `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}dd 100%)`;
+    preview.style.backgroundImage = 'none';
+    preview.style.filter = 'none';
+    preview.style.transform = 'none';
     
     // Update social links preview
-    const socialPreview = document.getElementById('previewSocial');
-    const social = {
-        instagram: document.getElementById('editorInstagram').value,
-        twitter: document.getElementById('editorTwitter').value,
-        linkedin: document.getElementById('editorLinkedIn').value,
-        github: document.getElementById('editorGithub').value,
-        youtube: document.getElementById('editorYoutube').value,
-        website: document.getElementById('editorWebsite').value
-    };
-    
-    const socialLinks = [];
-    if (social.instagram) socialLinks.push('<i class="fab fa-instagram"></i>');
-    if (social.twitter) socialLinks.push('<i class="fab fa-twitter"></i>');
-    if (social.linkedin) socialLinks.push('<i class="fab fa-linkedin"></i>');
-    if (social.github) socialLinks.push('<i class="fab fa-github"></i>');
-    if (social.youtube) socialLinks.push('<i class="fab fa-youtube"></i>');
-    if (social.website) socialLinks.push('<i class="fas fa-globe"></i>');
-    
-    if (socialLinks.length > 0) {
-        socialPreview.innerHTML = socialLinks.map(icon => 
-            `<div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: ${themeColor}; font-size: 16px;">${icon}</div>`
-        ).join('');
-    } else {
-        socialPreview.innerHTML = '';
+    if (previewSocial) {
+        const social = {
+            instagram: document.getElementById('editorInstagram')?.value || '',
+            twitter: document.getElementById('editorTwitter')?.value || '',
+            linkedin: document.getElementById('editorLinkedIn')?.value || '',
+            github: document.getElementById('editorGithub')?.value || '',
+            youtube: document.getElementById('editorYoutube')?.value || '',
+            website: document.getElementById('editorWebsite')?.value || ''
+        };
+        
+        const socialLinks = [];
+        if (social.instagram) socialLinks.push('<i class="fab fa-instagram"></i>');
+        if (social.twitter) socialLinks.push('<i class="fab fa-twitter"></i>');
+        if (social.linkedin) socialLinks.push('<i class="fab fa-linkedin"></i>');
+        if (social.github) socialLinks.push('<i class="fab fa-github"></i>');
+        if (social.youtube) socialLinks.push('<i class="fab fa-youtube"></i>');
+        if (social.website) socialLinks.push('<i class="fas fa-globe"></i>');
+        
+        if (socialLinks.length > 0) {
+            previewSocial.innerHTML = socialLinks.map(icon => 
+                `<div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: ${themeColor}; font-size: 16px;">${icon}</div>`
+            ).join('');
+        } else {
+            previewSocial.innerHTML = '';
+        }
     }
     
     // Update links preview
-    const linksPreview = document.getElementById('previewLinks');
-    const validLinks = editorBioLinkItems.filter(item => item.title && item.url);
-    
-    if (validLinks.length > 0) {
-        linksPreview.innerHTML = validLinks.map(link => 
-            `<div style="background: white; border: 2px solid ${themeColor}; border-radius: 8px; padding: 12px 16px; text-align: center; color: ${themeColor}; font-weight: 600; font-size: 14px;">${link.title}</div>`
-        ).join('');
-    } else {
-        linksPreview.innerHTML = '<p style="color: #9ca3af; font-size: 12px;">No links added yet</p>';
+    if (previewLinks) {
+        const validLinks = editorBioLinkItems.filter(item => item.title && item.url);
+        
+        if (validLinks.length > 0) {
+            previewLinks.innerHTML = validLinks.map(link => 
+                `<div style="background: white; border: 2px solid ${themeColor}; border-radius: 8px; padding: 12px 16px; text-align: center; color: ${themeColor}; font-weight: 600; font-size: 14px;">${link.title}</div>`
+            ).join('');
+        } else {
+            previewLinks.innerHTML = '<p style="color: #9ca3af; font-size: 12px;">No links added yet</p>';
+        }
     }
 }
 
