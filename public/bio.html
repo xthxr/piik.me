@@ -930,15 +930,24 @@
             const links = document.querySelectorAll('.bio-link-item, .social-link');
             
             links.forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    e.stopPropagation();
+                });
+
                 link.addEventListener('mousemove', (e) => {
-                    const rect = link.getBoundingClientRect();
-                    const x = e.clientX - rect.left - rect.width / 2;
-                    const y = e.clientY - rect.top - rect.height / 2;
+                    e.stopPropagation();
                     
-                    link.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px) translateY(-6px) scale(1.02)`;
+                    requestAnimationFrame(() => {
+                        const rect = link.getBoundingClientRect();
+                        const x = e.clientX - rect.left - rect.width / 2;
+                        const y = e.clientY - rect.top - rect.height / 2;
+                        
+                        link.style.transform = `translate(${(x * 0.15).toFixed(2)}px, ${(y * 0.15).toFixed(2)}px) translateY(-6px) scale(1.02)`;
+                    });
                 });
                 
-                link.addEventListener('mouseleave', () => {
+                link.addEventListener('mouseleave', (e) => {
+                    e.stopPropagation();
                     link.style.transform = '';
                 });
             });
