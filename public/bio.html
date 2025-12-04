@@ -18,6 +18,7 @@
     <meta name="twitter:image" content="">
     
     <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
     
     <!-- Font Awesome -->
@@ -230,15 +231,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .bio-card-logo {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 32px;
-            height: 32px;
-            filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.3));
-            z-index: 10;
-        }
+
 
         /* 3D Parallax Tilt Container */
         .bio-container {
@@ -783,8 +776,7 @@
             const bioContent = document.getElementById('bioContent');
             const themeColor = bioLink.themeColor || '#06b6d4';
 
-            let html = '<img src="/assets/images/logo.png" alt="piik.me" class="bio-card-logo">';
-            html += '<div class="bio-header">';
+            let html = '<div class="bio-header">';
 
             // Profile picture
             if (bioLink.profilePicture) {
@@ -851,7 +843,7 @@
             html += `
                 <div class="bio-footer">
                     <div class="powered-by">
-                        <span>Powered by</span>
+                        <span>linktree is trash, try</span>
                         <a href="/" target="_blank" style="display: flex; align-items: center; gap: 6px; text-decoration: none;">
                             <img src="/assets/images/logo.png" alt="piik.me" style="width: 20px; height: 20px;">
                             <span style="color: #6366f1; font-weight: 600;">piik.me</span>
