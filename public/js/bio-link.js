@@ -88,14 +88,27 @@ async function loadBioLinks() {
         renderBioLinks();
         updateBioLinkStats();
         
-        // Update create button visibility
+        // Show editor or empty state
         const createBtn = document.getElementById('createBioLinkBtn');
-        if (createBtn) {
-            if (bioLinks.length > 0) {
-                createBtn.style.display = 'none';
-            } else {
-                createBtn.style.display = 'flex';
+        const editor = document.getElementById('bioLinkEditor');
+        const emptyState = document.getElementById('bioLinksEmptyState');
+        const statsGrid = document.getElementById('bioLinkStatsGrid');
+        
+        if (bioLinks.length > 0) {
+            // Hide create button and show editor
+            if (createBtn) createBtn.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'none';
+            if (editor) {
+                editor.style.display = 'block';
+                loadBioLinkIntoEditor(bioLinks[0]);
             }
+            if (statsGrid) statsGrid.style.display = 'grid';
+        } else {
+            // Show create button and empty state
+            if (createBtn) createBtn.style.display = 'flex';
+            if (editor) editor.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'flex';
+            if (statsGrid) statsGrid.style.display = 'none';
         }
 
     } catch (error) {
@@ -106,79 +119,7 @@ async function loadBioLinks() {
 
 // Render bio links grid
 function renderBioLinks() {
-    const container = document.getElementById('bioLinksContainer');
-    const emptyState = document.getElementById('bioLinksEmptyState');
-
-    if (!container) return;
-
-    if (bioLinks.length === 0) {
-        container.style.display = 'none';
-        if (emptyState) emptyState.style.display = 'flex';
-        return;
-    }
-
-    container.style.display = 'grid';
-    if (emptyState) emptyState.style.display = 'none';
-
-    container.innerHTML = bioLinks.map(bioLink => `
-        <div class="bio-link-card" data-id="${bioLink.id}">
-            <div class="bio-link-header">
-                <div class="bio-link-info">
-                    ${bioLink.profilePicture ? `
-                        <img src="${bioLink.profilePicture}" alt="${bioLink.name}" class="bio-link-avatar">
-                    ` : `
-                        <div class="bio-link-avatar-placeholder" style="background: ${bioLink.themeColor || '#06b6d4'};">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    `}
-                    <div>
-                        <h3>${bioLink.name}</h3>
-                        <p class="bio-link-url">piik.me/bio/${bioLink.slug}</p>
-                    </div>
-                </div>
-                <div class="bio-link-actions">
-                    <button class="btn-icon" onclick="copyBioLink('${bioLink.slug}')" title="Copy Link">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <button class="btn-icon" onclick="viewBioLink('${bioLink.slug}')" title="View Page">
-                        <i class="fas fa-external-link-alt"></i>
-                    </button>
-                    <button class="btn-icon" onclick="editBioLink('${bioLink.id}')" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-icon" onclick="deleteBioLink('${bioLink.id}')" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="bio-link-description">
-                ${bioLink.description || 'No description'}
-            </div>
-            <div class="bio-link-stats">
-                <div class="bio-link-stat">
-                    <i class="fas fa-link"></i>
-                    <span>${bioLink.links?.length || 0} links</span>
-                </div>
-                <div class="bio-link-stat">
-                    <i class="fas fa-eye"></i>
-                    <span>${bioLink.views || 0} views</span>
-                </div>
-                <div class="bio-link-stat">
-                    <i class="fas fa-mouse-pointer"></i>
-                    <span>${bioLink.clicks || 0} clicks</span>
-                </div>
-            </div>
-            <div class="bio-link-links-preview">
-                ${(bioLink.links || []).slice(0, 3).map(link => `
-                    <div class="bio-link-preview-item">
-                        <i class="fas fa-link"></i>
-                        <span>${link.title}</span>
-                    </div>
-                `).join('')}
-                ${bioLink.links?.length > 3 ? `<div class="bio-link-preview-more">+${bioLink.links.length - 3} more</div>` : ''}
-            </div>
-        </div>
-    `).join('');
+    // No longer needed - using inline editor
 }
 
 // Update bio link stats
@@ -719,4 +660,348 @@ function removeBioProfilePicture() {
     document.getElementById('bioProfilePicture').value = '';
     document.getElementById('bioProfilePictureFile').value = '';
     document.getElementById('bioProfilePicturePreview').style.display = 'none';
+}
+
+// ================================
+// INLINE EDITOR FUNCTIONS
+// ================================
+
+let editorBioLinkItems = [];
+let currentEditorBioLink = null;
+
+// Load bio link into editor
+function loadBioLinkIntoEditor(bioLink) {
+    currentEditorBioLink = bioLink;
+    
+    // Populate form fields
+    document.getElementById('editorBioName').value = bioLink.name || '';
+    document.getElementById('editorBioSlug').value = bioLink.slug || '';
+    document.getElementById('editorBioDescription').value = bioLink.description || '';
+    document.getElementById('editorProfilePicture').value = bioLink.profilePicture || '';
+    
+    // Show existing profile picture
+    if (bioLink.profilePicture) {
+        showEditorProfilePicturePreview(bioLink.profilePicture, 'Existing photo');
+    }
+    
+    document.getElementById('editorThemeColor').value = bioLink.themeColor || '#06b6d4';
+    document.getElementById('editorThemeColorHex').value = bioLink.themeColor || '#06b6d4';
+    document.getElementById('editorBackgroundStyle').value = bioLink.backgroundStyle || 'gradient';
+    
+    // Social links
+    document.getElementById('editorInstagram').value = bioLink.social?.instagram || '';
+    document.getElementById('editorTwitter').value = bioLink.social?.twitter || '';
+    document.getElementById('editorLinkedIn').value = bioLink.social?.linkedin || '';
+    document.getElementById('editorGithub').value = bioLink.social?.github || '';
+    document.getElementById('editorYoutube').value = bioLink.social?.youtube || '';
+    document.getElementById('editorWebsite').value = bioLink.social?.website || '';
+    
+    // Links
+    editorBioLinkItems = bioLink.links || [];
+    renderEditorBioLinkItems();
+    updateLivePreview();
+    
+    // Setup live preview listeners
+    setupLivePreviewListeners();
+}
+
+// Setup live preview listeners
+function setupLivePreviewListeners() {
+    const fields = ['editorBioName', 'editorBioDescription', 'editorThemeColor', 'editorThemeColorHex'];
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', updateLivePreview);
+        }
+    });
+}
+
+// Render editor bio link items
+function renderEditorBioLinkItems() {
+    const container = document.getElementById('editorBioLinkItems');
+    if (!container) return;
+    
+    if (editorBioLinkItems.length === 0) {
+        container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 20px;">No links yet. Click "Add Link" to get started.</p>';
+        updateLivePreview();
+        return;
+    }
+    
+    container.innerHTML = editorBioLinkItems.map((item, index) => `
+        <div class="bio-link-item" style="display: flex; gap: 12px; padding: 16px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <div class="bio-link-item-handle" style="cursor: move; color: #9ca3af; display: flex; align-items: center;">
+                <i class="fas fa-grip-vertical"></i>
+            </div>
+            <div class="bio-link-item-content" style="flex: 1; display: grid; gap: 8px;">
+                <input type="text" class="form-input" placeholder="Link Title" value="${item.title || ''}"
+                       oninput="updateEditorBioLinkItem(${index}, 'title', this.value)" style="margin: 0;">
+                <input type="url" class="form-input" placeholder="https://example.com" value="${item.url || ''}"
+                       oninput="updateEditorBioLinkItem(${index}, 'url', this.value)" style="margin: 0;">
+            </div>
+            <button class="btn-icon" onclick="removeEditorBioLinkItem(${index})" title="Remove">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `).join('');
+    
+    updateLivePreview();
+}
+
+// Add editor bio link item
+function addEditorBioLinkItem() {
+    editorBioLinkItems.push({ title: '', url: '' });
+    renderEditorBioLinkItems();
+}
+
+// Update editor bio link item
+function updateEditorBioLinkItem(index, field, value) {
+    if (editorBioLinkItems[index]) {
+        editorBioLinkItems[index][field] = value;
+        updateLivePreview();
+    }
+}
+
+// Remove editor bio link item
+function removeEditorBioLinkItem(index) {
+    editorBioLinkItems.splice(index, 1);
+    renderEditorBioLinkItems();
+}
+
+// Update live preview
+function updateLivePreview() {
+    const name = document.getElementById('editorBioName').value || 'Your Name';
+    const description = document.getElementById('editorBioDescription').value || 'Your bio description';
+    const themeColor = document.getElementById('editorThemeColor').value || '#06b6d4';
+    const profilePicture = document.getElementById('editorProfilePicture').value;
+    
+    // Update preview name and description
+    document.getElementById('previewName').textContent = name;
+    document.getElementById('previewDescription').textContent = description;
+    
+    // Update avatar
+    const previewAvatar = document.getElementById('previewAvatar');
+    if (profilePicture) {
+        previewAvatar.innerHTML = `<img src="${profilePicture}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    } else {
+        previewAvatar.style.background = themeColor;
+        previewAvatar.innerHTML = '<i class="fas fa-user"></i>';
+    }
+    
+    // Update background
+    const preview = document.getElementById('bioLinkPreview');
+    if (profilePicture) {
+        preview.style.background = 'none';
+        preview.style.backgroundImage = `url(${profilePicture})`;
+        preview.style.backgroundSize = 'cover';
+        preview.style.backgroundPosition = 'center';
+        preview.style.filter = 'blur(60px) brightness(0.8)';
+        preview.style.transform = 'scale(1.2)';
+    } else {
+        preview.style.background = `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}dd 100%)`;
+        preview.style.backgroundImage = 'none';
+        preview.style.filter = 'none';
+        preview.style.transform = 'none';
+    }
+    
+    // Update social links preview
+    const socialPreview = document.getElementById('previewSocial');
+    const social = {
+        instagram: document.getElementById('editorInstagram').value,
+        twitter: document.getElementById('editorTwitter').value,
+        linkedin: document.getElementById('editorLinkedIn').value,
+        github: document.getElementById('editorGithub').value,
+        youtube: document.getElementById('editorYoutube').value,
+        website: document.getElementById('editorWebsite').value
+    };
+    
+    const socialLinks = [];
+    if (social.instagram) socialLinks.push('<i class="fab fa-instagram"></i>');
+    if (social.twitter) socialLinks.push('<i class="fab fa-twitter"></i>');
+    if (social.linkedin) socialLinks.push('<i class="fab fa-linkedin"></i>');
+    if (social.github) socialLinks.push('<i class="fab fa-github"></i>');
+    if (social.youtube) socialLinks.push('<i class="fab fa-youtube"></i>');
+    if (social.website) socialLinks.push('<i class="fas fa-globe"></i>');
+    
+    if (socialLinks.length > 0) {
+        socialPreview.innerHTML = socialLinks.map(icon => 
+            `<div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: ${themeColor}; font-size: 16px;">${icon}</div>`
+        ).join('');
+    } else {
+        socialPreview.innerHTML = '';
+    }
+    
+    // Update links preview
+    const linksPreview = document.getElementById('previewLinks');
+    const validLinks = editorBioLinkItems.filter(item => item.title && item.url);
+    
+    if (validLinks.length > 0) {
+        linksPreview.innerHTML = validLinks.map(link => 
+            `<div style="background: white; border: 2px solid ${themeColor}; border-radius: 8px; padding: 12px 16px; text-align: center; color: ${themeColor}; font-weight: 600; font-size: 14px;">${link.title}</div>`
+        ).join('');
+    } else {
+        linksPreview.innerHTML = '<p style="color: #9ca3af; font-size: 12px;">No links added yet</p>';
+    }
+}
+
+// Save editor bio link
+async function saveEditorBioLink() {
+    try {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            showToast('Please log in to save changes', 'error');
+            return;
+        }
+        
+        const name = document.getElementById('editorBioName').value.trim();
+        const slug = document.getElementById('editorBioSlug').value.trim();
+        const description = document.getElementById('editorBioDescription').value.trim();
+        
+        if (!name) {
+            showToast('Please enter a name', 'error');
+            return;
+        }
+        
+        if (!slug || !/^[a-zA-Z0-9-_]+$/.test(slug)) {
+            showToast('Please enter a valid URL slug', 'error');
+            return;
+        }
+        
+        // Check if slug changed and is available
+        const db = firebase.firestore();
+        if (currentEditorBioLink.slug !== slug) {
+            const existingSlug = await db.collection('bioLinks').where('slug', '==', slug).get();
+            if (!existingSlug.empty) {
+                showToast('This URL slug is already taken', 'error');
+                return;
+            }
+        }
+        
+        const validLinks = editorBioLinkItems.filter(item => item.title && item.url);
+        
+        const bioLinkData = {
+            name,
+            slug,
+            description,
+            profilePicture: document.getElementById('editorProfilePicture').value.trim(),
+            themeColor: document.getElementById('editorThemeColor').value,
+            backgroundStyle: document.getElementById('editorBackgroundStyle').value,
+            links: validLinks,
+            social: {
+                instagram: document.getElementById('editorInstagram').value.trim(),
+                twitter: document.getElementById('editorTwitter').value.trim(),
+                linkedin: document.getElementById('editorLinkedIn').value.trim(),
+                github: document.getElementById('editorGithub').value.trim(),
+                youtube: document.getElementById('editorYoutube').value.trim(),
+                website: document.getElementById('editorWebsite').value.trim()
+            },
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection('bioLinks').doc(currentEditorBioLink.id).update(bioLinkData);
+        showToast('Bio link updated successfully!', 'success');
+        loadBioLinks();
+        
+    } catch (error) {
+        console.error('Error saving bio link:', error);
+        showToast('Failed to save: ' + (error.message || 'Unknown error'), 'error');
+    }
+}
+
+// Cancel bio link edits
+function cancelBioLinkEdits() {
+    if (currentEditorBioLink) {
+        loadBioLinkIntoEditor(currentEditorBioLink);
+        showToast('Changes discarded', 'info');
+    }
+}
+
+// View bio link preview
+function viewBioLinkPreview() {
+    const slug = document.getElementById('editorBioSlug').value.trim();
+    if (slug) {
+        window.open(`/bio/${slug}`, '_blank');
+    }
+}
+
+// Editor profile picture upload
+document.addEventListener('DOMContentLoaded', () => {
+    const editorProfilePictureFile = document.getElementById('editorProfilePictureFile');
+    if (editorProfilePictureFile) {
+        editorProfilePictureFile.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select a valid image file', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Image size must be less than 2MB', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            const uploadBtn = e.target.parentElement.querySelector('button.btn-secondary');
+            if (!uploadBtn) return;
+            
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    showToast('Please log in to upload images', 'error');
+                    e.target.value = '';
+                    return;
+                }
+                
+                const originalText = uploadBtn.innerHTML;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                uploadBtn.disabled = true;
+                
+                const storage = firebase.storage();
+                const fileExtension = file.name.split('.').pop();
+                const fileName = `bio-profiles/${user.uid}/${Date.now()}.${fileExtension}`;
+                const fileRef = storage.ref().child(fileName);
+                
+                await fileRef.put(file);
+                const downloadURL = await fileRef.getDownloadURL();
+                
+                document.getElementById('editorProfilePicture').value = downloadURL;
+                showEditorProfilePicturePreview(downloadURL, file.name);
+                updateLivePreview();
+                
+                uploadBtn.innerHTML = originalText;
+                uploadBtn.disabled = false;
+                showToast('Profile picture uploaded successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error uploading:', error);
+                showToast('Failed to upload: ' + (error.message || 'Unknown error'), 'error');
+                e.target.value = '';
+                if (uploadBtn) {
+                    uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Picture';
+                    uploadBtn.disabled = false;
+                }
+            }
+        });
+    }
+});
+
+function showEditorProfilePicturePreview(url, fileName) {
+    const preview = document.getElementById('editorProfilePicturePreview');
+    const previewImg = document.getElementById('editorProfilePicturePreviewImg');
+    const fileNameSpan = document.getElementById('editorProfilePictureFileName');
+    
+    if (preview && previewImg && fileNameSpan) {
+        previewImg.src = url;
+        fileNameSpan.textContent = fileName;
+        preview.style.display = 'flex';
+    }
+}
+
+function removeEditorProfilePicture() {
+    document.getElementById('editorProfilePicture').value = '';
+    document.getElementById('editorProfilePictureFile').value = '';
+    document.getElementById('editorProfilePicturePreview').style.display = 'none';
+    updateLivePreview();
 }

@@ -746,7 +746,7 @@
                 <div class="page-header">
                     <div class="header-content">
                         <h2>Bio Link</h2>
-                        <p class="header-subtitle">Create a custom link-in-bio page with multiple links</p>
+                        <p class="header-subtitle">Create and customize your link-in-bio page</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn btn-primary" id="createBioLinkBtn">
@@ -756,7 +756,7 @@
                 </div>
 
                 <!-- Bio Link Stats -->
-                <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stats-grid" style="margin-bottom: 24px;" id="bioLinkStatsGrid">
                     <div class="stat-card">
                         <div class="stat-icon purple">
                             <i class="fas fa-id-card"></i>
@@ -795,9 +795,160 @@
                     </div>
                 </div>
 
-                <!-- Bio Links Grid -->
-                <div class="bio-links-container" id="bioLinksContainer">
-                    <!-- Bio links will be populated here -->
+                <!-- Bio Link Editor (shown when bio link exists) -->
+                <div id="bioLinkEditor" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start;">
+                        <!-- Editor Panel -->
+                        <div class="bio-editor-panel">
+                            <div class="card" style="padding: 0;">
+                                <!-- Profile Section -->
+                                <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
+                                    <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-user-circle"></i> Profile
+                                    </h3>
+                                    <div style="display: grid; gap: 16px;">
+                                        <div class="form-group" style="margin: 0;">
+                                            <label>Name</label>
+                                            <input type="text" class="form-input" id="editorBioName" placeholder="Your name">
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label>URL Slug</label>
+                                            <div style="display: flex; gap: 8px; align-items: center;">
+                                                <span style="color: #6b7280; font-size: 14px;">piik.me/bio/</span>
+                                                <input type="text" class="form-input" id="editorBioSlug" placeholder="your-username" style="flex: 1;">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label>Bio Description</label>
+                                            <textarea class="form-input" id="editorBioDescription" rows="3" placeholder="Tell people about yourself..."></textarea>
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label>Profile Picture</label>
+                                            <div style="display: flex; gap: 12px; align-items: center;">
+                                                <input type="file" class="form-input" id="editorProfilePictureFile" accept="image/*" style="display: none;">
+                                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('editorProfilePictureFile').click()" style="flex-shrink: 0;">
+                                                    <i class="fas fa-upload"></i> Upload Picture
+                                                </button>
+                                                <div id="editorProfilePicturePreview" style="display: none; align-items: center; gap: 8px; flex: 1;">
+                                                    <img id="editorProfilePicturePreviewImg" src="" alt="Preview" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                                    <span id="editorProfilePictureFileName" style="font-size: 14px; color: #6b7280; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                                                    <button type="button" class="btn-icon" onclick="removeEditorProfilePicture()" title="Remove">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" id="editorProfilePicture">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Appearance Section -->
+                                <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
+                                    <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-palette"></i> Appearance
+                                    </h3>
+                                    <div style="display: grid; gap: 16px;">
+                                        <div class="form-group" style="margin: 0;">
+                                            <label>Theme Color</label>
+                                            <div class="color-input-group">
+                                                <input type="color" id="editorThemeColor" value="#06b6d4">
+                                                <input type="text" class="form-input color-hex" id="editorThemeColorHex" value="#06b6d4">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label>Background Style</label>
+                                            <select class="form-input" id="editorBackgroundStyle">
+                                                <option value="gradient">Gradient</option>
+                                                <option value="solid">Solid Color</option>
+                                                <option value="image">Background Image</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Social Links Section -->
+                                <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
+                                    <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-share-alt"></i> Social Links
+                                    </h3>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                        <div class="form-group" style="margin: 0;">
+                                            <label><i class="fab fa-instagram"></i> Instagram</label>
+                                            <input type="text" class="form-input" id="editorInstagram" placeholder="@username">
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label><i class="fab fa-twitter"></i> Twitter</label>
+                                            <input type="text" class="form-input" id="editorTwitter" placeholder="@username">
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label><i class="fab fa-linkedin"></i> LinkedIn</label>
+                                            <input type="url" class="form-input" id="editorLinkedIn" placeholder="https://linkedin.com/in/username">
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label><i class="fab fa-github"></i> GitHub</label>
+                                            <input type="text" class="form-input" id="editorGithub" placeholder="username">
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label><i class="fab fa-youtube"></i> YouTube</label>
+                                            <input type="url" class="form-input" id="editorYoutube" placeholder="https://youtube.com/@username">
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label><i class="fas fa-globe"></i> Website</label>
+                                            <input type="url" class="form-input" id="editorWebsite" placeholder="https://yourwebsite.com">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Links Section -->
+                                <div style="padding: 24px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                        <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                            <i class="fas fa-link"></i> Links
+                                        </h3>
+                                        <button class="btn btn-sm btn-secondary" onclick="addEditorBioLinkItem()">
+                                            <i class="fas fa-plus"></i> Add Link
+                                        </button>
+                                    </div>
+                                    <div id="editorBioLinkItems" style="display: flex; flex-direction: column; gap: 12px;">
+                                        <!-- Links will be added here -->
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div style="padding: 24px; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: flex-end;">
+                                    <button class="btn btn-secondary" onclick="cancelBioLinkEdits()">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                    <button class="btn btn-primary" onclick="saveEditorBioLink()">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Preview Panel -->
+                        <div style="position: sticky; top: 24px;">
+                            <div class="card" style="padding: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <h3 style="margin: 0; font-size: 16px;">Live Preview</h3>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewBioLinkPreview()" title="Open in new tab">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
+                                <div id="bioLinkPreview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 40px 24px; min-height: 500px;">
+                                    <div style="background: rgba(255,255,255,0.95); border-radius: 16px; padding: 32px 24px; text-align: center;">
+                                        <div id="previewAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: #06b6d4; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <h2 id="previewName" style="font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px;">Your Name</h2>
+                                        <p id="previewDescription" style="color: #6b7280; font-size: 14px; margin-bottom: 16px;">Your bio description</p>
+                                        <div id="previewSocial" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;"></div>
+                                        <div id="previewLinks" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -805,10 +956,10 @@
                     <div class="empty-state-icon">
                         <i class="fas fa-link"></i>
                     </div>
-                    <h3>No bio links yet</h3>
-                    <p>Create your first bio link page to showcase all your important links in one place</p>
-                    <button class="btn btn-primary" id="createFirstBioBtn">
-                        <i class="fas fa-plus"></i> Create Your First Bio Link
+                    <h3>No bio link yet</h3>
+                    <p>Create your bio link page to showcase all your important links in one place</p>
+                    <button class="btn btn-primary" onclick="openBioLinkModal()">
+                        <i class="fas fa-plus"></i> Create Your Bio Link
                     </button>
                 </div>
             </section>
