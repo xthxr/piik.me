@@ -178,7 +178,13 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
     }
   } else {
     // Generate random short code
-    shortCode = generateShortCode();
+    const randomCode = generateShortCode();
+    // If username is provided, prefix random codes with username too
+    if (username) {
+      shortCode = `${username}/${randomCode}`;
+    } else {
+      shortCode = randomCode;
+    }
   }
 
   // Add UTM parameters if provided

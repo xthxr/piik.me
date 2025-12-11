@@ -826,6 +826,11 @@ async function openCreateLinkModal() {
     createLinkModal.classList.add('show');
     destinationUrl.focus();
     
+    // Ensure userProfile is loaded
+    if (!userProfile && currentUser) {
+        await loadUserProfile();
+    }
+    
     // Use username from profile if available
     if (userProfile && userProfile.username) {
         userBioSlug = userProfile.username;
@@ -1043,7 +1048,10 @@ async function handleCreateLink() {
         if (data.success) {
             showToast('Link created successfully!', 'success');
             closeCreateLinkModal();
-            loadLinks();
+            // Add small delay to ensure Firestore has saved the data
+            setTimeout(() => {
+                loadLinks();
+            }, 500);
         } else {
             showToast(data.error || 'Failed to create link', 'error');
         }
