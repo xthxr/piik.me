@@ -60,11 +60,11 @@ img {
 
 /* Dark Theme - Modern & Sleek */
 html[data-theme="dark"] {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #141414;
-    --bg-tertiary: #1a1a1a;
-    --bg-hover: #252525;
-    --bg-active: #333333;
+    --bg-primary: #000000;
+    --bg-secondary: #000000;
+    --bg-tertiary: #0a0a0a;
+    --bg-hover: #1a1a1a;
+    --bg-active: #252525;
     
     --text-primary: #f5f5f5;
     --text-secondary: #a0a0a0;

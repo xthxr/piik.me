@@ -121,34 +121,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // ================================
 
 function initializeTheme() {
-    // Check saved theme or use system preference
-    const savedTheme = localStorage.getItem('piikme-theme');
-    
-    if (savedTheme) {
-        setTheme(savedTheme);
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        setTheme('light');
-    } else {
-        setTheme('dark');
-    }
+    // Always use dark theme
+    setTheme('dark');
 }
 
 function setTheme(theme) {
-    currentTheme = theme;
-    
-    if (theme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        html.setAttribute('data-theme', systemTheme);
-    } else {
-        html.setAttribute('data-theme', theme);
-    }
-    
-    // Update active button
-    themeBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.theme === theme);
-    });
-    
-    localStorage.setItem('piikme-theme', theme);
+    // Force dark theme only
+    currentTheme = 'dark';
+    html.setAttribute('data-theme', 'dark');
+    localStorage.setItem('piikme-theme', 'dark');
 }
 
 // ================================
@@ -260,11 +241,6 @@ function initializeEventListeners() {
             navigateToPage('home');
         });
     }
-    
-    // Theme switcher
-    themeBtns.forEach(btn => {
-        btn.addEventListener('click', () => setTheme(btn.dataset.theme));
-    });
     
     // Mobile menu toggle
     if (mobileMenuBtn) {
