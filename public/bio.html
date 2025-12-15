@@ -605,9 +605,31 @@
             height: 100vh;
             background: #0a0a0f;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 2rem;
             z-index: 9999;
+        }
+
+        .loading-slug {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #06b6d4;
+            letter-spacing: 0.05em;
+            overflow: hidden;
+            border-right: 2px solid #06b6d4;
+            white-space: nowrap;
+            animation: typing 2s steps(30) infinite, blink 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            0%, 100% { width: 0; }
+            50% { width: 100%; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
         }
 
         .loader-spanne-20 {
@@ -723,6 +745,7 @@
             <span></span>
             <span></span>
         </div>
+        <div class="loading-slug" id="loadingSlug"></div>
     </div>
     <div class="bio-container">
 
@@ -749,6 +772,12 @@
         // Get slug from URL
         const pathParts = window.location.pathname.split('/');
         const slug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+
+        // Display slug in loading screen
+        const loadingSlug = document.getElementById('loadingSlug');
+        if (loadingSlug && slug) {
+            loadingSlug.textContent = `@${slug}`;
+        }
 
         async function loadBioLink() {
             try {
