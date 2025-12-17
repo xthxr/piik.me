@@ -577,36 +577,24 @@ async function importFromPlatform() {
 
 async function importFromLinktree(username) {
     try {
-        // Method 1: Try Linktree's public API first
-        try {
-            const apiResponse = await fetch(`https://linktr.ee/${username}`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            
-            if (apiResponse.ok) {
-                const jsonData = await apiResponse.json();
-                console.log('Linktree API response:', jsonData);
-                
-                if (jsonData.account || jsonData.links) {
-                    return parseLinktreeData(jsonData, username);
-                }
-            }
-        } catch (apiError) {
-            console.log('API method failed, trying scraping method');
-        }
-        
-        // Method 2: Try different CORS proxy
-        const corsProxy = 'https://corsproxy.io/?';
         const url = `https://linktr.ee/${username}`;
-        const response = await fetch(corsProxy + encodeURIComponent(url));
+        
+        // Use our server-side proxy to avoid CORS issues
+        const response = await fetch('/api/import-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url })
+        });
         
         if (!response.ok) {
             throw new Error('Failed to fetch Linktree data');
         }
         
-        const html = await response.text();
+        const result = await response.json();
+        const html = result.html;
+        
         console.log('Fetched HTML length:', html.length);
         
         // Parse HTML to find __NEXT_DATA__ script tag
@@ -621,7 +609,7 @@ async function importFromLinktree(username) {
             return parseLinktreeData(nextData.props?.pageProps || nextData, username);
         }
         
-        // Method 3: Try to find embedded JSON in script tags
+        // Method 2: Try to find embedded JSON in script tags
         const allScripts = doc.querySelectorAll('script');
         for (const script of allScripts) {
             const content = script.textContent;
@@ -734,12 +722,23 @@ function extractSocialLink(url, socialObj) {
 
 async function importFromBento(username) {
     try {
-        // Try to fetch from Bento API or page
-        const corsProxy = 'https://api.allorigins.win/get?url=';
         const url = `https://bento.me/${username}`;
-        const response = await fetch(corsProxy + encodeURIComponent(url));
+        
+        // Use our server-side proxy to avoid CORS issues
+        const response = await fetch('/api/import-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch Bento data');
+        }
+        
         const result = await response.json();
-        const html = result.contents;
+        const html = result.html;
         
         // Parse HTML
         const parser = new DOMParser();
@@ -798,24 +797,8 @@ async function importFromBento(username) {
                             // Extract social links
                             if (component.type === 'social' || component.platform) {
                                 const url = component.url || '';
-                                const platform = component.platform || '';
-                                
                                 if (url) {
-                                    if (platform === 'instagram' || url.includes('instagram.com')) {
-                                        const match = url.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
-                                        if (match) data.social.instagram = match[1];
-                                    } else if (platform === 'twitter' || url.includes('twitter.com') || url.includes('x.com')) {
-                                        const match = url.match(/(?:twitter|x)\.com\/([a-zA-Z0-9_]+)/);
-                                        if (match) data.social.twitter = match[1];
-                                    } else if (platform === 'youtube' || url.includes('youtube.com')) {
-                                        data.social.youtube = url;
-                                    } else if (platform === 'tiktok' || url.includes('tiktok.com')) {
-                                        const match = url.match(/tiktok\.com\/@?([a-zA-Z0-9_.]+)/);
-                                        if (match) data.social.tiktok = match[1];
-                                    } else if (platform === 'github' || url.includes('github.com')) {
-                                        const match = url.match(/github\.com\/([a-zA-Z0-9_-]+)/);
-                                        if (match) data.social.github = match[1];
-                                    }
+                                    extractSocialLink(url, data.social);
                                 }
                             }
                         });

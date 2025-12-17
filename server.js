@@ -647,6 +647,50 @@ app.post('/api/bug-report', async (req, res) => {
     console.error('Bug report error:', error);
     res.status(500).json({ 
       error: 'Failed to create bug report',
+      details: error.message
+    });
+  }
+});
+
+// Proxy endpoint for importing from Linktree/Bento
+app.post('/api/import-profile', async (req, res) => {
+  try {
+    const { url } = req.body;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+    
+    console.log('Fetching profile from:', url);
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    if (!response.ok) {
+      return res.status(response.status).json({ 
+        error: 'Failed to fetch profile',
+        status: response.status
+      });
+    }
+    
+    const html = await response.text();
+    
+    res.json({ 
+      success: true,
+      html: html
+    });
+  } catch (error) {
+    console.error('Import profile error:', error);
+    res.status(500).json({ 
+      error: 'Failed to import profile',
       details: error.message 
     });
   }
