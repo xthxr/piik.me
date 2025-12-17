@@ -507,30 +507,6 @@ html[data-theme="light"] .app-orb {
    TOPBAR
    ================================ */
 
-.topbar {
-    height: var(--topbar-height);
-    background: #000000;
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(139, 157, 184, 0.1);
-    display: flex;
-    align-items: center;
-    position: relative;
-    z-index: 10;
-    justify-content: space-between;
-    padding: 0 32px;
-    position: sticky;
-    top: 0;
-    z-index: 90;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-}
-
-.topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
 
 .mobile-menu-btn {
     display: none;
@@ -548,12 +524,6 @@ html[data-theme="light"] .app-orb {
     color: var(--text-primary);
 }
 
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-shrink: 0;
-}
 
 .search-container {
     position: relative;
@@ -731,6 +701,7 @@ html[data-theme="light"] .app-orb {
     height: 40px;
     background: var(--bg-tertiary);
     border: none;
+    margin-left:10px;
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     cursor: pointer;
@@ -757,7 +728,6 @@ html[data-theme="light"] .app-orb {
     padding: 2px 6px;
     border-radius: var(--radius-full);
 }
-
 .user-menu {
     position: relative;
 }
@@ -766,7 +736,21 @@ html[data-theme="light"] .app-orb {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0;
+    margin-left: 10px;
+}
+.topbar{
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    margin-top: -20px;
+}
+
+.topbar-left{
+    display: flex;
+}
+.topbar-right{
+    display: flex;
+    align-items: space-between;
 }
 
 .user-menu-btn .user-avatar {
@@ -800,6 +784,7 @@ html[data-theme="light"] .app-orb {
 .dropdown-menu.show {
     opacity: 1;
     visibility: visible;
+    overflow: visible;
     transform: translateY(0) scale(1);
 }
 
