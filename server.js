@@ -33,6 +33,18 @@ const io = socketIo(server, {
   }
 });
 
+// Helper function to convert shortCode to Firestore-safe document ID
+// Firestore document IDs cannot contain '/' so we replace with '_'
+function toFirestoreId(shortCode) {
+  return shortCode.replace(/\//g, '_');
+}
+
+// Helper function to convert Firestore ID back to shortCode
+function fromFirestoreId(firestoreId) {
+  // Keep as-is, shortCode field in the document has the original format
+  return firestoreId;
+}
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -164,7 +176,8 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
     
     // Check if already exists in Firestore
     try {
-      const existingDoc = await db.collection(COLLECTIONS.LINKS).doc(shortCode).get();
+      const firestoreId = toFirestoreId(shortCode);
+      const existingDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
       if (existingDoc.exists) {
         return res.status(409).json({ error: 'This custom short code is already taken' });
       }
@@ -225,16 +238,19 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
   };
 
   try {
+    // Convert shortCode to Firestore-safe ID (replace / with _)
+    const firestoreId = toFirestoreId(shortCode);
+    
     // Save to Firestore
-    console.log('Saving link to Firestore:', { shortCode, userId, linkData });
-    await db.collection(COLLECTIONS.LINKS).doc(shortCode).set(linkData);
+    console.log('Saving link to Firestore:', { shortCode, firestoreId, userId, linkData });
+    await db.collection(COLLECTIONS.LINKS).doc(firestoreId).set(linkData);
     console.log('Link saved successfully to Firestore');
     
-    await db.collection(COLLECTIONS.ANALYTICS).doc(shortCode).set(analyticsData);
+    await db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId).set(analyticsData);
     console.log('Analytics saved successfully to Firestore');
     
     // Verify the save by reading it back
-    const verifyDoc = await db.collection(COLLECTIONS.LINKS).doc(shortCode).get();
+    const verifyDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
     if (verifyDoc.exists) {
       console.log('✅ Verified link exists in Firestore:', verifyDoc.data());
     } else {
@@ -329,7 +345,8 @@ app.get('/api/check-shortcode/:shortCode', verifyToken, async (req, res) => {
   const { shortCode } = req.params;
   
   try {
-    const doc = await db.collection(COLLECTIONS.LINKS).doc(shortCode).get();
+    const firestoreId = toFirestoreId(shortCode);
+    const doc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
     res.json({ available: !doc.exists });
   } catch (error) {
     console.error('Error checking shortcode:', error);
@@ -525,12 +542,15 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
 
 // Delete a link (requires authentication and ownership)
 app.delete('/api/links/:shortCode', verifyToken, async (req, res) => {
-  const { shortCode } = req.params;
+  let { shortCode } = req.params;
+  // Decode URL-encoded shortCode (e.g., atharcloud%2Ftuf -> atharcloud/tuf)
+  shortCode = decodeURIComponent(shortCode);
   const userId = req.user.uid;
   
   try {
-    // Check if link exists and belongs to user
-    const linkRef = db.collection(COLLECTIONS.LINKS).doc(shortCode);
+    // Convert to Firestore-safe ID
+    const firestoreId = toFirestoreId(shortCode);
+    const linkRef = db.collection(COLLECTIONS.LINKS).doc(firestoreId);
     const linkDoc = await linkRef.get();
     
     if (!linkDoc.exists) {
@@ -548,7 +568,7 @@ app.delete('/api/links/:shortCode', verifyToken, async (req, res) => {
     await linkRef.delete();
     
     // Delete associated analytics
-    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(shortCode);
+    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId);
     await analyticsRef.delete();
     
     res.json({ success: true, message: 'Link deleted successfully' });
@@ -560,10 +580,12 @@ app.delete('/api/links/:shortCode', verifyToken, async (req, res) => {
 
 // Track impression (when analytics page is viewed)
 app.post('/api/track/impression/:shortCode', async (req, res) => {
-  const { shortCode } = req.params;
+  let { shortCode } = req.params;
+  shortCode = decodeURIComponent(shortCode);
   
   try {
-    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(shortCode);
+    const firestoreId = toFirestoreId(shortCode);
+    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId);
     const doc = await analyticsRef.get();
     
     if (doc.exists) {
@@ -731,10 +753,12 @@ app.get(['/home', '/analytics', '/profile', '/qr-generator', '/bio-link', '/dash
 
 // Track impression without redirect (for link previews - HEAD request)
 app.head('/:shortCode', async (req, res) => {
-  const { shortCode } = req.params;
+  let { shortCode } = req.params;
+  shortCode = decodeURIComponent(shortCode);
   
   try {
-    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(shortCode);
+    const firestoreId = toFirestoreId(shortCode);
+    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId);
     const doc = await analyticsRef.get();
     
     if (doc.exists) {
@@ -757,8 +781,9 @@ app.get('/:username/:slug', async (req, res) => {
   let link = null;
   
   try {
-    // Try Firestore first
-    const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(shortCode).get();
+    // Convert to Firestore-safe ID (username_slug) for lookup
+    const firestoreId = toFirestoreId(shortCode);
+    const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
     if (linkDoc.exists) {
       link = linkDoc.data();
     }
@@ -891,7 +916,8 @@ app.get('/:username/:slug', async (req, res) => {
 
   // Update analytics
   try {
-    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(shortCode);
+    const firestoreId = toFirestoreId(shortCode);
+    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId);
     const analyticsDoc = await analyticsRef.get();
 
     if (analyticsDoc.exists) {
@@ -962,8 +988,9 @@ app.get('/:shortCode', async (req, res) => {
   let link = null;
   
   try {
-    // Try Firestore first
-    const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(shortCode).get();
+    // Convert to Firestore-safe ID for lookup
+    const firestoreId = toFirestoreId(shortCode);
+    const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
     if (linkDoc.exists) {
       link = linkDoc.data();
     }
@@ -1099,7 +1126,8 @@ app.get('/:shortCode', async (req, res) => {
 
   try {
     // Update Firestore
-    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(shortCode);
+    const firestoreId = toFirestoreId(shortCode);
+    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId);
     const doc = await analyticsRef.get();
     
     if (doc.exists) {
