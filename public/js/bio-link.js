@@ -499,7 +499,285 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         });
     }
+
+    // Import data button
+    const importDataBtn = document.getElementById('importDataBtn');
+    if (importDataBtn) {
+        importDataBtn.addEventListener('click', importFromPlatform);
+    }
 });
+
+// ================================
+// IMPORT FROM OTHER PLATFORMS
+// ================================
+
+async function importFromPlatform() {
+    const importUrl = document.getElementById('importUrl').value.trim();
+    const importStatus = document.getElementById('importStatus');
+    const importBtn = document.getElementById('importDataBtn');
+    
+    if (!importUrl) {
+        showImportStatus('Please enter a URL', 'error');
+        return;
+    }
+
+    // Detect platform
+    let platform = null;
+    let username = null;
+
+    if (importUrl.includes('linktr.ee') || importUrl.includes('linktree.com')) {
+        platform = 'linktree';
+        const match = importUrl.match(/linktr\.ee\/([a-zA-Z0-9_.-]+)|linktree\.com\/([a-zA-Z0-9_.-]+)/);
+        username = match ? (match[1] || match[2]) : null;
+    } else if (importUrl.includes('bento.me')) {
+        platform = 'bento';
+        const match = importUrl.match(/bento\.me\/([a-zA-Z0-9_.-]+)/);
+        username = match ? match[1] : null;
+    }
+
+    if (!platform || !username) {
+        showImportStatus('Invalid URL. Please enter a valid Linktree or Bento URL', 'error');
+        return;
+    }
+
+    // Show loading
+    const originalText = importBtn.innerHTML;
+    importBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+    importBtn.disabled = true;
+    showImportStatus('Fetching your data...', 'loading');
+
+    try {
+        let data;
+        if (platform === 'linktree') {
+            data = await importFromLinktree(username);
+        } else if (platform === 'bento') {
+            data = await importFromBento(username);
+        }
+
+        if (data) {
+            fillFormWithImportedData(data);
+            showImportStatus(`✓ Successfully imported from ${platform === 'linktree' ? 'Linktree' : 'Bento'}!`, 'success');
+            
+            // Clear import URL after successful import
+            setTimeout(() => {
+                document.getElementById('importUrl').value = '';
+                importStatus.style.display = 'none';
+            }, 3000);
+        } else {
+            showImportStatus('Could not fetch data. Make sure your profile is public.', 'error');
+        }
+    } catch (error) {
+        console.error('Import error:', error);
+        showImportStatus('Failed to import data. Please try again.', 'error');
+    } finally {
+        importBtn.innerHTML = originalText;
+        importBtn.disabled = false;
+    }
+}
+
+async function importFromLinktree(username) {
+    try {
+        // Use a CORS proxy to fetch Linktree data
+        const corsProxy = 'https://api.allorigins.win/raw?url=';
+        const url = `https://linktr.ee/${username}`;
+        const response = await fetch(corsProxy + encodeURIComponent(url));
+        const html = await response.text();
+        
+        // Parse HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Extract data from meta tags and page content
+        const data = {
+            name: '',
+            description: '',
+            links: [],
+            profilePicture: '',
+            social: {}
+        };
+
+        // Try to get name from meta tags
+        const ogTitle = doc.querySelector('meta[property="og:title"]');
+        if (ogTitle) {
+            data.name = ogTitle.content.replace('@', '');
+        }
+
+        // Try to get description
+        const ogDescription = doc.querySelector('meta[property="og:description"]');
+        if (ogDescription) {
+            data.description = ogDescription.content;
+        }
+
+        // Try to get profile picture
+        const ogImage = doc.querySelector('meta[property="og:image"]');
+        if (ogImage) {
+            data.profilePicture = ogImage.content;
+        }
+
+        // Try to extract links from JSON-LD or embedded data
+        const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+        scripts.forEach(script => {
+            try {
+                const jsonData = JSON.parse(script.textContent);
+                if (jsonData.name) data.name = jsonData.name;
+                if (jsonData.description) data.description = jsonData.description;
+                if (jsonData.image) data.profilePicture = jsonData.image;
+            } catch (e) {}
+        });
+
+        // If no name found, use username
+        if (!data.name) {
+            data.name = username;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Linktree import error:', error);
+        return null;
+    }
+}
+
+async function importFromBento(username) {
+    try {
+        // Use a CORS proxy to fetch Bento data
+        const corsProxy = 'https://api.allorigins.win/raw?url=';
+        const url = `https://bento.me/${username}`;
+        const response = await fetch(corsProxy + encodeURIComponent(url));
+        const html = await response.text();
+        
+        // Parse HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        const data = {
+            name: '',
+            description: '',
+            links: [],
+            profilePicture: '',
+            social: {}
+        };
+
+        // Try to get name from meta tags
+        const ogTitle = doc.querySelector('meta[property="og:title"]');
+        if (ogTitle) {
+            data.name = ogTitle.content;
+        }
+
+        // Try to get description
+        const ogDescription = doc.querySelector('meta[property="og:description"]');
+        if (ogDescription) {
+            data.description = ogDescription.content;
+        }
+
+        // Try to get profile picture
+        const ogImage = doc.querySelector('meta[property="og:image"]');
+        if (ogImage) {
+            data.profilePicture = ogImage.content;
+        }
+
+        // If no name found, use username
+        if (!data.name) {
+            data.name = username;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Bento import error:', error);
+        return null;
+    }
+}
+
+function fillFormWithImportedData(data) {
+    // Fill basic info
+    if (data.name) {
+        document.getElementById('bioLinkName').value = data.name;
+    }
+
+    if (data.description) {
+        const descField = document.getElementById('bioLinkDescription');
+        descField.value = data.description.substring(0, 200);
+        document.getElementById('bioDescCount').textContent = descField.value.length;
+    }
+
+    // Auto-generate slug from name
+    if (data.name && !document.getElementById('bioLinkSlug').value) {
+        const slug = data.name.toLowerCase()
+            .replace(/[^a-z0-9-_]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
+        document.getElementById('bioLinkSlug').value = slug;
+        document.getElementById('bioLinkSlug').dispatchEvent(new Event('input'));
+    }
+
+    // Fill profile picture URL if available
+    if (data.profilePicture) {
+        // Store the URL for later use
+        window.importedProfilePictureUrl = data.profilePicture;
+        showToast('Profile picture URL imported. You can upload it manually if needed.', 'info');
+    }
+
+    // Fill social links
+    if (data.social) {
+        if (data.social.instagram) {
+            document.getElementById('bioInstagram').value = data.social.instagram;
+        }
+        if (data.social.twitter) {
+            document.getElementById('bioTwitter').value = data.social.twitter;
+        }
+        if (data.social.youtube) {
+            document.getElementById('bioYoutube').value = data.social.youtube;
+        }
+        if (data.social.tiktok) {
+            document.getElementById('bioTiktok').value = data.social.tiktok;
+        }
+        if (data.social.github) {
+            document.getElementById('bioGithub').value = data.social.github;
+        }
+    }
+
+    // Add links
+    if (data.links && data.links.length > 0) {
+        // Clear existing links first
+        document.getElementById('bioLinksListContainer').innerHTML = '';
+        
+        data.links.forEach(link => {
+            addBioLinkItem();
+            const items = document.querySelectorAll('.bio-link-item');
+            const lastItem = items[items.length - 1];
+            
+            const titleInput = lastItem.querySelector('input[placeholder*="Title"]');
+            const urlInput = lastItem.querySelector('input[placeholder*="URL"]');
+            
+            if (titleInput && link.title) titleInput.value = link.title;
+            if (urlInput && link.url) urlInput.value = link.url;
+        });
+    }
+}
+
+function showImportStatus(message, type) {
+    const importStatus = document.getElementById('importStatus');
+    importStatus.style.display = 'block';
+    
+    // Remove all type classes
+    importStatus.classList.remove('import-success', 'import-error', 'import-loading');
+    
+    // Set colors based on type
+    if (type === 'success') {
+        importStatus.style.background = 'rgba(34, 197, 94, 0.1)';
+        importStatus.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+        importStatus.style.color = '#22c55e';
+    } else if (type === 'error') {
+        importStatus.style.background = 'rgba(239, 68, 68, 0.1)';
+        importStatus.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+        importStatus.style.color = '#ef4444';
+    } else if (type === 'loading') {
+        importStatus.style.background = 'rgba(6, 182, 212, 0.1)';
+        importStatus.style.border = '1px solid rgba(6, 182, 212, 0.3)';
+        importStatus.style.color = '#06b6d4';
+    }
+    
+    importStatus.textContent = message;
+}
 
 // ================================
 // PROFILE PICTURE UPLOAD
