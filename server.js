@@ -510,7 +510,8 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
       const linkData = doc.data();
       console.log(`Processing link: ${doc.id}`, { shortCode: linkData.shortCode, isActive: linkData.isActive });
       
-      const analyticsDoc = await db.collection(COLLECTIONS.ANALYTICS).doc(linkData.shortCode).get();
+      // Use the Firestore document ID (which is already safe) instead of shortCode field
+      const analyticsDoc = await db.collection(COLLECTIONS.ANALYTICS).doc(doc.id).get();
       const analyticsData = analyticsDoc.exists ? analyticsDoc.data() : {
         impressions: 0,
         clicks: 0,
