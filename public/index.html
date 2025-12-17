@@ -1095,7 +1095,7 @@
                             class="form-input" 
                             id="customShortCode" 
                             placeholder="my-custom-link"
-                            pattern="[a-zA-Z0-9-_]+"
+                            pattern="[a-zA-Z0-9_-]+"
                             maxlength="50"
                             style="padding-right: 80px;">
                         <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 12px;">
@@ -1270,7 +1270,7 @@
                         <label>Custom URL Slug *</label>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: var(--text-tertiary);">piik.me/bio/</span>
-                            <input type="text" class="form-input" id="bioLinkSlug" placeholder="yourname" pattern="[a-zA-Z0-9-_]+" style="flex: 1;">
+                            <input type="text" class="form-input" id="bioLinkSlug" placeholder="yourname" pattern="[a-zA-Z0-9_-]+" style="flex: 1;">
                         </div>
                         <small style="color: var(--text-tertiary); font-size: 12px; margin-top: 4px; display: block;">
                             Only letters, numbers, hyphens, and underscores
@@ -1550,7 +1550,6 @@
     <script src="js/firebase-config.js"></script>
     
     <!-- Other Libraries -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>

@@ -2,9 +2,6 @@
 // MODERN PIIK.ME - APP LOGIC
 // ================================
 
-// Initialize Socket.IO
-const socket = io();
-
 // State
 let currentPage = 'home';
 let currentTheme = 'dark';

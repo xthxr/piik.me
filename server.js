@@ -462,6 +462,14 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
   console.log(`🔍 Fetching links for user: ${userId}`);
   
   try {
+    // First, let's see ALL documents in the collection for debugging
+    const allDocsSnapshot = await db.collection(COLLECTIONS.LINKS).get();
+    console.log(`Total documents in LINKS collection: ${allDocsSnapshot.docs.length}`);
+    allDocsSnapshot.docs.forEach(doc => {
+      const data = doc.data();
+      console.log(`  Doc ${doc.id}: userId=${data.userId}, shortCode=${data.shortCode}`);
+    });
+    
     // Try with orderBy first
     let linksSnapshot;
     try {
