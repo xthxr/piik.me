@@ -1323,12 +1323,11 @@ function updateLivePreview() {
     const previewName = document.getElementById('previewName');
     const previewDescription = document.getElementById('previewDescription');
     const previewAvatar = document.getElementById('previewAvatar');
-    const preview = document.getElementById('bioLinkPreview');
     const previewSocial = document.getElementById('previewSocial');
     const previewLinks = document.getElementById('previewLinks');
     
     // Check if elements exist
-    if (!previewName || !previewDescription || !previewAvatar || !preview) {
+    if (!previewName || !previewDescription || !previewAvatar) {
         console.log('Preview elements not found');
         return;
     }
@@ -1339,38 +1338,11 @@ function updateLivePreview() {
     
     // Update avatar
     if (profilePicture) {
-        previewAvatar.innerHTML = `<img src="${profilePicture}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        previewAvatar.innerHTML = `<img src="${profilePicture}" alt="${name}">`;
         previewAvatar.style.background = '';
     } else {
-        previewAvatar.style.background = themeColor;
+        previewAvatar.style.background = `linear-gradient(135deg, ${themeColor}, #3b82f6)`;
         previewAvatar.innerHTML = '<i class="fas fa-user"></i>';
-    }
-    
-    // Update background based on style selection
-    preview.style.filter = 'none';
-    preview.style.transform = 'none';
-    
-    if (backgroundStyle === 'gradient') {
-        // Gradient background
-        preview.style.background = `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}dd 100%)`;
-        preview.style.backgroundImage = '';
-    } else if (backgroundStyle === 'solid') {
-        // Solid color background
-        preview.style.background = themeColor;
-        preview.style.backgroundImage = '';
-    } else if (backgroundStyle === 'image') {
-        // Background image with blur effect (if profile picture is available)
-        if (profilePicture) {
-            preview.style.background = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${profilePicture})`;
-            preview.style.backgroundSize = 'cover';
-            preview.style.backgroundPosition = 'center';
-            preview.style.filter = 'blur(0px)'; // No blur on container
-            preview.style.position = 'relative';
-        } else {
-            // Fallback to gradient if no image
-            preview.style.background = `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}dd 100%)`;
-            preview.style.backgroundImage = '';
-        }
     }
     
     // Update social links preview
@@ -1385,16 +1357,16 @@ function updateLivePreview() {
         };
         
         const socialLinks = [];
-        if (social.instagram) socialLinks.push('<i class="fab fa-instagram"></i>');
-        if (social.twitter) socialLinks.push('<i class="fab fa-twitter"></i>');
-        if (social.linkedin) socialLinks.push('<i class="fab fa-linkedin"></i>');
-        if (social.github) socialLinks.push('<i class="fab fa-github"></i>');
-        if (social.youtube) socialLinks.push('<i class="fab fa-youtube"></i>');
-        if (social.website) socialLinks.push('<i class="fas fa-globe"></i>');
+        if (social.instagram) socialLinks.push({ icon: 'fab fa-instagram', url: social.instagram });
+        if (social.twitter) socialLinks.push({ icon: 'fab fa-twitter', url: social.twitter });
+        if (social.linkedin) socialLinks.push({ icon: 'fab fa-linkedin', url: social.linkedin });
+        if (social.github) socialLinks.push({ icon: 'fab fa-github', url: social.github });
+        if (social.youtube) socialLinks.push({ icon: 'fab fa-youtube', url: social.youtube });
+        if (social.website) socialLinks.push({ icon: 'fas fa-globe', url: social.website });
         
         if (socialLinks.length > 0) {
-            previewSocial.innerHTML = socialLinks.map(icon => 
-                `<div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: ${themeColor}; font-size: 16px;">${icon}</div>`
+            previewSocial.innerHTML = socialLinks.map(link => 
+                `<div class="bio-social-icon"><i class="${link.icon}"></i></div>`
             ).join('');
         } else {
             previewSocial.innerHTML = '';
@@ -1406,13 +1378,36 @@ function updateLivePreview() {
         const validLinks = editorBioLinkItems.filter(item => item.title && item.url);
         
         if (validLinks.length > 0) {
-            previewLinks.innerHTML = validLinks.map(link => 
-                `<div style="background: white; border: 2px solid ${themeColor}; border-radius: 8px; padding: 12px 16px; text-align: center; color: ${themeColor}; font-weight: 600; font-size: 14px;">${link.title}</div>`
-            ).join('');
+            previewLinks.innerHTML = validLinks.map(link => {
+                const favicon = link.url ? getFaviconForUrl(link.url) : null;
+                return `<div class="bio-link-button">
+                    ${favicon ? `<i class="${favicon}"></i>` : ''}
+                    ${link.title}
+                </div>`;
+            }).join('');
         } else {
-            previewLinks.innerHTML = '<p style="color: #9ca3af; font-size: 12px;">No links added yet</p>';
+            previewLinks.innerHTML = '<p style="color: rgba(255,255,255,0.4); font-size: 11px; margin: 10px 0;">No links added yet</p>';
         }
     }
+}
+
+// Helper function to get favicon/icon for common URLs
+function getFaviconForUrl(url) {
+    const urlLower = url.toLowerCase();
+    if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) return 'fab fa-youtube';
+    if (urlLower.includes('github.com')) return 'fab fa-github';
+    if (urlLower.includes('twitter.com') || urlLower.includes('x.com')) return 'fab fa-twitter';
+    if (urlLower.includes('linkedin.com')) return 'fab fa-linkedin';
+    if (urlLower.includes('instagram.com')) return 'fab fa-instagram';
+    if (urlLower.includes('facebook.com')) return 'fab fa-facebook';
+    if (urlLower.includes('medium.com')) return 'fab fa-medium';
+    if (urlLower.includes('behance.net')) return 'fab fa-behance';
+    if (urlLower.includes('dribbble.com')) return 'fab fa-dribbble';
+    if (urlLower.includes('spotify.com')) return 'fab fa-spotify';
+    if (urlLower.includes('tiktok.com')) return 'fab fa-tiktok';
+    if (urlLower.includes('discord')) return 'fab fa-discord';
+    if (urlLower.includes('twitch.tv')) return 'fab fa-twitch';
+    return 'fas fa-link';
 }
 
 // Save editor bio link
@@ -1506,7 +1501,7 @@ function cancelBioLinkEdits() {
 function viewBioLinkPreview() {
     const slug = document.getElementById('editorBioSlug').value.trim();
     if (slug) {
-        window.open(`/bio/${slug}`, '_blank');
+        window.open(`/${slug}`, '_blank');
     }
 }
 
@@ -1607,18 +1602,33 @@ function shareBioLink() {
     }
 
     const url = `${window.location.origin}/${slug}`;
-    document.getElementById('shareBioLinkUrl').value = url;
+    const urlInput = document.getElementById('shareBioLinkUrl');
+    const modal = document.getElementById('shareBioLinkModal');
+    const nativeBtn = document.getElementById('nativeShareBtn');
     
-    // Show native share button on mobile
-    if (navigator.share) {
-        document.getElementById('nativeShareBtn').style.display = 'block';
+    if (!urlInput || !modal) {
+        console.error('Share modal elements not found');
+        showToast('Share functionality not available', 'error');
+        return;
     }
     
-    document.getElementById('shareBioLinkModal').classList.add('show');
+    urlInput.value = url;
+    
+    // Show native share button on mobile
+    if (navigator.share && nativeBtn) {
+        nativeBtn.style.display = 'block';
+    }
+    
+    modal.style.display = 'block';
+    modal.classList.add('show');
 }
 
 function closeShareBioLinkModal() {
-    document.getElementById('shareBioLinkModal').classList.remove('show');
+    const modal = document.getElementById('shareBioLinkModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+    }
 }
 
 function copyShareBioLink() {

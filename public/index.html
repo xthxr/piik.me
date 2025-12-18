@@ -6,6 +6,7 @@
     <title>piik.me - Link Management & Analytics</title>
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/bio-preview.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -922,15 +923,29 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div id="bioLinkPreview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 40px 24px; min-height: 500px;">
-                                    <div style="background: rgba(255,255,255,0.95); border-radius: 16px; padding: 32px 24px; text-align: center;">
-                                        <div id="previewAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: #06b6d4; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px;">
-                                            <i class="fas fa-user"></i>
+                                
+                                <!-- Phone Mockup -->
+                                <div style="display: flex; justify-content: center; padding: 20px 0;">
+                                    <div class="phone-mockup">
+                                        <div class="phone-notch"></div>
+                                        <div class="phone-screen" id="bioLinkPreview">
+                                            <div class="preview-mesh-gradient"></div>
+                                            <div class="bio-preview-content">
+                                                <div class="bio-card">
+                                                    <div id="previewAvatar" class="bio-avatar">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <h2 id="previewName" class="bio-name">Your Name</h2>
+                                                    <p id="previewDescription" class="bio-description">Your bio description</p>
+                                                    <div id="previewSocial" class="bio-social"></div>
+                                                    <div id="previewLinks" class="bio-links"></div>
+                                                </div>
+                                                <div class="bio-footer">
+                                                    <span style="opacity: 0.5; font-size: 11px;">100% free, try</span>
+                                                    <span style="font-weight: 700; font-size: 12px; letter-spacing: 1px;">PIIK.ME</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <h2 id="previewName" style="font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px;">Your Name</h2>
-                                        <p id="previewDescription" style="color: #6b7280; font-size: 14px; margin-bottom: 16px;">Your bio description</p>
-                                        <div id="previewSocial" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;"></div>
-                                        <div id="previewLinks" style="display: flex; flex-direction: column; gap: 10px;"></div>
                                     </div>
                                 </div>
                             </div>

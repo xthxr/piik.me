@@ -247,29 +247,50 @@ piik.me is built with modern, production-ready technologies:
 
 ## 📁 Project Structure
 
+The project follows a clean, modular architecture optimized for maintainability and contributor-friendliness:
+
 ```
-piik.me/
-├── public/
-│   ├── assets/           # Static assets (images, logos)
-│   ├── css/              # Stylesheets
-│   ├── js/               # JavaScript modules
-│   │   ├── app.js        # Main application logic
-│   │   ├── auth.js       # Authentication module
-│   │   ├── qr-generator.js # QR code module
-│   │   └── firebase-config.js # Firebase SDK config
-│   ├── index. html        # Main dashboard
-│   ├── bio. html          # Bio link page template
-│   └── countries.geojson # Geographic data for visualizations
-├── scripts/
-│   ├── set-verified-badges.js # Admin script for verification
-│   └── README.md         # Scripts documentation
-├── server. js             # Express server & API routes
+zaplink/
+├── config/               # Configuration files
+│   └── firebase.config.js    # Firebase Admin SDK initialization
+├── docs/                 # Documentation
+│   ├── ARCHITECTURE.md       # System architecture
+│   ├── CODE_OF_CONDUCT.md    # Community guidelines
+│   ├── FIREBASE_SETUP.md     # Firebase setup guide
+│   ├── PROJECT_STRUCTURE.md  # Detailed structure docs
+│   └── SECURITY.md           # Security policies
+├── public/               # Frontend assets (served statically)
+│   ├── assets/              # Icons and images
+│   ├── css/                 # Stylesheets
+│   ├── js/                  # Client-side JavaScript modules
+│   │   ├── app.js           # Main application logic
+│   │   ├── auth.js          # Authentication module
+│   │   ├── bio-link.js      # Bio link functionality
+│   │   ├── qr-generator.js  # QR code generation
+│   │   └── firebase-config.js # Firebase client config
+│   ├── index.html           # Main dashboard
+│   ├── bio.html             # Bio link page
+│   └── landing.html         # Landing page
+├── scripts/              # Utility scripts
+│   └── set-verified-badges.js # Badge management
+├── src/                  # Server-side source code
+│   ├── middleware/          # Express middleware
+│   │   └── auth.middleware.js # Token verification
+│   ├── routes/              # API routes (modular)
+│   ├── services/            # Business logic
+│   │   └── memory.service.js # In-memory storage
+│   └── utils/               # Helper functions
+│       └── url.utils.js     # URL utilities
+├── .env.example          # Environment template
+├── CONTRIBUTING.md       # Contribution guide
+├── LICENSE               # MIT License
 ├── package.json          # Dependencies
-├── vercel.json           # Vercel deployment config
-├── ARCHITECTURE.md       # System architecture docs
-├── CONTRIBUTING.md       # Contribution guidelines
-└── README.md             # This file
+├── README.md             # This file
+├── server.js             # Express server entry point
+└── vercel.json           # Deployment config
 ```
+
+**📖 For detailed information about the project structure, see [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)**
 
 ---
 

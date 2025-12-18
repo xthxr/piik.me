@@ -459,3 +459,33 @@ Production Live
 ---
 
 This architecture supports the current feature set and is designed for easy extension and scaling.
+
+
+## Modular Architecture (v2.0)
+
+The application has been restructured into a clean, modular architecture for improved maintainability and contributor experience.
+
+### Key Improvements
+
+- **Separation of Concerns**: Server code organized into `src/` with dedicated folders
+- **Configuration Layer**: Centralized Firebase config in `config/`
+- **Documentation Hub**: All docs consolidated in `docs/`
+- **Modular Services**: Business logic separated into service files
+- **Utility Functions**: Reusable helpers in dedicated utils
+- **Middleware Pattern**: Authentication and other middleware isolated
+
+### New Directory Structure
+
+See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for complete details on the new organization.
+
+### Benefits
+
+- **Easier Contribution**: Clear structure makes it simple for new contributors
+- **Better Testability**: Modular code is easier to unit test
+- **Scalability**: Easy to add new features without cluttering existing files
+- **Maintainability**: Single responsibility principle applied throughout
+- **Code Reuse**: Shared utilities prevent duplication
+
+---
+
+*For the complete directory breakdown, see [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)*
