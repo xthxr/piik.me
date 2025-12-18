@@ -548,6 +548,9 @@
                                         <button class="format-btn" data-format="jpg">
                                             <i class="fas fa-file-image"></i> JPG
                                         </button>
+                                        <button class="format-btn" data-format="svg">
+                                            <i class="fas fa-file-code"></i> SVG
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="download-background" id="downloadBgOptions" style="display: none;">
@@ -929,22 +932,11 @@
                                     <div class="phone-mockup">
                                         <div class="phone-notch"></div>
                                         <div class="phone-screen" id="bioLinkPreview">
-                                            <div class="preview-mesh-gradient"></div>
-                                            <div class="bio-preview-content">
-                                                <div class="bio-card">
-                                                    <div id="previewAvatar" class="bio-avatar">
-                                                        <i class="fas fa-user"></i>
-                                                    </div>
-                                                    <h2 id="previewName" class="bio-name">Your Name</h2>
-                                                    <p id="previewDescription" class="bio-description">Your bio description</p>
-                                                    <div id="previewSocial" class="bio-social"></div>
-                                                    <div id="previewLinks" class="bio-links"></div>
-                                                </div>
-                                                <div class="bio-footer">
-                                                    <span style="opacity: 0.5; font-size: 11px;">100% free, try</span>
-                                                    <span style="font-weight: 700; font-size: 12px; letter-spacing: 1px;">PIIK.ME</span>
-                                                </div>
-                                            </div>
+                                            <iframe id="bioPreviewFrame" 
+                                                    style="width: 100%; height: 100%; border: none; background: transparent; border-radius: inherit;"
+                                                    sandbox="allow-scripts allow-same-origin"
+                                                    srcdoc="">
+                                            </iframe>
                                         </div>
                                     </div>
                                 </div>
@@ -1566,7 +1558,7 @@
     
     <!-- Other Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
     <script src="https://unpkg.com/globe.gl@2.31.0/dist/globe.gl.min.js"></script>

@@ -7,7 +7,7 @@ const QRGenerator = {
     currentFormat: 'png',
     currentLink: '',
     currentBrandName: '',
-    qrCode: null,
+    qrCodeStyling: null,
 
     init() {
         this.cacheDom();
@@ -217,7 +217,6 @@ const QRGenerator = {
     cacheDom() {
         this.qrLinkInput = document.getElementById('qrLinkInput');
         this.generateBtn = document.getElementById('generateQRBtn');
-        this.qrCanvas = document.getElementById('qrCanvas');
         this.qrPlaceholder = document.getElementById('qrPlaceholder');
         this.qrBrandInput = document.getElementById('qrBrandInput');
         this.qrBrandOverlay = document.getElementById('qrBrandOverlay');
@@ -245,12 +244,7 @@ const QRGenerator = {
         // Brand name overlay
         this.qrBrandInput.addEventListener('input', (e) => {
             this.currentBrandName = e.target.value;
-            if (this.currentBrandName && this.qrCode) {
-                this.qrBrandText.textContent = this.currentBrandName;
-                this.qrBrandOverlay.style.display = 'block';
-            } else {
-                this.qrBrandOverlay.style.display = 'none';
-            }
+            if (this.currentLink) this.generateQR();
         });
 
         // Pattern selection
@@ -314,6 +308,11 @@ const QRGenerator = {
             }
         });
 
+        // Transparent background toggle
+        this.transparentBg.addEventListener('change', (e) => {
+            if (this.currentLink) this.generateQR();
+        });
+
         // Format selection
         document.querySelectorAll('.format-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -348,66 +347,96 @@ const QRGenerator = {
         this.qrPlaceholder.style.display = 'none';
 
         try {
-            // Check if QRCode library is loaded
-            if (typeof QRCode === 'undefined') {
-                throw new Error('QR Code library not loaded. Please refresh the page.');
+            // Check if QRCodeStyling library is loaded
+            if (typeof QRCodeStyling === 'undefined') {
+                throw new Error('QR Code Styling library not loaded. Please refresh the page.');
             }
 
-            // Get canvas context
-            const ctx = this.qrCanvas.getContext('2d');
-            ctx.clearRect(0, 0, this.qrCanvas.width, this.qrCanvas.height);
+            // Clear previous QR code
+            const container = document.querySelector('.qr-canvas-wrapper');
+            container.innerHTML = '';
 
-            // Set background
-            if (!(this.transparentBg?.checked && this.currentFormat === 'png')) {
-                ctx.fillStyle = this.currentBgColor || '#ffffff';
-                ctx.fillRect(0, 0, 400, 400);
-            }
+            // Set container background
+            const bgColor = this.transparentBg?.checked ? '#ffffffda' : this.currentBgColor;
+            container.style.backgroundColor = bgColor;
+            container.style.width = '400px';
+            container.style.height = '400px';
+            container.style.display = 'inline-block';
+            container.style.borderRadius = '24px';
+            container.style.overflow = 'hidden';
 
-            // Create temporary container for QR generation
-            const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'absolute';
-            tempContainer.style.left = '-9999px';
-            document.body.appendChild(tempContainer);
+            // Get pattern-specific options
+            const patternOptions = this.getPatternOptions();
+            
+            // Get frame options
+            const frameOptions = this.getFrameOptions();
 
-            // Generate QR code using library
-            const qrCode = new QRCode(tempContainer, {
-                text: link,
+            // Build QR code configuration
+            const qrOptions = {
                 width: 400,
                 height: 400,
-                colorDark: this.currentColor || '#000000',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            // Wait for QR code to render
-            setTimeout(() => {
-                try {
-                    const qrImg = tempContainer.querySelector('img');
-                    if (!qrImg) {
-                        throw new Error('QR image not generated');
-                    }
-
-                    // Wait for image to load
-                    if (qrImg.complete) {
-                        this.drawQRToCanvas(ctx, qrImg);
-                        document.body.removeChild(tempContainer);
-                    } else {
-                        qrImg.onload = () => {
-                            this.drawQRToCanvas(ctx, qrImg);
-                            document.body.removeChild(tempContainer);
-                        };
-                    }
-
-                    this.qrCanvas.style.display = 'block';
-                    this.downloadBtn.disabled = false;
-                    
-                    // Update floating preview
-                    setTimeout(() => this.updateFloatingPreview(), 100);
-                } catch (drawError) {
-                    document.body.removeChild(tempContainer);
-                    throw drawError;
+                type: 'svg',
+                data: link,
+                margin: frameOptions.margin,
+                qrOptions: {
+                    errorCorrectionLevel: 'H'
+                },
+                imageOptions: {
+                    hideBackgroundDots: true,
+                    imageSize: 0.4,
+                    margin: 5,
+                    crossOrigin: 'anonymous'
+                },
+                dotsOptions: {
+                    color: this.currentColor,
+                    type: patternOptions.dotsType
+                },
+                cornersSquareOptions: {
+                    color: this.currentColor,
+                    type: patternOptions.cornersSquareType
+                },
+                cornersDotOptions: {
+                    color: this.currentColor,
+                    type: patternOptions.cornersDotType
+                },
+                backgroundOptions: {
+                    color: this.transparentBg?.checked ? 'transparent' : this.currentBgColor
                 }
-            }, 200);
+            };
+
+            // Add brand name as text overlay if provided
+            if (this.currentBrandName) {
+                // Create a data URL for brand text image
+                qrOptions.image = await this.createBrandImage(this.currentBrandName);
+            }
+
+            // Create QR code
+            this.qrCodeStyling = new QRCodeStyling(qrOptions);
+
+            // Append to canvas wrapper (will create SVG)
+            this.qrCodeStyling.append(container);
+
+            // Style the SVG to match canvas appearance
+            const svg = container.querySelector('svg');
+            if (svg) {
+                svg.style.display = 'block';
+                svg.style.borderRadius = '12px';
+                svg.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+                svg.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                svg.style.width = '400px';
+                svg.style.height = '400px';
+                // Let the QR library handle the background color
+            }
+
+            // Apply frame if selected
+            if (this.currentFrame !== 'none') {
+                this.applyFrameToSVG(container, frameOptions);
+            }
+
+            this.downloadBtn.disabled = false;
+            
+            // Update floating preview
+            setTimeout(() => this.updateFloatingPreview(), 100);
 
         } catch (error) {
             console.error('QR generation error:', error);
@@ -417,221 +446,326 @@ const QRGenerator = {
         }
     },
 
-    drawQRToCanvas(ctx, qrImg) {
-        // Clear canvas first
-        ctx.clearRect(0, 0, 400, 400);
-        
-        // Always draw the base QR code first to ensure scannability
-        ctx.drawImage(qrImg, 0, 0, 400, 400);
-        
-        // For non-square patterns, apply visual effects that don't break the QR code
-        if (this.currentPattern !== 'square') {
-            this.applyVisualPattern(ctx);
-        }
-        
-        // Apply frame if selected
-        if (this.currentFrame && this.currentFrame !== 'none') {
-            this.applyFrame(ctx, 400);
-        }
-        
-        // Update floating preview
-        this.updateFloatingPreview();
-    },
-
-    applyVisualPattern(ctx) {
-        // Get the current QR code image data
-        const imageData = ctx.getImageData(0, 0, 400, 400);
-        const data = imageData.data;
-        
-        // Apply pattern-specific visual effects while preserving QR structure
-        switch (this.currentPattern) {
-            case 'dots':
-            case 'circular':
-                this.applyRoundedCorners(ctx, imageData);
-                break;
-            case 'rounded':
-            case 'extra-rounded':
-                const radius = this.currentPattern === 'extra-rounded' ? 4 : 2;
-                this.applyRoundedCorners(ctx, imageData, radius);
-                break;
-            default:
-                // For other patterns, just ensure the color is applied
-                this.applyColorOnly(ctx, imageData);
-                break;
-        }
-    },
-
-    applyRoundedCorners(ctx, imageData, radius = 3) {
-        // This creates a softened appearance without destroying the QR code structure
-        const data = imageData.data;
-        const width = 400;
-        const height = 400;
-        
-        // Create a new canvas for the rounded effect
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-        const tempCtx = tempCanvas.getContext('2d');
-        
-        // Copy original image
-        tempCtx.putImageData(imageData, 0, 0);
-        
-        // Apply subtle blur for rounded effect without losing scannability
-        ctx.clearRect(0, 0, width, height);
-        ctx.filter = 'blur(0.5px)';
-        ctx.drawImage(tempCanvas, 0, 0);
-        ctx.filter = 'none';
-        
-        // Enhance contrast to maintain scannability
-        const newImageData = ctx.getImageData(0, 0, width, height);
-        const newData = newImageData.data;
-        
-        for (let i = 0; i < newData.length; i += 4) {
-            // Increase contrast
-            const avg = (newData[i] + newData[i + 1] + newData[i + 2]) / 3;
-            if (avg < 128) {
-                // Make dark pixels darker (apply current color)
-                const color = this.hexToRgb(this.currentColor);
-                newData[i] = color.r;
-                newData[i + 1] = color.g;
-                newData[i + 2] = color.b;
-            } else {
-                // Keep light pixels light
-                newData[i] = 255;
-                newData[i + 1] = 255;
-                newData[i + 2] = 255;
+    getPatternOptions() {
+        const patterns = {
+            'square': {
+                dotsType: 'square',
+                cornersSquareType: 'square',
+                cornersDotType: 'square'
+            },
+            'dots': {
+                dotsType: 'dots',
+                cornersSquareType: 'dot',
+                cornersDotType: 'dot'
+            },
+            'rounded': {
+                dotsType: 'rounded',
+                cornersSquareType: 'extra-rounded',
+                cornersDotType: 'dot'
+            },
+            'extra-rounded': {
+                dotsType: 'extra-rounded',
+                cornersSquareType: 'extra-rounded',
+                cornersDotType: 'dot'
+            },
+            'classy': {
+                dotsType: 'classy',
+                cornersSquareType: 'square',
+                cornersDotType: 'square'
+            },
+            'classy-rounded': {
+                dotsType: 'classy-rounded',
+                cornersSquareType: 'extra-rounded',
+                cornersDotType: 'dot'
+            },
+            'circular': {
+                dotsType: 'dots',
+                cornersSquareType: 'dot',
+                cornersDotType: 'dot'
+            },
+            'diamond': {
+                dotsType: 'square',
+                cornersSquareType: 'square',
+                cornersDotType: 'square'
+            },
+            'star': {
+                dotsType: 'dots',
+                cornersSquareType: 'extra-rounded',
+                cornersDotType: 'dot'
+            },
+            'bars': {
+                dotsType: 'classy',
+                cornersSquareType: 'square',
+                cornersDotType: 'square'
+            },
+            'thick': {
+                dotsType: 'square',
+                cornersSquareType: 'square',
+                cornersDotType: 'square'
+            },
+            'thin': {
+                dotsType: 'dots',
+                cornersSquareType: 'dot',
+                cornersDotType: 'dot'
+            },
+            'fluid': {
+                dotsType: 'extra-rounded',
+                cornersSquareType: 'extra-rounded',
+                cornersDotType: 'dot'
+            },
+            'mosaic': {
+                dotsType: 'classy',
+                cornersSquareType: 'extra-rounded',
+                cornersDotType: 'dot'
+            },
+            'leaf': {
+                dotsType: 'classy-rounded',
+                cornersSquareType: 'extra-rounded',
+                cornersDotType: 'dot'
             }
-        }
-        
-        ctx.putImageData(newImageData, 0, 0);
-    },
-
-    applyColorOnly(ctx, imageData) {
-        // Simply change the color while keeping QR structure intact
-        const data = imageData.data;
-        const color = this.hexToRgb(this.currentColor);
-        
-        for (let i = 0; i < data.length; i += 4) {
-            // If pixel is dark (part of QR code), apply the custom color
-            const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            if (brightness < 128) {
-                data[i] = color.r;
-                data[i + 1] = color.g;
-                data[i + 2] = color.b;
-            }
-        }
-        
-        ctx.putImageData(imageData, 0, 0);
-    },
-
-    hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : { r: 0, g: 0, b: 0 };
-    },
-
-    applyFrame(ctx, size) {
-        const frameWidth = 20;
-        ctx.strokeStyle = this.getFrameColor();
-        ctx.lineWidth = frameWidth;
-
-        switch (this.currentFrame) {
-            case 'business':
-                ctx.strokeRect(frameWidth/2, frameWidth/2, size - frameWidth, size - frameWidth);
-                break;
-            case 'wedding':
-                ctx.beginPath();
-                ctx.arc(size/2, size/2, (size - frameWidth)/2, 0, Math.PI * 2);
-                ctx.stroke();
-                break;
-            case 'birthday':
-                ctx.save();
-                const gradient = ctx.createLinearGradient(0, 0, size, size);
-                gradient.addColorStop(0, '#F59E0B');
-                gradient.addColorStop(1, '#EF4444');
-                ctx.strokeStyle = gradient;
-                ctx.lineWidth = frameWidth;
-                this.roundRect(ctx, frameWidth/2, frameWidth/2, size - frameWidth, size - frameWidth, 20);
-                ctx.stroke();
-                ctx.restore();
-                break;
-            case 'party':
-                ctx.setLineDash([10, 10]);
-                ctx.strokeRect(frameWidth/2, frameWidth/2, size - frameWidth, size - frameWidth);
-                ctx.setLineDash([]);
-                break;
-            default:
-                // Other frame styles can be added here
-                break;
-        }
-    },
-
-    getFrameColor() {
-        const frameColors = {
-            business: '#3B82F6',
-            wedding: '#EC4899',
-            birthday: '#F59E0B',
-            party: '#8B5CF6',
-            concert: '#EF4444',
-            conference: '#06b6d4',
-            restaurant: '#10B981',
-            retail: '#8B5CF6',
-            social: '#3B82F6'
         };
-        return frameColors[this.currentFrame] || this.currentColor;
+
+        return patterns[this.currentPattern] || patterns['square'];
     },
 
-    adjustColor(color, amount) {
-        const num = parseInt(color.replace('#', ''), 16);
-        const r = Math.max(0, Math.min(255, (num >> 16) + amount));
-        const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
-        const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
-        return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    getFrameOptions() {
+        const frames = {
+            'none': { margin: 10, color: null, text: null },
+            'business': { margin: 20, color: '#3B82F6', text: 'SCAN ME' },
+            'wedding': { margin: 20, color: '#EC4899', text: '💝' },
+            'birthday': { margin: 20, color: '#F59E0B', text: '🎉' },
+            'party': { margin: 20, color: '#8B5CF6', text: '🎊' },
+            'concert': { margin: 20, color: '#EF4444', text: '🎵' },
+            'conference': { margin: 20, color: '#06b6d4', text: 'EVENT' },
+            'restaurant': { margin: 20, color: '#10B981', text: '🍴' },
+            'retail': { margin: 20, color: '#8B5CF6', text: 'SHOP' },
+            'social': { margin: 20, color: '#3B82F6', text: 'FOLLOW' }
+        };
+
+        return frames[this.currentFrame] || frames['none'];
     },
 
-    downloadQR() {
-        if (!this.currentLink) {
+    async createBrandImage(text) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+
+            // Draw white circle background
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(100, 100, 90, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw border
+            ctx.strokeStyle = this.currentColor;
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw text
+            ctx.fillStyle = this.currentColor;
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Wrap text if too long
+            const maxWidth = 160;
+            const words = text.split(' ');
+            let line = '';
+            let y = 100;
+            
+            if (words.length > 1) {
+                y = 85;
+                words.forEach((word, i) => {
+                    const testLine = line + word + ' ';
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && i > 0) {
+                        ctx.fillText(line, 100, y);
+                        line = word + ' ';
+                        y += 30;
+                    } else {
+                        line = testLine;
+                    }
+                });
+                ctx.fillText(line, 100, y);
+            } else {
+                ctx.fillText(text, 100, 100);
+            }
+
+            resolve(canvas.toDataURL());
+        });
+    },
+
+    applyFrameToSVG(container, frameOptions, size = 400) {
+        if (!frameOptions.color) return;
+
+        const svg = container.querySelector('svg');
+        if (!svg) return;
+
+        const frameColor = frameOptions.color;
+        const frameText = frameOptions.text;
+
+        // Scale values based on size
+        const scale = size / 400;
+        const padding = 5 * scale;
+        const strokeWidth = 8 * scale;
+        const fontSize = 16 * scale;
+        const textY = 25 * scale;
+
+        // Add frame rectangle
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', padding.toString());
+        rect.setAttribute('y', padding.toString());
+        rect.setAttribute('width', (size - padding * 2).toString());
+        rect.setAttribute('height', (size - padding * 2).toString());
+        rect.setAttribute('fill', 'none');
+        rect.setAttribute('stroke', frameColor);
+        rect.setAttribute('stroke-width', strokeWidth.toString());
+        rect.setAttribute('rx', (10 * scale).toString());
+        svg.insertBefore(rect, svg.firstChild);
+
+        // Add frame text if provided
+        if (frameText) {
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', (size / 2).toString());
+            text.setAttribute('y', textY.toString());
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('font-size', fontSize.toString());
+            text.setAttribute('font-weight', 'bold');
+            text.setAttribute('fill', frameColor);
+            text.textContent = frameText;
+            svg.appendChild(text);
+        }
+    },
+
+    updateFloatingPreview() {
+        // Copy main SVG to floating canvas
+        if (this.qrCodeStyling && this.floatingCanvas) {
+            const container = document.querySelector('.qr-canvas-wrapper');
+            const svg = container.querySelector('svg');
+            
+            if (svg) {
+                // Convert SVG to canvas for floating preview
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const img = new Image();
+                const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                
+                img.onload = () => {
+                    const ctx = this.floatingCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, 400, 400);
+                    ctx.drawImage(img, 0, 0, 400, 400);
+                    URL.revokeObjectURL(url);
+                };
+                
+                img.src = url;
+            }
+        }
+    },
+
+    async downloadQR() {
+        if (!this.currentLink || !this.qrCodeStyling) {
             this.showNotification('Please generate a QR code first', 'error');
             return;
         }
 
         try {
-            // Create a temporary canvas for download
-            const downloadCanvas = document.createElement('canvas');
-            downloadCanvas.width = 800;  // Higher resolution for download
-            downloadCanvas.height = 800;
-            const ctx = downloadCanvas.getContext('2d');
+            const extension = this.currentFormat;
+            const fileName = `qr-code-${Date.now()}.${extension}`;
 
-            // Set background based on format
-            if (this.currentFormat === 'jpg') {
-                ctx.fillStyle = this.currentBgColor;
-                ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
-            } else if (!this.transparentBg.checked) {
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+            // Get pattern-specific options
+            const patternOptions = this.getPatternOptions();
+            
+            // Get frame options
+            const frameOptions = this.getFrameOptions();
+
+            // Determine background color based on format and settings
+            let backgroundColor;
+            if (extension === 'jpg') {
+                // JPG doesn't support transparency, always use the selected background color
+                backgroundColor = this.currentBgColor;
+            } else {
+                // PNG/SVG: use transparent if checkbox is checked, otherwise use background color
+                backgroundColor = this.transparentBg?.checked ? 'transparent' : this.currentBgColor;
             }
 
-            // Scale and draw the QR code
-            ctx.scale(2, 2);
-            ctx.drawImage(this.qrCanvas, 0, 0);
+            // Create download QR with proper settings
+            const downloadOptions = {
+                width: extension === 'svg' ? 400 : 800,
+                height: extension === 'svg' ? 400 : 800,
+                type: extension === 'svg' ? 'svg' : 'canvas',
+                data: this.currentLink,
+                margin: frameOptions.margin,
+                qrOptions: {
+                    errorCorrectionLevel: 'H'
+                },
+                imageOptions: {
+                    hideBackgroundDots: true,
+                    imageSize: 0.4,
+                    margin: 5,
+                    crossOrigin: 'anonymous'
+                },
+                dotsOptions: {
+                    color: this.currentColor,
+                    type: patternOptions.dotsType
+                },
+                cornersSquareOptions: {
+                    color: this.currentColor,
+                    type: patternOptions.cornersSquareType
+                },
+                cornersDotOptions: {
+                    color: this.currentColor,
+                    type: patternOptions.cornersDotType
+                },
+                backgroundOptions: {
+                    color: backgroundColor
+                }
+            };
 
-            // Convert to blob and download
-            const mimeType = this.currentFormat === 'png' ? 'image/png' : 'image/jpeg';
-            downloadCanvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `qr-code-${Date.now()}.${this.currentFormat}`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+            // Add brand name if provided
+            if (this.currentBrandName) {
+                downloadOptions.image = await this.createBrandImage(this.currentBrandName);
+            }
+
+            // Create new QR instance for download with frames
+            const downloadQR = new QRCodeStyling(downloadOptions);
+            
+            // For frames, we need to modify the SVG after generation
+            if (this.currentFrame !== 'none') {
+                // Create temporary container
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                document.body.appendChild(tempContainer);
                 
-                this.showNotification('QR Code downloaded successfully!', 'success');
-            }, mimeType, 0.95);
+                // Generate QR in temp container
+                await downloadQR.append(tempContainer);
+                
+                // Wait for SVG to be rendered
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Apply frame with appropriate size
+                const downloadSize = extension === 'svg' ? 400 : 800;
+                this.applyFrameToSVG(tempContainer, frameOptions, downloadSize);
+                
+                // Download from temp container
+                await downloadQR.download({
+                    name: fileName.replace(`.${extension}`, ''),
+                    extension: extension
+                });
+                
+                // Clean up
+                document.body.removeChild(tempContainer);
+            } else {
+                // Download directly without frame
+                await downloadQR.download({
+                    name: fileName.replace(`.${extension}`, ''),
+                    extension: extension
+                });
+            }
+            
+            this.showNotification('QR Code downloaded successfully!', 'success');
 
         } catch (error) {
             console.error('Download error:', error);

@@ -3287,6 +3287,13 @@ html[data-theme="light"] .qr-floating-preview {
     display: inline-block;
 }
 
+.qr-canvas-wrapper svg {
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 #qrCanvas {
     display: block;
     border-radius: 12px;

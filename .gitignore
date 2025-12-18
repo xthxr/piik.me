@@ -13,3 +13,4 @@ data/
 *firebase-adminsdk*.json
 
 *.lock
+/.next/
