@@ -7,7 +7,6 @@ import {
   Palette,
   Link,
   Activity,
-  Zap,
   Shield,
   Globe,
   QrCode,
@@ -66,7 +65,7 @@ export default function Features() {
           <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4">
             Everything you need,
             <br />
-            <span className="text-brand-purple">nothing you don't</span>
+            <span className="text-brand-purple">nothing you don&apos;t</span>
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             Powerful features designed for modern teams. Simple enough for individuals.
