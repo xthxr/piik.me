@@ -1314,81 +1314,194 @@ function removeEditorBioLinkItem(index) {
 
 // Update live preview
 function updateLivePreview() {
-    const name = document.getElementById('editorBioName')?.value || 'Your Name';
-    const description = document.getElementById('editorBioDescription')?.value || 'Your bio description';
-    const themeColor = document.getElementById('editorThemeColor')?.value || '#06b6d4';
-    const profilePicture = document.getElementById('editorProfilePicture')?.value;
-    const backgroundStyle = document.getElementById('editorBackgroundStyle')?.value || 'gradient';
-    
-    const previewName = document.getElementById('previewName');
-    const previewDescription = document.getElementById('previewDescription');
-    const previewAvatar = document.getElementById('previewAvatar');
-    const previewSocial = document.getElementById('previewSocial');
-    const previewLinks = document.getElementById('previewLinks');
-    
-    // Check if elements exist
-    if (!previewName || !previewDescription || !previewAvatar) {
-        console.log('Preview elements not found');
+    const iframe = document.getElementById('bioPreviewFrame');
+    if (!iframe) {
+        console.log('Preview iframe not found');
         return;
     }
     
-    // Update preview name and description
-    previewName.textContent = name;
-    previewDescription.textContent = description;
+    // Gather all data
+    const name = document.getElementById('editorBioName')?.value || 'Your Name';
+    const slug = document.getElementById('editorBioSlug')?.value || 'preview';
+    const description = document.getElementById('editorBioDescription')?.value || 'Your bio description';
+    const themeColor = document.getElementById('editorThemeColor')?.value || '#06b6d4';
+    const profilePicture = document.getElementById('editorProfilePicture')?.value || '';
+    const backgroundStyle = document.getElementById('editorBackgroundStyle')?.value || 'gradient';
     
-    // Update avatar
-    if (profilePicture) {
-        previewAvatar.innerHTML = `<img src="${profilePicture}" alt="${name}">`;
-        previewAvatar.style.background = '';
-    } else {
-        previewAvatar.style.background = `linear-gradient(135deg, ${themeColor}, #3b82f6)`;
-        previewAvatar.innerHTML = '<i class="fas fa-user"></i>';
-    }
+    const social = {
+        instagram: document.getElementById('editorInstagram')?.value || '',
+        twitter: document.getElementById('editorTwitter')?.value || '',
+        linkedin: document.getElementById('editorLinkedIn')?.value || '',
+        github: document.getElementById('editorGithub')?.value || '',
+        youtube: document.getElementById('editorYoutube')?.value || '',
+        website: document.getElementById('editorWebsite')?.value || ''
+    };
     
-    // Update social links preview
-    if (previewSocial) {
-        const social = {
-            instagram: document.getElementById('editorInstagram')?.value || '',
-            twitter: document.getElementById('editorTwitter')?.value || '',
-            linkedin: document.getElementById('editorLinkedIn')?.value || '',
-            github: document.getElementById('editorGithub')?.value || '',
-            youtube: document.getElementById('editorYoutube')?.value || '',
-            website: document.getElementById('editorWebsite')?.value || ''
-        };
-        
-        const socialLinks = [];
-        if (social.instagram) socialLinks.push({ icon: 'fab fa-instagram', url: social.instagram });
-        if (social.twitter) socialLinks.push({ icon: 'fab fa-twitter', url: social.twitter });
-        if (social.linkedin) socialLinks.push({ icon: 'fab fa-linkedin', url: social.linkedin });
-        if (social.github) socialLinks.push({ icon: 'fab fa-github', url: social.github });
-        if (social.youtube) socialLinks.push({ icon: 'fab fa-youtube', url: social.youtube });
-        if (social.website) socialLinks.push({ icon: 'fas fa-globe', url: social.website });
-        
-        if (socialLinks.length > 0) {
-            previewSocial.innerHTML = socialLinks.map(link => 
-                `<div class="bio-social-icon"><i class="${link.icon}"></i></div>`
-            ).join('');
-        } else {
-            previewSocial.innerHTML = '';
+    const validLinks = editorBioLinkItems.filter(item => item.title && item.url);
+    
+    // Generate complete bio.html content
+    const bioLinkData = {
+        name,
+        slug,
+        description,
+        profilePicture,
+        themeColor,
+        backgroundStyle,
+        social,
+        links: validLinks,
+        verified: false // Preview is never verified
+    };
+    
+    const htmlContent = generateBioPreviewHTML(bioLinkData);
+    iframe.srcdoc = htmlContent;
+}
+
+// Generate bio preview HTML (mimics bio.html structure)
+function generateBioPreviewHTML(bioLink) {
+    const themeColor = bioLink.themeColor || '#06b6d4';
+    const backgroundStyle = bioLink.backgroundStyle || 'gradient';
+    
+    // Helper functions
+    function extractDomain(url) {
+        try {
+            const urlObj = new URL(url);
+            return urlObj.hostname.replace('www.', '');
+        } catch {
+            return url;
         }
     }
     
-    // Update links preview
-    if (previewLinks) {
-        const validLinks = editorBioLinkItems.filter(item => item.title && item.url);
-        
-        if (validLinks.length > 0) {
-            previewLinks.innerHTML = validLinks.map(link => {
-                const favicon = link.url ? getFaviconForUrl(link.url) : null;
-                return `<div class="bio-link-button">
-                    ${favicon ? `<i class="${favicon}"></i>` : ''}
-                    ${link.title}
-                </div>`;
-            }).join('');
-        } else {
-            previewLinks.innerHTML = '<p style="color: rgba(255,255,255,0.4); font-size: 11px; margin: 10px 0;">No links added yet</p>';
-        }
+    function getLinkIcon(url) {
+        const urlLower = url.toLowerCase();
+        if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) return 'fab fa-youtube';
+        if (urlLower.includes('twitter.com') || urlLower.includes('x.com')) return 'fab fa-twitter';
+        if (urlLower.includes('instagram.com')) return 'fab fa-instagram';
+        if (urlLower.includes('facebook.com')) return 'fab fa-facebook';
+        if (urlLower.includes('linkedin.com')) return 'fab fa-linkedin';
+        if (urlLower.includes('github.com')) return 'fab fa-github';
+        if (urlLower.includes('tiktok.com')) return 'fab fa-tiktok';
+        if (urlLower.includes('spotify.com')) return 'fab fa-spotify';
+        if (urlLower.includes('discord.')) return 'fab fa-discord';
+        if (urlLower.includes('twitch.tv')) return 'fab fa-twitch';
+        if (urlLower.includes('medium.com')) return 'fab fa-medium';
+        if (urlLower.includes('reddit.com')) return 'fab fa-reddit';
+        if (urlLower.includes('dribbble.com')) return 'fab fa-dribbble';
+        if (urlLower.includes('behance.net')) return 'fab fa-behance';
+        return 'fas fa-link';
     }
+    
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 6, g: 182, b: 212 };
+    }
+    
+    // Build social links HTML
+    const social = bioLink.social || {};
+    const socialLinks = [];
+    if (social.instagram) socialLinks.push({ icon: 'fab fa-instagram', url: `https://instagram.com/${social.instagram}` });
+    if (social.twitter) socialLinks.push({ icon: 'fab fa-twitter', url: `https://x.com/${social.twitter}` });
+    if (social.linkedin) socialLinks.push({ icon: 'fab fa-linkedin', url: social.linkedin.startsWith('http') ? social.linkedin : `https://linkedin.com/in/${social.linkedin}` });
+    if (social.github) socialLinks.push({ icon: 'fab fa-github', url: `https://github.com/${social.github}` });
+    if (social.youtube) socialLinks.push({ icon: 'fab fa-youtube', url: social.youtube.startsWith('http') ? social.youtube : `https://youtube.com/@${social.youtube}` });
+    if (social.website) socialLinks.push({ icon: 'fas fa-globe', url: social.website.startsWith('http') ? social.website : `https://${social.website}` });
+    
+    let socialLinksHTML = '';
+    if (socialLinks.length > 0) {
+        socialLinksHTML = '<div class="bio-social">';
+        socialLinks.forEach(link => {
+            socialLinksHTML += `<a href="${link.url}" class="social-link" target="_blank" rel="noopener noreferrer">
+                <i class="${link.icon}" style="color: rgba(255, 255, 255, 0.8);"></i>
+            </a>`;
+        });
+        socialLinksHTML += '</div>';
+    }
+    
+    // Build links HTML
+    let linksHTML = '';
+    if (bioLink.links && bioLink.links.length > 0) {
+        linksHTML = '<div class="bio-links">';
+        bioLink.links.forEach((link) => {
+            const domain = extractDomain(link.url);
+            const icon = getLinkIcon(link.url);
+            linksHTML += `<a href="${link.url}" class="bio-link-item" target="_blank" rel="noopener noreferrer">
+                <div class="link-icon">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="link-content">
+                    <div class="link-title">${link.title}</div>
+                    <div class="link-url">${domain}</div>
+                </div>
+            </a>`;
+        });
+        linksHTML += '</div>';
+    }
+    
+    // Set background style
+    let backgroundCSS = '';
+    if (backgroundStyle === 'gradient') {
+        const rgb = hexToRgb(themeColor);
+        backgroundCSS = `background: linear-gradient(135deg, ${themeColor} 0%, rgb(${Math.floor(rgb.r * 0.7)}, ${Math.floor(rgb.g * 0.7)}, ${Math.floor(rgb.b * 0.7)}) 100%);`;
+    } else if (backgroundStyle === 'solid') {
+        backgroundCSS = `background: ${themeColor};`;
+    } else if (backgroundStyle === 'image' && bioLink.profilePicture) {
+        backgroundCSS = `background: url(${bioLink.profilePicture}) center/cover; filter: blur(100px) brightness(0.3);`;
+    }
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${bioLink.name}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bio-preview.css">
+    <style>
+        body {
+            ${backgroundCSS}
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="mesh-gradient"></div>
+    <div class="bio-container" style="margin: 0; max-height: 100vh; overflow-y: auto;">
+        <div class="bio-header">
+            ${bioLink.profilePicture ? 
+                `<img src="${bioLink.profilePicture}" alt="${bioLink.name}" class="bio-avatar">` :
+                `<div class="bio-avatar-placeholder" style="background: ${themeColor};">
+                    <i class="fas fa-user"></i>
+                </div>`
+            }
+            <h1 class="bio-name">
+                ${bioLink.name}
+                ${bioLink.verified ? 
+                    '<span class="verified-badge"><i class="fas fa-check"></i></span>' : 
+                    '<span class="under-review-badge">Preview</span>'
+                }
+            </h1>
+            ${bioLink.description ? `<p class="bio-description">${bioLink.description}</p>` : ''}
+            ${socialLinksHTML}
+        </div>
+        ${linksHTML}
+        <div class="bio-footer">
+            <div class="powered-by">
+                <span>100% free, try</span>
+                <a href="/" target="_blank" style="display: flex; align-items: center; text-decoration: none;">
+                    <img src="/assets/images/logo.png" alt="piik.me" style="width: auto; height: 24px;">
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
 }
 
 // Helper function to get favicon/icon for common URLs

@@ -11,3 +11,6 @@ data/
 
 # Don't push service account keys (these are truly sensitive)
 *firebase-adminsdk*.json
+
+*.lock
+/.next/
