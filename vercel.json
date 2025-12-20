@@ -4,37 +4,13 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
-    {
-      "src": "/css/(.*)",
-      "dest": "/public/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/public/js/$1"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/public/assets/$1"
-    },
-    {
-      "src": "/(.*\\.geojson)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/(.*\\.(ico|png|jpg|jpeg|gif|svg|webp))",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/landing.html",
-      "dest": "/public/landing.html"
-    },
-    {
-      "src": "^/$",
-      "dest": "/public/landing.html"
-    },
     {
       "src": "/(.*)",
       "dest": "/server.js"
