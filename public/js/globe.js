@@ -89,14 +89,14 @@ class GlobeVisualization {
       .backgroundColor('rgba(0,0,0,0)')
       .atmosphereColor('rgba(170, 170, 200, 0.8)')
       .globeMaterial(new THREE.MeshPhongMaterial({
-        color: 'rgb(228, 228, 231)',
+        color: 'rgba(0, 0, 112, 1)',
         transparent: false,
         opacity: 1,
       }))
       .hexPolygonsData(this.countriesData.features)
       .hexPolygonResolution(3)
       .hexPolygonMargin(0.2)
-      .hexPolygonColor(() => `rgba(54, 211, 153, ${Math.random() / 1.5 + 0.5})`)
+      .hexPolygonColor(() => `rgba(54, 211, 153, ${Math.random() / 10.5 + 0.5})`)
       .hexPolygonAltitude(() => this.hexAltitude)
       .hexBinResolution(3)
       .hexBinPointsData(this.locations)

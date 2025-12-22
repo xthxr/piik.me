@@ -127,8 +127,8 @@ function initScrollAnimations() {
         try {
             gsap.registerPlugin(ScrollTrigger);
 
-            // Reveal elements on scroll
-            gsap.utils.toArray('.group').forEach(group => {
+            // Reveal elements on scroll, but exclude the navbar logo
+            gsap.utils.toArray('.group:not(.navbar-logo)').forEach(group => {
                 gsap.fromTo(group, 
                     { y: 50, opacity: 0 },
                     {
