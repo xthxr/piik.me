@@ -1,6 +1,6 @@
-# Contributing to Zaplink
+# Contributing to PIIK.ME
 
-First off, thank you for considering contributing to Zaplink! It's people like you that make Zaplink such a great tool.
+First off, thank you for considering contributing to Zaplink! It's people like you that make PIIK.ME such a great tool.
 
 ## Table of Contents
 
@@ -186,4 +186,4 @@ The backend is organized into modules for better maintainability:
 
 ## 📄 License
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing, you agree that your contributions will be licensed under the GNU License.
