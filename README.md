@@ -1,8 +1,9 @@
 <div align="center">
 
-# 🔗 piik.me
+# PIIK.ME
 
-### Open-Source Real-Time Link & QR Analytics Platform with Bio Links
+### The open-source link infrastructure for modern businesses.
+### Real-time analytics, custom domains, and zero latency redirects.
 
 [![License:  MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-v14+-green.svg)](https://nodejs.org)
