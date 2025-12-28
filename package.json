@@ -1,6 +1,6 @@
 {
   "name": "link360",
-  "version": "1.0.0",
+  "version": "0.2.0-beta",
   "description": "Real-time link shortener with analytics tracking and QR code generation",
   "main": "server.js",
   "scripts": {
