@@ -111,10 +111,28 @@
 
         <div class="relative w-full max-w-7xl mx-auto px-6 text-center" style="z-index: 10;">
             <div class="flex justify-center">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8 animate-fade-in-up w-fit mx-auto">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span class="text-sm text-gray-300 font-medium">Beta v0.2 is Now Live</span>
-                </div>
+                                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8 animate-fade-in-up w-fit mx-auto" style="backdrop-filter: blur(4px);">
+                                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                        <span class="text-base text-gray-100 font-semibold">Beta v0.2 is Now Live -</span>
+                                        <a href="https://github.com/xthxr/piik.me/releases" target="_blank" rel="noopener" class="ml-2 px-4 py-1 rounded-full font-bold text-white bg-gradient-to-r from-pink-500 via-yellow-400 to-pink-500 bg-[length:200%_auto] bg-clip-text text-transparent border border-pink-400 shadow-md shine-effect" style="position:relative;overflow:hidden;text-decoration:none;">
+                                                <span class="shine-text">What's Newww?</span>
+                                        </a>
+                                </div>
+                                <style>
+                                .shine-effect .shine-text {
+                                    background: linear-gradient(90deg, #fff 0%, #ffe066 40%, #fff 60%, #ffe066 100%);
+                                    background-size: 200% auto;
+                                    color: #fff;
+                                    background-clip: text;
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    animation: shine-move 2s linear infinite;
+                                }
+                                @keyframes shine-move {
+                                    0% { background-position: 200% center; }
+                                    100% { background-position: 0% center; }
+                                }
+                                </style>
             </div>
             
             <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight animate-fade-in-up" style="animation-delay: 0.1s;">
