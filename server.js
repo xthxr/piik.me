@@ -517,7 +517,26 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
     const userLinks = [];
     
     for (const doc of linksSnapshot.docs) {
-      const linkData = doc.data();
+			const linkData = doc.data();
+			// Auto-delete inactive links whose scheduledDeletion date has passed
+			const now = admin.firestore.Timestamp.now();
+      const isInactive = linkData.isActive === false;
+      const scheduled = linkData.scheduledDeletion;
+
+      if (isInactive && scheduled && scheduled.toMillis() <= now.toMillis()) {
+        await db
+          .collection(COLLECTIONS.LINKS)
+          .doc(doc.id)
+          .delete()
+          .catch(() => {});
+        await db
+          .collection(COLLECTIONS.ANALYTICS)
+          .doc(doc.id)
+          .delete()
+          .catch(() => {});
+        continue;
+      }
+			
       console.log(`Processing link: ${doc.id}`, { shortCode: linkData.shortCode, isActive: linkData.isActive });
       
       // Use the Firestore document ID (which is already safe) instead of shortCode field
