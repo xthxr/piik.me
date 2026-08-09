@@ -82,4 +82,36 @@ const bugReportLimiter = rateLimit({
     }
 });
 
-module.exports = { securityHeaders, apiLimiter, bugReportLimiter };
+/**
+ * Rate limiter for creating short links.
+ *
+ * /api/shorten requires verifyToken, so every request that reaches this limiter already
+ * carries an Authorization header -- a skip-if-authenticated rule would exempt every real
+ * request and rate-limit nothing. Applied by IP to every request instead.
+ */
+const createLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // limit each IP to 10 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        error: 'Too many short links created from this IP, please try again after an hour'
+    }
+});
+
+/**
+ * Rate limiter for analytics tracking.
+ */
+const trackLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 tracking requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        error: 'Too many requests from this IP, please try again after 15 minutes'
+    }
+});
+
+module.exports = { securityHeaders, apiLimiter, bugReportLimiter, createLimiter, trackLimiter };

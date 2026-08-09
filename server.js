@@ -17,7 +17,7 @@ const fetch = typeof globalThis.fetch === 'function'
 const checkLinkHealth = require('./src/utils/checkLinkHealth');
 const redisUtils = require('./src/utils/redis.utils');
 const redirectCache = require('./src/utils/redirect-cache.utils');
-const { securityHeaders, apiLimiter, bugReportLimiter } = require('./src/middleware/security.middleware');
+const { securityHeaders, apiLimiter, bugReportLimiter, createLimiter, trackLimiter } = require('./src/middleware/security.middleware');
 const splitTestService = require('./src/services/splitTest.service');
 const geoip = require('geoip-lite');
 
@@ -404,8 +404,7 @@ function getBaseUrl(req) {
 }
 
 // Create short link (requires authentication)
-
-app.post('/api/shorten', verifyToken, async (req, res) => {
+app.post('/api/shorten', createLimiter, verifyToken, async (req, res) => {
   const {
   url,
   utmParams,
@@ -1687,8 +1686,7 @@ app.delete('/api/links/:shortCode/split-test', verifyToken, async (req, res) => 
 });
 
 // Track impression (when analytics page is viewed)
-
-app.post('/api/track/impression/:shortCode', async (req, res) => {
+app.post('/api/track/impression/:shortCode', trackLimiter, async (req, res) => {
   let { shortCode } = req.params;
   shortCode = decodeURIComponent(shortCode);
   
@@ -1743,8 +1741,7 @@ app.post('/api/track/impression/:shortCode', async (req, res) => {
 
 // Track share (deprecated - now tracked automatically via UTM parameters)
 // Keeping endpoint for backward compatibility but shares are counted on click with UTM
-
-app.post('/api/track/share/:shortCode', async (req, res) => {
+app.post('/api/track/share/:shortCode', trackLimiter, async (req, res) => {
   const { shortCode } = req.params;
 
   // Shares are now tracked automatically when links with utm_source are clicked
