@@ -557,15 +557,20 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
     // Convert shortCode to Firestore-safe ID (replace / with _)
 
     const firestoreId = toFirestoreId(shortCode);
+    const linkRef = db.collection(COLLECTIONS.LINKS).doc(firestoreId);
+    const analyticsRef = db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId);
     
-    // Save to Firestore
-
-    console.log('Saving link to Firestore:', { shortCode, firestoreId, userId, linkData });
-    await db.collection(COLLECTIONS.LINKS).doc(firestoreId).set(linkData);
-    console.log('Link saved successfully to Firestore');
-    
-    await db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId).set(analyticsData);
-    console.log('Analytics saved successfully to Firestore');
+    // Save to Firestore using a transaction to prevent TOCTOU race conditions
+    console.log('Saving link to Firestore via transaction:', { shortCode, firestoreId, userId, linkData });
+    await db.runTransaction(async (transaction) => {
+      const existingDoc = await transaction.get(linkRef);
+      if (existingDoc.exists) {
+        throw new Error('COLLISION');
+      }
+      transaction.set(linkRef, linkData);
+      transaction.set(analyticsRef, analyticsData);
+    });
+    console.log('Link saved successfully to Firestore via transaction');
     
     // Sync to Redis for edge redirects
 
@@ -594,10 +599,15 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
       isCustom: !!customShortCode
     });
   } catch (error) {
+    if (error.message === 'COLLISION') {
+      return res.status(409).json({ error: 'This custom short code is already taken' });
+    }
     console.error('Error saving to Firestore:', error);
     
-    // Fallback to in-memory storagehealthStatus
-
+    // Fallback to in-memory storage (with collision check)
+    if (links.has(shortCode)) {
+      return res.status(409).json({ error: 'This custom short code is already taken' });
+    }
     links.set(shortCode, linkData);
     analytics.set(shortCode, analyticsData);
     await redirectCache.set(shortCode, normalizeRedirectLink(linkData));
