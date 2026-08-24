@@ -7,6 +7,8 @@
  * thin and every piece of reasoning about variants is testable in isolation.
  */
 
+const { validateUrl } = require('../utils/url.utils');
+
 // ---------------------------------------------------------------------------
 // Validation
 // ---------------------------------------------------------------------------
@@ -51,10 +53,9 @@ function validateVariants(variants) {
     if (typeof v.url !== 'string' || v.url.trim() === '') {
       return { valid: false, message: `Variant "${label}": \`url\` must be a non-empty string.` };
     }
-    try {
-      new URL(v.url.trim());
-    } catch {
-      return { valid: false, message: `Variant "${label}": \`url\` is not a valid URL.` };
+    const urlValidation = validateUrl(v.url.trim());
+    if (!urlValidation.valid) {
+      return { valid: false, message: `Variant "${label}": ${urlValidation.error}` };
     }
 
     // weight ---------------------------------------------------------------

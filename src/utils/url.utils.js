@@ -88,17 +88,97 @@ function fromFirestoreId(firestoreId) {
 }
 
 /**
+ * Validate a destination URL for security (SSRF/XSS/Phishing)
+ * @param {string} url - URL to validate
+ * @returns {Object} { valid: boolean, error: string|null }
+ */
+function validateUrl(url) {
+  if (!url) {
+    return { valid: false, error: 'URL is required' };
+  }
+
+  try {
+    const parsed = new URL(url);
+    const protocol = parsed.protocol.toLowerCase();
+    
+    // Check protocol allowlist
+    if (protocol !== 'http:' && protocol !== 'https:') {
+      return { valid: false, error: 'Only http and https URLs are allowed' };
+    }
+
+    const hostname = parsed.hostname.toLowerCase();
+
+    // Block localhost and local hostnames (SSRF prevention)
+    if (hostname === 'localhost' || hostname === 'localhost.localdomain' || hostname.endsWith('.local')) {
+      return { valid: false, error: 'Access to local hostnames is forbidden' };
+    }
+
+    // IPv4 checks
+    const ipv4Regex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    const ipv4Match = hostname.match(ipv4Regex);
+    if (ipv4Match) {
+      const parts = ipv4Match.slice(1).map(Number);
+      if (parts.some(part => part > 255)) {
+        return { valid: false, error: 'Invalid IP address' };
+      }
+      
+      const first = parts[0];
+      const second = parts[1];
+
+      // Loopback: 127.0.0.0/8
+      if (first === 127) {
+        return { valid: false, error: 'Access to loopback IP addresses is forbidden' };
+      }
+      // Private range RFC 1918: 10.0.0.0/8
+      if (first === 10) {
+        return { valid: false, error: 'Access to private IP addresses is forbidden' };
+      }
+      // Private range RFC 1918: 172.16.0.0/12
+      if (first === 172 && (second >= 16 && second <= 31)) {
+        return { valid: false, error: 'Access to private IP addresses is forbidden' };
+      }
+      // Private range RFC 1918: 192.168.0.0/16
+      if (first === 192 && second === 168) {
+        return { valid: false, error: 'Access to private IP addresses is forbidden' };
+      }
+      // Link-local: 169.254.0.0/16
+      if (first === 169 && second === 254) {
+        return { valid: false, error: 'Access to link-local IP addresses is forbidden' };
+      }
+      // Broadcast / anycast: 0.0.0.0, 255.255.255.255
+      if (first === 0 || (first === 255 && parts[1] === 255 && parts[2] === 255 && parts[3] === 255)) {
+        return { valid: false, error: 'Access to broadcast/anycast IP addresses is forbidden' };
+      }
+    }
+
+    // IPv6 checks
+    if (hostname.startsWith('[') && hostname.endsWith(']')) {
+      const ipv6 = hostname.slice(1, -1);
+      // IPv6 Loopback: ::1
+      if (ipv6 === '1' || ipv6 === '0:0:0:0:0:0:0:1' || ipv6 === '::1') {
+        return { valid: false, error: 'Access to loopback IP addresses is forbidden' };
+      }
+      // Unique Local Address: fc00::/7
+      // Link-Local Address: fe80::/10
+      const cleanIpv6 = ipv6.replace(/^0+/, '').toLowerCase();
+      if (cleanIpv6.startsWith('fc') || cleanIpv6.startsWith('fd') || cleanIpv6.startsWith('fe8') || cleanIpv6.startsWith('fe9') || cleanIpv6.startsWith('fea') || cleanIpv6.startsWith('feb')) {
+        return { valid: false, error: 'Access to private/link-local IP addresses is forbidden' };
+      }
+    }
+
+    return { valid: true, error: null };
+  } catch (e) {
+    return { valid: false, error: 'Invalid URL format' };
+  }
+}
+
+/**
  * Validate URL format
  * @param {string} url - URL to validate
  * @returns {boolean} True if valid
  */
 function isValidUrl(url) {
-  try {
-    new URL(url);
-    return true;
-  } catch (e) {
-    return false;
-  }
+  return validateUrl(url).valid;
 }
 
 /**
@@ -132,5 +212,6 @@ module.exports = {
   toFirestoreId,
   fromFirestoreId,
   isValidUrl,
+  validateUrl,
   validateCustomShortCode
 };
