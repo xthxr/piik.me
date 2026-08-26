@@ -82,4 +82,19 @@ const bugReportLimiter = rateLimit({
     }
 });
 
-module.exports = { securityHeaders, apiLimiter, bugReportLimiter };
+const {
+    unauthenticatedLinkLimit,
+    authenticatedLinkLimit,
+    shortenLimiter,
+    trackingLimit
+} = require('./rateLimit.middleware');
+
+module.exports = {
+    securityHeaders,
+    apiLimiter,
+    bugReportLimiter,
+    unauthenticatedLinkLimit,
+    authenticatedLinkLimit,
+    shortenLimiter,
+    trackingLimit
+};
