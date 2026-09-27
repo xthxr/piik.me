@@ -38,9 +38,21 @@ body {
     overflow-x: hidden;
 }
 
-a { text-decoration: none; color: inherit; }
-button { border: none; background: transparent; cursor: pointer; font-family: inherit; }
-ul { list-style: none; }
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+ul {
+    list-style: none;
+}
 
 ::selection {
     background-color: var(--color-accent);
@@ -50,27 +62,679 @@ ul { list-style: none; }
 /* ================================
    CUSTOM COMPONENTS (From Inline Styles)
    ================================ */
+.glass-nav-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.glass-nav-dark {
+    background: rgba(5, 5, 5, 0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hero-glow {
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    top: -300px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+/* Text Gradients (Fixed VS Code Warnings) */
+.text-gradient-light {
+    background: linear-gradient(to right, #000000, #4b5563);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-dark {
+    background: linear-gradient(to right, #ffffff, #a1a1aa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.card-border {
+    transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.card-border:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: translateY(-4px);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.faq-answer.open {
+    max-height: 500px;
+}
+
+/* ================================
+   LAYOUT UTILITIES
+   ================================ */
+.fixed {
+    position: fixed;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.relative {
+    position: relative;
+}
+
+.inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.top-0 {
+    top: 0;
+}
+
+.top-8 {
+    top: 2rem;
+}
+
+.right-0 {
+    right: 0;
+}
+
+.right-8 {
+    right: 2rem;
+}
+
+.z-10 {
+    z-index: 10;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+.flex {
+    display: flex;
+}
+
+.inline-flex {
+    display: inline-flex;
+}
+
+.flex-1 {
+    flex: 1 1 0%;
+}
+
+/* ADDED: Fixes the column layout */
+.hidden {
+    display: none;
+}
+
+.grid {
+    display: grid;
+}
+
+.block {
+    display: block;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.items-end {
+    align-items: flex-end;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.gap-6 {
+    gap: 1.5rem;
+}
+
+.gap-8 {
+    gap: 2rem;
+}
+
+.gap-12 {
+    gap: 3rem;
+}
+
+/* Sizing */
+.w-full {
+    width: 100%;
+}
+
+.w-2 {
+    width: 0.5rem;
+}
+
+.w-8 {
+    width: 2rem;
+}
+
+.w-14 {
+    width: 3.5rem;
+}
+
+.w-16 {
+    width: 4rem;
+}
+
+.h-2 {
+    height: 0.5rem;
+}
+
+.h-8 {
+    height: 2rem;
+}
+
+.h-14 {
+    height: 3.5rem;
+}
+
+.h-16 {
+    height: 4rem;
+}
+
+.h-32 {
+    height: 8rem;
+}
+
+.h-80 {
+    height: 20rem;
+}
+
+/* ADDED: Fixes the box height */
+.h-\[30\%\] {
+    height: 30%;
+}
+
+.h-\[50\%\] {
+    height: 50%;
+}
+
+.h-\[70\%\] {
+    height: 70%;
+}
+
+.h-\[90\%\] {
+    height: 90%;
+}
+
+.min-h-\[90vh\] {
+    min-height: 90vh;
+}
+
+.max-w-sm {
+    max-width: 24rem;
+}
+
+.max-w-2xl {
+    max-width: 42rem;
+}
+
+.max-w-3xl {
+    max-width: 48rem;
+}
+
+.max-w-4xl {
+    max-width: 56rem;
+}
+
+.max-w-7xl {
+    max-width: 80rem;
+}
+
+/* Spacing */
+.m-0 {
+    margin: 0;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mr-2 {
+    margin-right: 0.5rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-8 {
+    margin-bottom: 2rem;
+}
+
+.mb-10 {
+    margin-bottom: 2.5rem;
+}
+
+.mb-12 {
+    margin-bottom: 3rem;
+}
+
+.mb-16 {
+    margin-bottom: 4rem;
+}
+
+.mb-20 {
+    margin-bottom: 5rem;
+}
+
+.p-4 {
+    padding: 1rem;
+}
+
+.p-6 {
+    padding: 1.5rem;
+}
+
+.p-8 {
+    padding: 2rem;
+}
+
+.p-10 {
+    padding: 2.5rem;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.px-5 {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.px-8 {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.px-10 {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+
+.py-2\.5 {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+}
+
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.py-5 {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+.py-10 {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+}
+
+.py-16 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.py-20 {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.py-32 {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+}
+
+.pt-4 {
+    padding-top: 1rem;
+}
+
+.pt-8 {
+    padding-top: 2rem;
+}
+
+.pt-40 {
+    padding-top: 10rem;
+}
+
+.pb-20 {
+    padding-bottom: 5rem;
+}
+
+.space-y-4>*+* {
+    margin-top: 1rem;
+}
+
+.space-y-6>*+* {
+    margin-top: 1.5rem;
+}
+
+/* ADDED: Fixes the list spacing */
+
+/* Typography */
+.text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
+.text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+}
+
+.text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+}
+
+.text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+}
+
+.text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+}
+
+.text-4xl {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+}
+
+.text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.text-6xl {
+    font-size: 3.75rem;
+    line-height: 1;
+}
+
+/* ADDED: Fixes the icon size */
+.text-7xl {
+    font-size: 4.5rem;
+    line-height: 1;
+}
+
+.text-9xl {
+    font-size: 8rem;
+    line-height: 1;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-extrabold {
+    font-weight: 800;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+.tracking-wide {
+    letter-spacing: 0.025em;
+}
+
+.tracking-widest {
+    letter-spacing: 0.1em;
+}
+
+.leading-tight {
+    line-height: 1.25;
+}
+
+.leading-relaxed {
+    line-height: 1.625;
+}
+
+/* Effects & Borders */
+.opacity-5 {
+    opacity: 0.05;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.blur-\[100px\] {
+    filter: blur(100px);
+}
+
+.grayscale {
+    filter: grayscale(100%);
+}
+
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-accent\/20 {
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+}
+
+.rounded-sm {
+    border-radius: 0.125rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.rounded-xl {
+    border-radius: 0.75rem;
+}
+
+.rounded-2xl {
+    border-radius: 1rem;
+}
+
+.rounded-3xl {
+    border-radius: 1.5rem;
+}
+
+.rounded-full {
+    border-radius: 9999px;
+}
+
+.rounded-t-sm {
+    border-top-left-radius: 0.125rem;
+    border-top-right-radius: 0.125rem;
+}
+
+.border {
+    border-width: 1px;
+    border-style: solid;
+}
+
+.border-t {
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
+.border-y {
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-style: solid;
+}
+
+/* Transitions & Animations */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.duration-300 {
+    transition-duration: 300ms;
+}
+
+.duration-500 {
+    transition-duration: 500ms;
+}
+
+.transform {
+    transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) rotate(var(--tw-rotate, 0)) skewX(var(--tw-skew-x, 0)) skewY(var(--tw-skew-y, 0)) scaleX(var(--tw-scale-x, 1)) scaleY(var(--tw-scale-y, 1));
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ================================
+   COLORS (LIGHT MODE DEFAULTS)
+   ================================ */
 
 .glass-nav-light { 
     background: rgba(255, 255, 255, 0.7); 
     backdrop-filter: blur(16px); 
     border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
 }
-.glass-nav-dark { 
-    background: rgba(5, 5, 5, 0.7); 
-    backdrop-filter: blur(16px); 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+
+.bg-black {
+    background-color: #000000;
 }
 
-.hero-glow { 
-    position: absolute; 
-    width: 800px; 
-    height: 800px; 
-    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(0,0,0,0) 70%); 
-    top: -300px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    pointer-events: none; 
+.bg-gray-900 {
+    background-color: #111827;
 }
 
 /* Text Gradients (Fixed VS Code Warnings) */
@@ -81,19 +745,17 @@ ul { list-style: none; }
     background-clip: text;
     -webkit-text-fill-color: transparent; 
 }
-.text-gradient-dark { 
-    background: linear-gradient(to right, #ffffff, #a1a1aa); 
-    -webkit-background-clip: text; 
-    background-clip: text;
-    -webkit-text-fill-color: transparent; 
+
+.bg-accent {
+    background-color: var(--color-accent);
 }
 
-.card-border { 
-    transition: border-color 0.3s ease, transform 0.3s ease; 
+.bg-accent\/20 {
+    background-color: rgba(59, 130, 246, 0.2);
 }
-.card-border:hover { 
-    border-color: rgba(59, 130, 246, 0.4); 
-    transform: translateY(-4px); 
+
+.bg-accent\/40 {
+    background-color: rgba(59, 130, 246, 0.4);
 }
 
 .footer-section {
@@ -312,11 +974,9 @@ html.dark .footer-link:hover {
 .duration-500 { transition-duration: 500ms; }
 .transform { transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) rotate(var(--tw-rotate, 0)) skewX(var(--tw-skew-x, 0)) skewY(var(--tw-skew-y, 0)) scaleX(var(--tw-scale-x, 1)) scaleY(var(--tw-scale-y, 1)); }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: .5; }
+.text-black {
+    color: #000000;
 }
-.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 
 /* ================================
    COLORS (LIGHT MODE DEFAULTS)
@@ -341,9 +1001,9 @@ html.dark .footer-link:hover {
 .bg-green-100 { background-color: #d1fae5; }
 .bg-pink-100 { background-color: #fce7f3; }
 
-.text-white { color: #ffffff; }
-.text-black { color: #000000; }
-.text-accent { color: var(--color-accent); }
+.text-gray-200 {
+    color: var(--color-gray-200);
+}
 
 /* --- NEW CLASSES ADDED HERE --- */
 
@@ -351,10 +1011,21 @@ html.dark .footer-link:hover {
 .text-gray-200 { color: var(--color-gray-200); }
 /* ------------------------------ */
 
-.text-gray-500 { color: var(--color-gray-500); }
-.text-gray-600 { color: var(--color-gray-600); }
-.text-gray-800 { color: var(--color-gray-800); }
-.text-gray-900 { color: var(--color-gray-900); }
+.text-gray-500 {
+    color: var(--color-gray-500);
+}
+
+.text-gray-600 {
+    color: var(--color-gray-600);
+}
+
+.text-gray-800 {
+    color: var(--color-gray-800);
+}
+
+.text-gray-900 {
+    color: var(--color-gray-900);
+}
 
 /* Feature Icon Colors */
 
@@ -364,7 +1035,17 @@ html.dark .footer-link:hover {
 .text-pink-500 { color: #ec4899; }
 .text-red-600 { color: #dc2626; }
 
-.border-gray-200 { border-color: var(--color-gray-200); }
+.text-pink-500 {
+    color: #ec4899;
+}
+
+.text-red-600 {
+    color: #dc2626;
+}
+
+.border-gray-200 {
+    border-color: var(--color-gray-200);
+}
 
 /* ================================
    COLORS (DARK MODE OVERRIDES)
@@ -460,20 +1141,48 @@ html.dark .dark\:hover\:bg-surfaceHoverDark:hover { background-color: var(--colo
 
    
 @media (min-width: 768px) {
-    .md\:flex { display: flex; }
-    .md\:hidden { display: none; }
-    
-    .md\:flex-row { flex-direction: row; }
-    
-    .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .md\:col-span-2 { grid-column: span 2 / span 2; }
-    
-    .md\:text-5xl { font-size: 3rem; line-height: 1; }
-    .md\:text-6xl { font-size: 3.75rem; line-height: 1; }
-    .md\:text-7xl { font-size: 4.5rem; line-height: 1; }
-    
-    .md\:mt-0 { margin-top: 0; }
+    .md\:flex {
+        display: flex;
+    }
+
+    .md\:hidden {
+        display: none;
+    }
+
+    .md\:flex-row {
+        flex-direction: row;
+    }
+
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .md\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .md\:col-span-2 {
+        grid-column: span 2 / span 2;
+    }
+
+    .md\:text-5xl {
+        font-size: 3rem;
+        line-height: 1;
+    }
+
+    .md\:text-6xl {
+        font-size: 3.75rem;
+        line-height: 1;
+    }
+
+    .md\:text-7xl {
+        font-size: 4.5rem;
+        line-height: 1;
+    }
+
+    .md\:mt-0 {
+        margin-top: 0;
+    }
 }
 
 /* ================================
@@ -489,9 +1198,11 @@ html.light-theme .bg-black\/80 {
 html.light-theme .bg-black\/80 .text-white {
     color: var(--color-gray-900) !important;
 }
+
 html.light-theme .bg-black\/80 .text-gray-300 {
     color: var(--color-gray-700) !important;
 }
+
 html.light-theme .bg-black\/80 .text-gray-400 {
     color: var(--color-gray-500) !important;
 }
@@ -506,4 +1217,353 @@ html.light-theme #pricingGetStartedBtn {
 html.light-theme #pricingGetStartedBtn:hover {
     background-color: #374151 !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* =========================================
+   PREMIUM LIGHT THEME MESH & GLASSMORPHISM OVERRIDE
+   ========================================= */
+
+/* 1. Continuous Dynamic Background */
+html.light-theme body,
+html:not(.dark) body {
+    background:
+        radial-gradient(circle at 15% 50%, rgba(96, 165, 250, 0.4), transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.35), transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.4), transparent 50%),
+        radial-gradient(circle at 80% 90%, rgba(59, 130, 246, 0.25), transparent 50%),
+        linear-gradient(135deg, #dbeafe 0%, #cbd5e1 50%, #bfdbfe 100%) !important;
+    background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%, 100% 100% !important;
+    background-attachment: fixed !important;
+    animation: lightPremiumMesh 20s ease-in-out infinite alternate !important;
+    color: #0f172a !important;
+}
+
+@keyframes lightPremiumMesh {
+    0% {
+        background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%, 0% 0%;
+    }
+
+    50% {
+        background-position: 10% 20%, 90% 80%, 20% 90%, 80% 10%, 100% 100%;
+    }
+
+    100% {
+        background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%, 0% 0%;
+    }
+}
+
+html.light-theme .bg-gray-50,
+html:not(.dark) .bg-gray-50,
+html.light-theme .bg-white,
+html:not(.dark) .bg-white,
+html.light-theme section,
+html:not(.dark) section {
+    background-color: transparent !important;
+}
+
+/* 2. Translucent "Glassmorphism" Cards */
+html.light-theme .landing-card,
+html:not(.dark) .landing-card,
+html.light-theme .bg-white.landing-card,
+html:not(.dark) .bg-white.landing-card,
+html.light-theme .bg-gray-50.landing-card,
+html:not(.dark) .bg-gray-50.landing-card {
+    background: rgba(219, 234, 254, 0.3) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* Glass Navbar */
+html.light-theme .glass-nav-light,
+html:not(.dark) .glass-nav-light,
+html.light-theme #navbar,
+html:not(.dark) #navbar {
+    background: rgba(219, 234, 254, 0.4) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Footer */
+html.light-theme footer,
+html:not(.dark) footer {
+    background: rgba(219, 234, 254, 0.3) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+/* =========================================
+   3. TYPOGRAPHY & ICON CONTRAST HARMONY
+   ========================================= */
+
+/* Headings retain absolute primary dominance */
+html.light-theme h1,
+html.light-theme h2,
+html.light-theme h3,
+html.light-theme h4,
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4 {
+    color: #020617 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+}
+
+html.light-theme .text-black,
+html:not(.dark) .text-black {
+   color: #020617 !important;
+}
+
+/* Secondary/Muted Description Text (The secret to hierarchy: Slate-600) */
+html.light-theme p,
+html:not(.dark) p,
+html.light-theme .text-gray-800,
+html:not(.dark) .text-gray-800,
+html.light-theme .text-gray-700,
+html:not(.dark) .text-gray-700 {
+    color: #0f172a !important;
+    /* Slate-700: Perfectly readable, but sits elegantly behind headings */
+}
+
+html.light-theme .text-gray-600,
+html:not(.dark) .text-gray-600 {
+    color: #334155 !important;
+}
+
+html.light-theme .text-gray-500,
+html:not(.dark) .text-gray-500 {
+    color: #475569 !important;
+}
+
+html.light-theme .text-gray-400,
+html:not(.dark) .text-gray-400 {
+    color: #64748b !important;
+}
+
+/* Crisp Dark Minimalist Icons */
+html.light-theme .landing-card i,
+html:not(.dark) .landing-card i {
+    color: #0f172a !important;
+    filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.8)) !important;
+}
+
+/* Restoring original brand dynamic text accents ONLY where explicitly designed */
+html.light-theme .text-blue-600,
+html:not(.dark) .text-blue-600 {
+    color: #1d4ed8 !important;
+}
+
+html.light-theme .text-purple-600,
+html:not(.dark) .text-purple-600 {
+    color: #6d28d9 !important;
+}
+
+html.light-theme .text-green-600,
+html:not(.dark) .text-green-600 {
+    color: #15803d !important;
+}
+
+/* Icon Wrapper Badges - Icy, high-end translucent glass styling */
+html.light-theme .bg-blue-100,
+html:not(.dark) .bg-blue-100,
+html.light-theme .bg-purple-100,
+html:not(.dark) .bg-purple-100,
+html.light-theme .bg-green-100,
+html:not(.dark) .bg-green-100,
+html.light-theme .bg-pink-100,
+html:not(.dark) .bg-pink-100 {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+
+/* =========================================
+   4. COLOR POLISH & FINISHING TOUCHES
+   ========================================= */
+
+/* Card Container Hover - Smooth interaction elevate effect */
+html.light-theme .landing-card,
+html:not(.dark) .landing-card {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html.light-theme .landing-card:hover,
+html:not(.dark) .landing-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Dark Code Blocks Container */
+html.light-theme .bg-gray-900.border-gray-800,
+html:not(.dark) .bg-gray-900.border-gray-800 {
+    background: rgba(9, 15, 29, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15) !important;
+}
+
+/* Sleek Premium Text Gradient for Light Theme */
+html.light-theme .text-gradient-dark,
+html:not(.dark) .text-gradient-dark {
+    background: linear-gradient(135deg, #0f172a 30%, #2563eb 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* Beta tag / Micro-pills styling */
+html.light-theme .bg-white.border-gray-200,
+html:not(.dark) .bg-white.border-gray-200,
+html.light-theme .border-gray-200,
+html:not(.dark) .border-gray-200 {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* =========================================
+   UNIVERSAL THEME SPECIFICITY OVERRIDES
+   ========================================= */
+
+/* --- A. LIGHT THEME LOOK AND FEEL --- */
+html.light-theme .custom-code-container,
+html:not(.dark) .custom-code-container {
+    background-color: #ffffff !important;
+    /* Crisp White Container in Light Mode */
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    /* Elegant subtle boundary edge */
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    /* Premium light drop shadow */
+}
+
+html.light-theme .window-header-bg,
+html:not(.dark) .window-header-bg {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* --- B. DARK THEME LOOK AND FEEL --- */
+html.dark .custom-code-container,
+.dark .custom-code-container {
+    background-color: #111827 !important;
+    /* Rich Slate/Grey Container in Dark Mode */
+    border: 1px solid #1f2937 !important;
+    /* Clean frame boundaries */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .window-header-bg,
+.dark .window-header-bg {
+    background-color: rgba(17, 24, 39, 0.8) !important;
+}
+
+
+/* --- C. FIXED CODE HIGHLIGHT PALETTE (STAYS COLORFUL IN BOTH VIEWS) --- */
+.custom-code-container .code-kw {
+    color: #ec4899 !important;
+    /* Vivid Premium Pink (import, let, try, await) */
+}
+
+.custom-code-container .code-val {
+    color: #6366f1 !important;
+    /* Sleek Deep Purple/Indigo (Variables, brackets, base text) */
+}
+
+.custom-code-container .code-prop {
+    color: #eab308 !important;
+    /* Warm Gold Amber (url:, domain:, tags:) */
+}
+
+.custom-code-container .code-str {
+    color: #22c55e !important;
+    /* Emerald Mint Green for raw string literal paths */
+}
+
+.custom-code-container .code-fun {
+    color: #a855f7 !important;
+    /* Electric Violet for method invocations (.create, print) */
+}
+
+.custom-code-container .code-com {
+    color: #94a3b8 !important;
+    /* Crisp slate gray for code comments */
+}
+
+.custom-code-container .code-res {
+    color: #3b82f6 !important;
+    /* Bright Electric Blue for console address return line */
+}
+
+/* --- D. LEFT LIST ICONS PRESERVATION IN LIGHT VIEW --- */
+html.light-theme #benefits .icon-marketer {
+    color: #3b82f6 !important;
+}
+
+html.light-theme #benefits .icon-developer {
+    color: #9333ea !important;
+}
+
+html.light-theme #benefits .icon-creator {
+    color: #ec4899 !important;
+}
+
+/* =========================================
+   FIX: ICON BADGES & ACCENT COLORS IN LIGHT THEME
+   ========================================= */
+
+/* --- 1. Analytics Card (Blue Icon & Badge) --- */
+html.light-theme .landing-card .bg-blue-100 i,
+html:not(.dark) .landing-card .bg-blue-100 i {
+    color: #2563eb !important;
+    /* Vibrant brand blue */
+}
+
+html.light-theme .bg-blue-100,
+html:not(.dark) .bg-blue-100 {
+    background: rgba(219, 234, 254, 0.7) !important;
+    /* Soft light blue tint */
+    border: 1px solid rgba(147, 197, 253, 0.5) !important;
+}
+
+
+/* --- 2. QR Card (Pink / Purple / Berry Icon & Badge) --- */
+/* Target both pink and purple variants just in case your HTML utilizes either */
+html.light-theme .landing-card .bg-pink-100 i,
+html:not(.dark) .landing-card .bg-pink-100 i,
+html.light-theme .landing-card .bg-purple-100 i,
+html:not(.dark) .landing-card .bg-purple-100 i {
+    color: #db2777 !important;
+    /* Vibrant brand berry/pink */
+}
+
+html.light-theme .bg-pink-100,
+html:not(.dark) .bg-pink-100 {
+    background: rgba(252, 231, 243, 0.7) !important;
+    /* Fixed missing # and converted to proper hex format */
+    border: 1px solid rgba(251, 207, 232, 0.6) !important;
+}
+
+html.light-theme .bg-purple-100,
+html:not(.dark) .bg-purple-100 {
+    background: rgba(243, 232, 255, 0.7) !important;
+    border: 1px solid rgba(233, 213, 255, 0.6) !important;
+}
+
+
+/* --- 3. Large Decorative Background Watermark --- */
+html.light-theme .landing-card .text-gray-700\/10,
+html:not(.dark) .landing-card .text-gray-700\/10,
+html.light-theme .landing-card i[class*="opacity-"],
+html:not(.dark) .landing-card i[class*="opacity-"] {
+    color: #0f172a !important;
+    opacity: 0.04 !important;
+    /* Keeps the massive background chart logo extremely subtle */
 }
