@@ -413,6 +413,108 @@
             border-color: rgba(102, 126, 234, 0.5);
         }
 
+        /* Share QR */
+        .bio-qr-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto 28px;
+            padding: 10px 20px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bio-qr-trigger:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.14);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .bio-qr-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+        }
+
+        .bio-qr-overlay.show {
+            display: flex;
+        }
+
+        .bio-qr-dialog {
+            width: 100%;
+            max-width: 340px;
+            padding: 24px;
+            border-radius: 24px;
+            text-align: center;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .bio-qr-title {
+            margin: 0 0 4px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .bio-qr-url {
+            margin: 0 0 18px;
+            font-size: 13px;
+            word-break: break-all;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        .bio-qr-canvas {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+            padding: 12px;
+            border-radius: 16px;
+            background: #fff;
+        }
+
+        .bio-qr-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .bio-qr-actions button {
+            flex: 1;
+            padding: 11px 0;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.85);
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .bio-qr-actions button:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .bio-qr-actions button[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         /* Bento Grid Layout for Links */
         .bio-links {
             display: grid;
@@ -829,6 +931,19 @@
         </div>
     </div>
 
+    <div class="bio-qr-overlay" id="bioQrOverlay" role="dialog" aria-modal="true" aria-labelledby="bioQrTitle">
+        <div class="bio-qr-dialog">
+            <h2 class="bio-qr-title" id="bioQrTitle">Scan to open this profile</h2>
+            <p class="bio-qr-url" id="bioQrUrl"></p>
+            <div class="bio-qr-canvas" id="bioQrCanvas"></div>
+            <div class="bio-qr-actions">
+                <button type="button" id="bioQrDownload">Download PNG</button>
+                <button type="button" id="bioQrClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
     <script src="/js/firebase-config.js"></script>
     <script>
         // Get slug from URL
@@ -968,6 +1083,11 @@
                 html += '</div>';
             }
 
+            // Share this profile as a QR code
+            html += `<button type="button" class="bio-qr-trigger" onclick="openProfileQR('${bioLink.slug}')">
+                <i class="fas fa-qrcode"></i> Share QR
+            </button>`;
+
             html += '</div>';
 
             // Links
@@ -1011,6 +1131,115 @@
                 initMagneticLinks();
             }, 100);
         }
+
+        // --- Profile QR code ---------------------------------------------------
+        const PROFILE_QR_SIZE = 240;      // on-screen preview
+        const PROFILE_QR_EXPORT = 1024;   // print-friendly download
+        let profileQrCode = null;
+        let profileQrUrl = '';
+        let profileQrSlug = '';
+
+        function buildProfileQR(url, size) {
+            return new QRCodeStyling({
+                width: size,
+                height: size,
+                type: 'svg',
+                data: url,
+                margin: 8,
+                qrOptions: { errorCorrectionLevel: 'H' },
+                dotsOptions: { color: '#000000', type: 'rounded' },
+                cornersSquareOptions: { color: '#000000', type: 'extra-rounded' },
+                backgroundOptions: { color: '#ffffff' }
+            });
+        }
+
+        function openProfileQR(slug) {
+            const overlay = document.getElementById('bioQrOverlay');
+            const container = document.getElementById('bioQrCanvas');
+            const downloadBtn = document.getElementById('bioQrDownload');
+
+            profileQrSlug = slug;
+            profileQrUrl = `${window.location.origin}/${slug}`;
+            document.getElementById('bioQrUrl').textContent = profileQrUrl;
+            overlay.classList.add('show');
+
+            if (typeof QRCodeStyling === 'undefined') {
+                container.textContent = 'QR generator failed to load. Please refresh and try again.';
+                downloadBtn.disabled = true;
+                return;
+            }
+
+            if (!profileQrCode) {
+                container.innerHTML = '';
+                profileQrCode = buildProfileQR(profileQrUrl, PROFILE_QR_SIZE);
+                profileQrCode.append(container);
+            }
+            downloadBtn.disabled = false;
+        }
+
+        function closeProfileQR() {
+            document.getElementById('bioQrOverlay').classList.remove('show');
+        }
+
+        // Renders at export resolution off-screen, then rasterises the SVG to PNG.
+        async function downloadProfileQR() {
+            const downloadBtn = document.getElementById('bioQrDownload');
+            downloadBtn.disabled = true;
+
+            const holder = document.createElement('div');
+            holder.style.position = 'absolute';
+            holder.style.left = '-9999px';
+            document.body.appendChild(holder);
+
+            try {
+                buildProfileQR(profileQrUrl, PROFILE_QR_EXPORT).append(holder);
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                const svg = holder.querySelector('svg');
+                if (!svg) throw new Error('QR code was not rendered');
+
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const svgUrl = URL.createObjectURL(new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' }));
+
+                const pngUrl = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = PROFILE_QR_EXPORT;
+                        canvas.height = PROFILE_QR_EXPORT;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, PROFILE_QR_EXPORT, PROFILE_QR_EXPORT);
+                        ctx.drawImage(img, 0, 0, PROFILE_QR_EXPORT, PROFILE_QR_EXPORT);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+                    img.onerror = () => reject(new Error('Could not rasterise the QR code'));
+                    img.src = svgUrl;
+                });
+
+                const link = document.createElement('a');
+                link.href = pngUrl;
+                link.download = `piik-${profileQrSlug}-qr.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(svgUrl);
+            } catch (error) {
+                console.error('Profile QR download failed:', error);
+            } finally {
+                document.body.removeChild(holder);
+                downloadBtn.disabled = false;
+            }
+        }
+
+        document.getElementById('bioQrClose').addEventListener('click', closeProfileQR);
+        document.getElementById('bioQrDownload').addEventListener('click', downloadProfileQR);
+        document.getElementById('bioQrOverlay').addEventListener('click', (event) => {
+            if (event.target.id === 'bioQrOverlay') closeProfileQR();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeProfileQR();
+        });
 
         function extractDomain(url) {
             try {
