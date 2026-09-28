@@ -3,6 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 const { nanoid } = require('nanoid');
 const admin = require('firebase-admin');
 
@@ -382,7 +383,10 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
   customShortCode,
   username,
   notes,
-  tags
+  tags,
+  password,
+  passwordHint,
+  passwordLimit
 } = req.body;
   const userId = req.user.uid;
   
@@ -491,6 +495,11 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
 
   const { expiresAt, maxClicks } = req.body;
 
+  let passwordHash = null;
+  if (password) {
+    passwordHash = await bcrypt.hash(password, 10);
+  }
+
   const linkData = {
   originalUrl: finalUrl,
   shortCode,
@@ -500,6 +509,10 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
 
   notes: notes || '',
   tags: Array.isArray(tags) ? tags : [],
+  passwordHash,
+  passwordHint: passwordHint || '',
+  passwordLimit: passwordLimit ? parseInt(passwordLimit) : null,
+  failedAttempts: 0,
 
   createdAt: admin.firestore.FieldValue.serverTimestamp(),
   utmParams: parseUTMParams(finalUrl) || utmParams || {},
@@ -2179,6 +2192,121 @@ app.get('/:username/:slug', async (req, res) => {
   res.redirect(redirectUrl);
 });
 
+// Password protection: verify password
+app.post('/api/links/:shortCode/verify-password', async (req, res) => {
+  const { shortCode } = req.params;
+  const { password } = req.body;
+  
+  try {
+    const { link } = await resolveLinkForRedirect(shortCode);
+    
+    if (!link || !link.passwordHash) {
+      return res.status(404).json({ error: 'Link not found or not protected' });
+    }
+
+    if (link.passwordLimit && (link.failedAttempts || 0) >= link.passwordLimit) {
+      return res.status(403).json({ error: 'Too many failed attempts. Link is locked.' });
+    }
+
+    const matches = await bcrypt.compare(password || '', link.passwordHash);
+    if (!matches) {
+      const firestoreId = toFirestoreId(shortCode);
+      await db.collection(COLLECTIONS.LINKS).doc(firestoreId).update({
+        failedAttempts: admin.firestore.FieldValue.increment(1)
+      });
+      if (links.has(shortCode)) {
+        links.get(shortCode).failedAttempts = (link.failedAttempts || 0) + 1;
+      }
+      return res.status(401).json({ error: 'Incorrect password' });
+    }
+
+    // Success
+    let redirectUrl = link.originalUrl;
+    let variantLabel = null;
+
+    if (link.splitTest && Array.isArray(link.variants) && link.variants.length > 0) {
+      const selectedVariant = splitTestService.selectVariantByWeight(link.variants);
+      redirectUrl = selectedVariant.url;
+      variantLabel = selectedVariant.label;
+    }
+
+    // Track click analytics
+    trackClickAndEmit(shortCode, req, variantLabel).catch(err => {
+      console.error('Error tracking redirect click:', err);
+    });
+
+    return res.json({ url: redirectUrl });
+  } catch (error) {
+    console.error('Error verifying password:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Password protection: get hint
+app.get('/api/links/:shortCode/protection', async (req, res) => {
+  const { shortCode } = req.params;
+  try {
+    const { link } = await resolveLinkForRedirect(shortCode);
+    if (!link || !link.passwordHash) {
+      return res.status(404).json({ error: 'Link not protected' });
+    }
+    return res.json({ 
+      hint: link.passwordHint || '',
+      locked: !!(link.passwordLimit && (link.failedAttempts || 0) >= link.passwordLimit)
+    });
+  } catch (error) {
+    console.error('Error getting protection info:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Password protection: manage password
+app.put('/api/links/:shortCode/password', verifyToken, async (req, res) => {
+  const { shortCode } = req.params;
+  const { password, passwordHint, passwordLimit } = req.body;
+  const userId = req.user.uid;
+
+  try {
+    const firestoreId = toFirestoreId(shortCode);
+    const linkRef = db.collection(COLLECTIONS.LINKS).doc(firestoreId);
+    const linkDoc = await linkRef.get();
+
+    if (!linkDoc.exists) {
+      return res.status(404).json({ error: 'Link not found' });
+    }
+    
+    if (linkDoc.data().userId !== userId) {
+      return res.status(403).json({ error: 'Not authorized to modify this link' });
+    }
+
+    const updates = {};
+    if (password) {
+      updates.passwordHash = await bcrypt.hash(password, 10);
+      updates.passwordHint = passwordHint || '';
+      updates.passwordLimit = passwordLimit ? parseInt(passwordLimit) : null;
+      updates.failedAttempts = 0;
+    } else {
+      // Remove protection
+      updates.passwordHash = null;
+      updates.passwordHint = '';
+      updates.passwordLimit = null;
+      updates.failedAttempts = 0;
+    }
+
+    await linkRef.update(updates);
+    
+    if (links.has(shortCode)) {
+      const cachedLink = links.get(shortCode);
+      Object.assign(cachedLink, updates);
+    }
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Redirect short link and track click (also handles bio links)
 
 app.get('/:shortCode', async (req, res) => {
@@ -2199,6 +2327,11 @@ app.get('/:shortCode', async (req, res) => {
   
   if (!link) {
     return res.status(404).send('Link not found');
+  }
+
+  if (link.passwordHash) {
+    // Serve protected.html instead of redirecting
+    return res.sendFile(path.join(__dirname, 'public', 'protected.html'));
   }
 
   let redirectUrl = link.originalUrl;
