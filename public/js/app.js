@@ -191,15 +191,25 @@ function checkForURLParameter() {
 }
 
 function initializeTheme() {
-    // Always use dark theme
-    setTheme('dark');
+    // Get saved theme from localStorage, or default to prefers-color-scheme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+        setTheme(savedTheme);
+    } else {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        setTheme(prefersLight ? 'light' : 'dark');
+    }
 }
 
 function setTheme(theme) {
-    // Force dark theme only
-    currentTheme = 'dark';
-    html.setAttribute('data-theme', 'dark');
-    localStorage.setItem('piikme-theme', 'dark');
+    currentTheme = theme;
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    
+    // Update theme toggle buttons if any exist
+    themeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+    });
 }
 
 // ================================
@@ -518,14 +528,21 @@ function initializeEventListeners() {
         });
     }
     
+    // Theme switcher
+    themeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            setTheme(btn.dataset.theme);
+        });
+    });
+
     // Initialize custom styled selects
     initializeCustomSelects();
     document.querySelectorAll('.date-range-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const days = btn.dataset.days === 'all' ? 'all' : parseInt(btn.dataset.days);
-        filterClicksChart(days);
+        btn.addEventListener('click', () => {
+            const days = btn.dataset.days === 'all' ? 'all' : parseInt(btn.dataset.days);
+            filterClicksChart(days);
+        });
     });
-});
 }
 
 // ================================
