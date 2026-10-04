@@ -540,3 +540,4 @@ Built with amazing open-source technologies:
 Made with ❤️ by [xthxr](https://github.com/xthxr)
 
 </div>
+# TODO: [bug] link metadata cache is shared across all users, causing private link previews to be served to other users without any access control (#258)
