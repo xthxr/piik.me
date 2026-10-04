@@ -540,3 +540,4 @@ Built with amazing open-source technologies:
 Made with ❤️ by [xthxr](https://github.com/xthxr)
 
 </div>
+# TODO: [bug] url preview does not validate content-type before parsing the response body as html, causing crashes on binary file urls (#261)
