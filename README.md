@@ -540,3 +540,4 @@ Built with amazing open-source technologies:
 Made with ❤️ by [xthxr](https://github.com/xthxr)
 
 </div>
+# TODO: [security] url preview fetcher makes server-side requests to user-supplied urls without ssrf protection, enabling access to internal network resources (#257)
