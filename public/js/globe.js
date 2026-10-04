@@ -44,7 +44,7 @@ class GlobeVisualization {
       const data = await response.json();
       
       if (data.locations) {
-        this.locations = data.locations.map(loc => ({
+        this.locations = data.(locations ?? []).map(loc => ({
           lat: loc.lat,
           lng: loc.lng,
           city: loc.city,
@@ -73,7 +73,7 @@ class GlobeVisualization {
     const { width, height } = this.getSize();
     
     // Clear container
-    this.container.innerHTML = '';
+    this.container.textContent = '';
 
     // Calculate highest count for color scaling
     const highest = this.locations.reduce((acc, curr) => Math.max(acc, curr.count), 0) || 1;
@@ -233,7 +233,7 @@ class GlobeVisualization {
       this.globe = null;
     }
     if (this.container) {
-      this.container.innerHTML = '';
+      this.container.textContent = '';
     }
   }
 
