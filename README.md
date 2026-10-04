@@ -540,3 +540,4 @@ Built with amazing open-source technologies:
 Made with ❤️ by [xthxr](https://github.com/xthxr)
 
 </div>
+# TODO: [security] url shortener does not validate redirect targets, enabling open redirect attacks to phishing sites (#259)
