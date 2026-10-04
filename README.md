@@ -422,6 +422,8 @@ The repository includes `vercel.json` for zero-config deployment.
 
 ### Production Checklist
 
+> **Note:** Before making the application publicly accessible, verify that authentication, Firestore security rules, HTTPS, environment variables, and API protection are properly configured.
+
 - [ ] Update Firestore security rules
 - [ ] Add production domain to Firebase authorized domains
 - [ ] Configure all Firebase credentials as env variables
