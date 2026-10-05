@@ -96,6 +96,7 @@ function updateButtonsForAuthenticatedUser() {
     const mobileLoginBtn = document.getElementById('mobileLoginBtn');
     const mobileGetStartedBtn = document.getElementById('mobileGetStartedBtn');
     const pricingGetStartedBtn = document.getElementById('pricingGetStartedBtn');
+    const bottomCtaGetStartedBtn = document.getElementById('bottomCtaGetStartedBtn');
 
     // Desktop: Show only one button
     if (loginBtn) {
@@ -125,6 +126,9 @@ function updateButtonsForAuthenticatedUser() {
     if (pricingGetStartedBtn) {
         pricingGetStartedBtn.textContent = 'Go to Dashboard';
     }
+    if (bottomCtaGetStartedBtn) {
+        bottomCtaGetStartedBtn.textContent = 'Go to Dashboard';
+    }
 }
 
 // Add event listeners when DOM is ready
@@ -142,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Pricing button
     const pricingGetStartedBtn = document.getElementById('pricingGetStartedBtn');
+    const bottomCtaGetStartedBtn = document.getElementById('bottomCtaGetStartedBtn');
     
     console.log('Buttons found:', {
         loginBtn: !!loginBtn,
@@ -149,7 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
         heroStartBtn: !!heroStartBtn,
         mobileLoginBtn: !!mobileLoginBtn,
         mobileGetStartedBtn: !!mobileGetStartedBtn,
-        pricingGetStartedBtn: !!pricingGetStartedBtn
+        pricingGetStartedBtn: !!pricingGetStartedBtn,
+        bottomCtaGetStartedBtn: !!bottomCtaGetStartedBtn
     });
     
     // Attach click handlers to all buttons
@@ -160,6 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    if (bottomCtaGetStartedBtn) {
+        bottomCtaGetStartedBtn.addEventListener('click', () => {
+            console.log('Bottom CTA Get Started button clicked');
+            handleSmartSignIn();
+        });
+    }
+
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', () => {
             console.log('Get Started button clicked');

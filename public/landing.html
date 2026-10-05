@@ -15,7 +15,7 @@
 
     <!-- Styles -->
 
-    <link rel="stylesheet" href="CSS/landing.css">
+    <link rel="stylesheet" href="css/landing.css">
 
     <!-- Dynamic Favicon for /user page -->
 
@@ -29,6 +29,7 @@
             const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
             if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
                 document.documentElement.classList.add('light-theme');
+                document.documentElement.classList.remove('dark');
             }
         })();
     </script>
@@ -49,6 +50,8 @@
                     it Works</a>
                 <a href="#features"
                     class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-white transition-colors uppercase tracking-wider">Features</a>
+                <a href="#pricing"
+                    class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-white transition-colors uppercase tracking-wider">Pricing</a>
                 <a href="#testimonials"
                     class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-white transition-colors uppercase tracking-wider">Testimonials</a>
                 <a href="#faq"
@@ -279,7 +282,80 @@
 
         </div>
     </section>
-    <!-- 5. FAQ -->
+
+    <!-- 5. Pricing -->
+
+    <section id="pricing" class="py-32 px-6 bg-white dark:bg-surfaceDark/20 border-t border-gray-200 dark:border-gray-900 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4 text-black dark:text-white tracking-tight">Simple, Transparent Pricing</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-lg max-w-xl mx-auto">Open source and free for the community. Everything you need to scale your links.</p>
+            </div>
+
+            <div class="pricing-card-wrapper">
+                <div class="pricing-card">
+
+                    <!-- Header badge -->
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="pricing-badge">
+                            <i class="fas fa-code-branch text-xs"></i>
+                            Open Source
+                        </span>
+                    </div>
+
+                    <!-- Price display -->
+                    <div class="flex items-baseline gap-2 mb-4">
+                        <span class="text-5xl md:text-6xl font-extrabold text-black dark:text-white tracking-tight">₹0</span>
+                        <span class="text-xl text-gray-600 dark:text-gray-400 font-medium">/forever</span>
+                    </div>
+
+                    <p class="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed text-base">
+                        Access to all premium features for everyone, forever. No hidden charges or surprise paywalls.
+                    </p>
+
+                    <!-- CTA Button -->
+                    <button id="pricingGetStartedBtn"
+                        class="w-full py-4 px-6 rounded-xl font-bold text-base bg-accent text-white hover:bg-blue-600 shadow-lg shadow-accent/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-center block mb-8 cursor-pointer">
+                        Get Started Now
+                    </button>
+
+                    <!-- Feature list -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-800">
+                        <div class="pricing-feature-item">
+                            <div class="pricing-feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="pricing-feature-text">Unlimited Short Links</span>
+                        </div>
+
+                        <div class="pricing-feature-item">
+                            <div class="pricing-feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="pricing-feature-text">Advanced Analytics Dashboard</span>
+                        </div>
+
+                        <div class="pricing-feature-item">
+                            <div class="pricing-feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="pricing-feature-text">Custom Bio Pages (Verified Mark for first 100 users)</span>
+                        </div>
+
+                        <div class="pricing-feature-item">
+                            <div class="pricing-feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="pricing-feature-text">QR Code Generation</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. FAQ -->
 
     <section id="faq" class="py-32 px-6 bg-white dark:bg-surfaceDark/30 border-y border-gray-200 dark:border-gray-900">
         <div class="max-w-3xl mx-auto">
@@ -399,8 +475,8 @@
             <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">Join thousands of developers and
                 creators taking control of their infrastructure today.</p>
 
-            <button id="pricingGetStartedBtn"
-                class="bg-accent text-white font-bold px-10 py-5 rounded-xl hover:bg-blue-600 transition-colors inline-block shadow-xl shadow-accent/20 transform hover:scale-105">
+            <button id="bottomCtaGetStartedBtn"
+                class="bg-accent text-white font-bold px-10 py-5 rounded-xl hover:bg-blue-600 transition-colors inline-block shadow-xl shadow-accent/20 transform hover:scale-105 cursor-pointer">
                 Create Your Free Account
             </button>
         </div>
@@ -418,6 +494,7 @@
                 <ul class="space-y-4 text-gray-500">
                     <li><a href="#features" class="footer-link hover:text-accent transition-colors">Features</a></li>
                     <li><a href="#how-it-works" class="footer-link hover:text-accent transition-colors">How it Works</a></li>
+                    <li><a href="#pricing" class="footer-link hover:text-accent transition-colors">Pricing</a></li>
                     <li><a href="#faq" class="footer-link hover:text-accent transition-colors">FAQ</a></li>
                 </ul>
             </div>
