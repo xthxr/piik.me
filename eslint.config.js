@@ -33,6 +33,29 @@ export default [
     }
   },
 
+  // ── Test Files (Jest) ─────────────────────────────────────────
+  {
+    files: [
+      "src/**/__tests__/**/*.js",
+      "tests/**/*.js",
+      "**/*.test.js",
+      "**/*.spec.js"
+    ],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.commonjs, ...globals.jest },
+      ecmaVersion: "latest"
+    },
+    rules: {
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-undef": "error",
+      semi: ["warn", "always"],
+      "no-console": "off",
+      "no-empty": "warn",
+      "prefer-const": "warn",
+      "no-var": "warn"
+    }
+  },
+
   // ── Vercel/Next.js middleware (ESM) ───────────────────────────
   {
     files: ["middleware.js"],

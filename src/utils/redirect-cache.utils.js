@@ -1,8 +1,16 @@
 const { getRedisClient } = require('./redis.utils');
 
-const DEFAULT_TTL_SECONDS = Number.parseInt(process.env.REDIRECT_CACHE_TTL_SECONDS || '300', 10);
-const CACHE_ENABLED = process.env.REDIRECT_CACHE_ENABLED !== 'false';
-const REDIS_CONFIGURED = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+function getDefaultTtlSeconds() {
+  return Number.parseInt(process.env.REDIRECT_CACHE_TTL_SECONDS || '300', 10);
+}
+
+function isCacheEnabled() {
+  return process.env.REDIRECT_CACHE_ENABLED !== 'false';
+}
+
+function isRedisConfigured() {
+  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+}
 
 const memoryCache = new Map();
 
@@ -21,8 +29,8 @@ function getMemoryEntry(shortCode) {
   return entry.value;
 }
 
-async function getRedisValue(shortCode) {
-  if (!REDIS_CONFIGURED || !CACHE_ENABLED) {
+async function getRedisEntry(shortCode) {
+  if (!isRedisConfigured() || !isCacheEnabled()) {
     return null;
   }
 
@@ -32,28 +40,57 @@ async function getRedisValue(shortCode) {
   }
 
   try {
-    const value = await client.get(`redirect-cache:${shortCode}`);
+    const key = `redirect-cache:${shortCode}`;
+
+    let getPttlPromise;
+    if (typeof client.pttl === 'function') {
+      try {
+        getPttlPromise = Promise.resolve(client.pttl(key)).catch(() => -1);
+      } catch {
+        getPttlPromise = Promise.resolve(-1);
+      }
+    } else if (typeof client.ttl === 'function') {
+      try {
+        getPttlPromise = Promise.resolve(client.ttl(key))
+          .then(s => typeof s === 'number' && s > 0 ? s * 1000 : s)
+          .catch(() => -1);
+      } catch {
+        getPttlPromise = Promise.resolve(-1);
+      }
+    } else {
+      getPttlPromise = Promise.resolve(-1);
+    }
+
+    const [value, pttl] = await Promise.all([
+      client.get(key),
+      getPttlPromise
+    ]);
+
     if (!value) {
       return null;
     }
 
+    let parsedValue = value;
     if (typeof value === 'string') {
       try {
-        return JSON.parse(value);
-      } catch (error) {
-        return value;
+        parsedValue = JSON.parse(value);
+      } catch {
+        parsedValue = value;
       }
     }
 
-    return value;
+    return {
+      value: parsedValue,
+      pttl: typeof pttl === 'number' ? pttl : -1
+    };
   } catch (error) {
     console.error('❌ Failed to read redirect cache from Redis:', error);
     return null;
   }
 }
 
-async function setRedisValue(shortCode, value, ttlSeconds = DEFAULT_TTL_SECONDS) {
-  if (!REDIS_CONFIGURED || !CACHE_ENABLED) {
+async function setRedisValue(shortCode, value, ttlSeconds = getDefaultTtlSeconds()) {
+  if (!isRedisConfigured() || !isCacheEnabled()) {
     return false;
   }
 
@@ -72,7 +109,7 @@ async function setRedisValue(shortCode, value, ttlSeconds = DEFAULT_TTL_SECONDS)
 }
 
 async function deleteRedisValue(shortCode) {
-  if (!REDIS_CONFIGURED || !CACHE_ENABLED) {
+  if (!isRedisConfigured() || !isCacheEnabled()) {
     return false;
   }
 
@@ -91,7 +128,7 @@ async function deleteRedisValue(shortCode) {
 }
 
 async function get(shortCode) {
-  if (!CACHE_ENABLED) {
+  if (!isCacheEnabled()) {
     return null;
   }
 
@@ -100,19 +137,27 @@ async function get(shortCode) {
     return memoryValue;
   }
 
-  const redisValue = await getRedisValue(shortCode);
-  if (redisValue) {
+  const redisEntry = await getRedisEntry(shortCode);
+  if (redisEntry) {
+    const { value, pttl } = redisEntry;
+    const defaultTtlMs = getDefaultTtlSeconds() * 1000;
+    const ttlMs = pttl > 0
+      ? Math.min(pttl, defaultTtlMs)
+      : defaultTtlMs;
+
     memoryCache.set(shortCode, {
-      value: redisValue,
-      expiresAt: Date.now() + DEFAULT_TTL_SECONDS * 1000
+      value,
+      expiresAt: Date.now() + ttlMs
     });
+
+    return value;
   }
 
-  return redisValue;
+  return null;
 }
 
-async function set(shortCode, value, ttlSeconds = DEFAULT_TTL_SECONDS) {
-  if (!CACHE_ENABLED) {
+async function set(shortCode, value, ttlSeconds = getDefaultTtlSeconds()) {
+  if (!isCacheEnabled()) {
     return false;
   }
 
@@ -133,9 +178,9 @@ async function del(shortCode) {
 
 function stats() {
   return {
-    enabled: CACHE_ENABLED,
+    enabled: isCacheEnabled(),
     memoryEntries: memoryCache.size,
-    redisEnabled: REDIS_CONFIGURED
+    redisEnabled: isRedisConfigured()
   };
 }
 
