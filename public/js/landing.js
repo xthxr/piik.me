@@ -155,6 +155,7 @@ function initThemeToggle() {
         const isLight = document.documentElement.classList.contains('light-theme');
         if (isLight) {
             document.documentElement.classList.remove('light-theme');
+            document.documentElement.classList.add('dark');
             try {
                 localStorage.setItem('theme', 'dark');
             } catch (e) {
@@ -162,6 +163,7 @@ function initThemeToggle() {
             }
         } else {
             document.documentElement.classList.add('light-theme');
+            document.documentElement.classList.remove('dark');
             try {
                 localStorage.setItem('theme', 'light');
             } catch (e) {
@@ -182,8 +184,10 @@ function initThemeToggle() {
     // Initial setup state alignment matching headers
     if (savedTheme === 'light' || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
         document.documentElement.classList.add('light-theme');
+        document.documentElement.classList.remove('dark');
     } else {
         document.documentElement.classList.remove('light-theme');
+        document.documentElement.classList.add('dark');
     }
 
     toggles.forEach(toggle => {
@@ -207,7 +211,8 @@ function initActionButtons() {
         { id: 'getStartedBtn', url: '/register' },
         { id: 'mobileGetStartedBtn', url: '/register' },
         { id: 'heroStartBtn', url: '/register' },
-        { id: 'pricingGetStartedBtn', url: '/register' }
+        { id: 'pricingGetStartedBtn', url: '/register' },
+        { id: 'bottomCtaGetStartedBtn', url: '/register' }
     ];
 
     actions.forEach(action => {
