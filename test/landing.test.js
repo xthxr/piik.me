@@ -39,4 +39,20 @@ test('production still requires credentials while local preview can start withou
 
   assert.match(server, /if \(process\.env\.NODE_ENV === 'production'\)/);
   assert.match(server, /Local preview mode: Firebase features are unavailable/);
+  assert.doesNotMatch(server, /SESSION_SECRET/);
+});
+
+test('dashboard defaults to light theme and exposes working profile and theme controls', () => {
+  const html = read('public/index.html');
+  const app = read('public/js/app.js');
+
+  assert.match(html, /<html lang="en" data-theme="light">/);
+  assert.match(html, /id="themeToggleBtn"/);
+  assert.match(html, /id="profilePhotoBtn"/);
+  assert.match(html, /id="saveProfileBtn"/);
+  assert.match(app, /setTheme\(savedTheme === 'dark' \? 'dark' : 'light'\)/);
+  assert.match(app, /themeToggleBtn\.addEventListener\('click'/);
+  assert.match(app, /currentUser\.updateProfile\(\{ photoURL \}\)/);
+  assert.match(app, /currentUser\.updateProfile\(\{ displayName \}\)/);
+  assert.match(app, /querySelectorAll\('#homePage \.filter-tab'\)/);
 });

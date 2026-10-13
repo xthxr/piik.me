@@ -77,7 +77,7 @@ const bugReportForm = document.getElementById('bugReportForm');
 // Home Page Elements
 const linksContainer = document.getElementById('linksContainer');
 const emptyState = document.getElementById('emptyState');
-const filterTabs = document.querySelectorAll('.filter-tab');
+const filterTabs = document.querySelectorAll('#homePage .filter-tab');
 const sortSelect = document.getElementById('sortSelect');
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
