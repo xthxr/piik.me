@@ -831,14 +831,31 @@
 
     <script src="/js/firebase-config.js"></script>
     <script>
-        // Get slug from URL
-        const pathParts = window.location.pathname.split('/');
-        const slug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+        // Prefer a personal subdomain (name.piik.me), while retaining the
+        // legacy piik.me/name URL for existing profiles and local previews.
+        function getBioSlug() {
+            const hostname = window.location.hostname.toLowerCase();
+            const domain = 'piik.me';
+            const suffix = `.${domain}`;
+
+            if (hostname.endsWith(suffix)) {
+                const candidate = hostname.slice(0, -suffix.length);
+                if (candidate && candidate !== 'www' && /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(candidate)) {
+                    return candidate;
+                }
+            }
+
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            return pathParts[pathParts.length - 1] || '';
+        }
+
+        const slug = getBioSlug();
+        const publicBioAddress = slug ? `${slug}.piik.me` : '';
 
         // Display slug in loading screen
         const loadingSlug = document.getElementById('loadingSlug');
         if (loadingSlug && slug) {
-            loadingSlug.textContent = `piik.me/${slug}`;
+            loadingSlug.textContent = publicBioAddress;
         }
 
         async function loadBioLink() {
@@ -912,7 +929,7 @@
                 }
 
                 // Display slug
-                document.getElementById('bioSlugDisplay').textContent = `piik.me/${bioLink.slug}`;
+                document.getElementById('bioSlugDisplay').textContent = `${bioLink.slug}.piik.me`;
 
                 // Render bio link
                 renderBioLink(bioLink);

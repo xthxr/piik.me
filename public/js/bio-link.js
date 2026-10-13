@@ -49,6 +49,34 @@ let bioLinks = [];
 let currentBioLink = null;
 let bioLinkItems = [];
 
+const BIO_LINK_DOMAIN = 'piik.me';
+const BIO_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/;
+
+function normalizeBioSlug(value) {
+    return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 63);
+}
+
+function isValidBioSlug(slug) {
+    return BIO_SLUG_PATTERN.test(slug) && slug.length >= 3 && slug.length <= 63;
+}
+
+function getBioLinkUrl(slug) {
+    const safeSlug = normalizeBioSlug(slug);
+    return `https://${safeSlug}.${BIO_LINK_DOMAIN}`;
+}
+
+function updateBioDomainPreview(slug = '') {
+    const preview = document.getElementById('bioDomainPreview');
+    if (preview) {
+        preview.textContent = `${normalizeBioSlug(slug) || 'your-name'}.${BIO_LINK_DOMAIN}`;
+    }
+}
+
 // Helper: make an authenticated API call
 async function apiCall(url, options = {}) {
     const token = await getAuthToken();
@@ -179,12 +207,14 @@ async function loadBioLinks() {
                 loadBioLinkIntoEditor(bioLinks[0]);
             }
             if (statsGrid) statsGrid.style.display = 'grid';
+            updateBioDomainPreview(bioLinks[0].slug);
         } else {
             // Show create button and empty state
             if (createBtn) createBtn.style.display = 'flex';
             if (editor) editor.style.display = 'none';
             if (emptyState) emptyState.style.display = 'flex';
             if (statsGrid) statsGrid.style.display = 'none';
+            updateBioDomainPreview();
         }
 
     } catch (error) {
@@ -369,7 +399,9 @@ async function saveBioLink() {
         }
 
         const name = document.getElementById('bioLinkName').value.trim();
-        const slug = document.getElementById('bioLinkSlug').value.trim();
+        const slugInput = document.getElementById('bioLinkSlug');
+        const slug = normalizeBioSlug(slugInput.value);
+        slugInput.value = slug;
         const description = document.getElementById('bioLinkDescription').value.trim();
 
         // Validation
@@ -378,8 +410,8 @@ async function saveBioLink() {
             return;
         }
 
-        if (!slug || !/^[a-zA-Z0-9-_]+$/.test(slug)) {
-            showToast('Please enter a valid URL slug', 'error');
+        if (!isValidBioSlug(slug)) {
+            showToast('Choose a 3–63 character address using lowercase letters, numbers, and hyphens', 'error');
             return;
         }
 
@@ -431,7 +463,7 @@ async function saveBioLink() {
 
 // Copy bio link to clipboard
 function copyBioLink(slug) {
-    const url = `${window.location.origin}/${slug}`;
+    const url = getBioLinkUrl(slug);
     navigator.clipboard.writeText(url).then(() => {
         showToast('Link copied to clipboard!', 'success');
     }).catch(err => {
@@ -442,7 +474,7 @@ function copyBioLink(slug) {
 
 // View bio link in new tab
 function viewBioLink(slug) {
-    window.open(`/${slug}`, '_blank');
+    window.open(getBioLinkUrl(slug), '_blank', 'noopener');
 }
 
 // Edit bio link
@@ -540,7 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bioLinkSlug && bioSlugError && bioSlugSuccess) {
         let slugCheckTimeout;
         bioLinkSlug.addEventListener('input', (e) => {
-            const slug = e.target.value.trim();
+            const slug = normalizeBioSlug(e.target.value);
+            if (e.target.value !== slug) e.target.value = slug;
+            updateBioDomainPreview(slug);
             
             clearTimeout(slugCheckTimeout);
             bioSlugError.style.display = 'none';
@@ -548,8 +582,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!slug) return;
 
-            if (!/^[a-zA-Z0-9-_]+$/.test(slug)) {
-                bioSlugError.textContent = 'Only letters, numbers, hyphens, and underscores allowed';
+            if (!isValidBioSlug(slug)) {
+                bioSlugError.textContent = 'Use 3–63 lowercase letters, numbers, or hyphens';
                 bioSlugError.style.display = 'block';
                 return;
             }
@@ -1200,6 +1234,7 @@ function loadBioLinkIntoEditor(bioLink) {
     // Populate form fields
     document.getElementById('editorBioName').value = bioLink.name || '';
     document.getElementById('editorBioSlug').value = bioLink.slug || '';
+    updateBioDomainPreview(bioLink.slug || '');
     document.getElementById('editorBioDescription').value = bioLink.description || '';
     document.getElementById('editorProfilePicture').value = bioLink.profilePicture || '';
     
@@ -1237,6 +1272,7 @@ function setupLivePreviewListeners() {
     
     const fields = [
         'editorBioName', 
+        'editorBioSlug',
         'editorBioDescription', 
         'editorThemeColor', 
         'editorThemeColorHex',
@@ -1253,6 +1289,11 @@ function setupLivePreviewListeners() {
         if (el) {
             el.removeEventListener('input', updateLivePreview); // Remove old listeners
             el.addEventListener('input', () => {
+                if (id === 'editorBioSlug') {
+                    const normalized = normalizeBioSlug(el.value);
+                    if (el.value !== normalized) el.value = normalized;
+                    updateBioDomainPreview(normalized);
+                }
                 updateLivePreview();
                 triggerAutoSave(); // Trigger auto-save on change
             });
@@ -1661,7 +1702,9 @@ async function saveEditorBioLink(isAutoSave = false) {
         }
         
         const name = document.getElementById('editorBioName').value.trim();
-        const slug = document.getElementById('editorBioSlug').value.trim();
+        const slugInput = document.getElementById('editorBioSlug');
+        const slug = normalizeBioSlug(slugInput.value);
+        slugInput.value = slug;
         const description = document.getElementById('editorBioDescription').value.trim();
         
         if (!name) {
@@ -1670,8 +1713,8 @@ async function saveEditorBioLink(isAutoSave = false) {
             return;
         }
         
-        if (!slug || !/^[a-zA-Z0-9-_]+$/.test(slug)) {
-            if (!isAutoSave) showToast('Please enter a valid URL slug', 'error');
+        if (!isValidBioSlug(slug)) {
+            if (!isAutoSave) showToast('Use a 3–63 character address with lowercase letters, numbers, and hyphens', 'error');
             isSaving = false;
             return;
         }
@@ -1745,9 +1788,9 @@ function cancelBioLinkEdits() {
 
 // View bio link preview
 function viewBioLinkPreview() {
-    const slug = document.getElementById('editorBioSlug').value.trim();
-    if (slug) {
-        window.open(`/${slug}`, '_blank');
+    const slug = normalizeBioSlug(document.getElementById('editorBioSlug').value);
+    if (isValidBioSlug(slug)) {
+        window.open(getBioLinkUrl(slug), '_blank', 'noopener');
     }
 }
 
@@ -1847,7 +1890,7 @@ function shareBioLink() {
         return;
     }
 
-    const url = `${window.location.origin}/${slug}`;
+    const url = getBioLinkUrl(slug);
     const urlInput = document.getElementById('shareBioLinkUrl');
     const modal = document.getElementById('shareBioLinkModal');
     const nativeBtn = document.getElementById('nativeShareBtn');

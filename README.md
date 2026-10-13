@@ -57,9 +57,10 @@ PIIK.ME is a comprehensive link management and analytics platform that empowers 
 
 ### 👤 Bio Links (New!)
 
-Create personalized bio pages accessible at `piik.me/username`:
+Create a free personal address at `username.piik.me` for one polished link-in-bio page. Existing `piik.me/username` links continue to work as a compatibility fallback:
 
 - **Custom Profile Pages** - Display name, bio, and profile picture
+- **Free Personal Subdomains** - Claim a memorable `username.piik.me` address
 - **Multiple Link Support** - Add unlimited social links with icons
 - **Drag & Drop Ordering** - Easily reorder links with drag-and-drop functionality
 - **Live Preview** - See changes in real-time while editing
@@ -420,10 +421,15 @@ socket.on('analyticsUpdate', (data) => {
 
 The repository includes `vercel.json` for zero-config deployment.
 
+#### Enable `username.piik.me` addresses
+
+The application is ready to serve bio pages from personal subdomains. In the Vercel project that owns `piik.me`, add `*.piik.me` as a wildcard domain and add the DNS record Vercel provides for that wildcard. Set `BIO_LINK_DOMAIN=piik.me` in Vercel if you use a different production base domain. Vercel will issue HTTPS certificates for the wildcard once DNS has propagated.
+
 ### Production Checklist
 
 - [ ] Update Firestore security rules
 - [ ] Add production domain to Firebase authorized domains
+- [ ] Add `*.piik.me` as a wildcard domain in Vercel and configure its DNS record
 - [ ] Configure all Firebase credentials as env variables
 - [ ] Set `BASE_URL` to production domain
 - [ ] Enable HTTPS/SSL

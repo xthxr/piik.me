@@ -355,6 +355,34 @@ async function resolveBioLinkStatus(shortCode) {
   }
 }
 
+const BIO_LINK_DOMAIN = (process.env.BIO_LINK_DOMAIN || 'piik.me').toLowerCase();
+const BIO_LINK_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/;
+
+function normalizeBioLinkSlug(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 63);
+}
+
+function isValidBioLinkSlug(slug) {
+  return slug.length >= 3 && slug.length <= 63 && BIO_LINK_SLUG_PATTERN.test(slug);
+}
+
+function getBioSubdomain(req) {
+  const rawHost = (req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  const host = rawHost.split(':')[0].toLowerCase();
+  const suffix = `.${BIO_LINK_DOMAIN}`;
+
+  if (!host.endsWith(suffix)) return null;
+
+  const slug = host.slice(0, -suffix.length);
+  if (slug === 'www') return null;
+  return isValidBioLinkSlug(slug) ? slug : null;
+}
+
 // API Routes
 
 // Helper function to get base URL from request
@@ -889,9 +917,13 @@ app.get('/api/user/bio-slug', verifyToken, async (req, res) => {
 // GET /api/bio-links/check-slug/:slug - Check if a slug is available
 
 app.get('/api/bio-links/check-slug/:slug', verifyToken, async (req, res) => {
-  const { slug } = req.params;
+  const slug = normalizeBioLinkSlug(req.params.slug);
   
   try {
+    if (!isValidBioLinkSlug(slug)) {
+      return res.status(400).json({ available: false, error: 'Slug must be 3-63 lowercase letters, numbers, or hyphens' });
+    }
+
     const existingSlug = await db.collection(COLLECTIONS.BIO_LINKS)
       .where('slug', '==', slug)
       .get();
@@ -937,14 +969,15 @@ app.get('/api/bio-links', verifyToken, async (req, res) => {
 
 app.post('/api/bio-links', verifyToken, async (req, res) => {
   const userId = req.user.uid;
-  const { name, slug, description, profilePicture, themeColor, backgroundStyle, links, social } = req.body;
+  const { name, slug: requestedSlug, description, profilePicture, themeColor, backgroundStyle, links, social } = req.body;
+  const slug = normalizeBioLinkSlug(requestedSlug);
   
   // Validation
   if (!name || !name.trim()) {
     return res.status(400).json({ error: 'Name is required' });
   }
-  if (!slug || !/^[a-zA-Z0-9-_]+$/.test(slug)) {
-    return res.status(400).json({ error: 'Invalid slug format' });
+  if (!isValidBioLinkSlug(slug)) {
+    return res.status(400).json({ error: 'Slug must be 3-63 lowercase letters, numbers, or hyphens' });
   }
   
   try {
@@ -999,15 +1032,16 @@ app.post('/api/bio-links', verifyToken, async (req, res) => {
 app.put('/api/bio-links/:id', verifyToken, async (req, res) => {
   const userId = req.user.uid;
   const { id } = req.params;
-  const { name, slug, description, profilePicture, themeColor, backgroundStyle, links, social } = req.body;
+  const { name, slug: requestedSlug, description, profilePicture, themeColor, backgroundStyle, links, social } = req.body;
+  const slug = normalizeBioLinkSlug(requestedSlug);
   
   // Validation
 
   if (!name || !name.trim()) {
     return res.status(400).json({ error: 'Name is required' });
   }
-  if (!slug || !/^[a-zA-Z0-9-_]+$/.test(slug)) {
-    return res.status(400).json({ error: 'Invalid slug format' });
+  if (!isValidBioLinkSlug(slug)) {
+    return res.status(400).json({ error: 'Slug must be 3-63 lowercase letters, numbers, or hyphens' });
   }
   
   try {
@@ -1851,6 +1885,11 @@ app.post('/api/import-profile', async (req, res) => {
 // Must be BEFORE the /:shortCode route to avoid conflicts
 
 app.get('/', (req, res) => {
+  const bioSlug = getBioSubdomain(req);
+  if (bioSlug) {
+    return res.sendFile(path.join(__dirname, 'public', 'bio.html'));
+  }
+
   res.sendFile(path.join(__dirname, 'public', 'landing.html'));
 });
 

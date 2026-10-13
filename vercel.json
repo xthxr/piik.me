@@ -29,7 +29,7 @@
     },
     {
       "src": "^/$",
-      "dest": "/public/landing.html"
+      "dest": "/server.js"
     },
     {
       "src": "/(.*)",

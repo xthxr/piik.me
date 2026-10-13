@@ -870,17 +870,28 @@
 
             <!-- Bio Link Page -->
 
-            <section class="page" id="bio-linkPage" style="display: none;">
-                <div class="page-header">
-                    <div class="header-content">
-                        <h2>Bio Link</h2>
-                        <p class="header-subtitle">Create and customize your link-in-bio page</p>
+            <section class="page bio-product" id="bio-linkPage" style="display: none;">
+                <div class="bio-product-hero">
+                    <div class="bio-product-copy">
+                        <p class="bio-product-eyebrow"><span aria-hidden="true"></span> Piik Bio</p>
+                        <h2>One link. <em>Everything you share.</em></h2>
+                        <p>Create a free, personal home for every destination that matters—then put one clean address everywhere your audience finds you.</p>
                     </div>
-                    <div class="header-actions">
-                        <button class="btn btn-primary" id="createBioLinkBtn">
-                            <i class="fas fa-plus"></i> Create Bio Link
-                        </button>
+                    <div class="bio-address-card" aria-live="polite">
+                        <span>Your free Piik address</span>
+                        <strong id="bioDomainPreview">your-name.piik.me</strong>
+                        <small>Claim your name, add any links, and share it everywhere.</small>
                     </div>
+                </div>
+
+                <div class="bio-product-toolbar">
+                    <div>
+                        <p class="bio-product-kicker">Your page</p>
+                        <h3>Make your first impression count.</h3>
+                    </div>
+                    <button class="btn btn-primary" id="createBioLinkBtn" type="button">
+                        <i class="fas fa-sparkles"></i> Claim your address
+                    </button>
                 </div>
 
                 <!-- Bio Link Stats -->
@@ -927,7 +938,7 @@
                 <!-- Bio Link Editor (shown when bio link exists) -->
 
                 <div id="bioLinkEditor" style="display: none;">
-                    <div style="display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start;">
+                    <div class="bio-editor-layout">
 
                         <!-- Editor Panel -->
 
@@ -946,11 +957,13 @@
                                             <input type="text" class="form-input" id="editorBioName" placeholder="Your name">
                                         </div>
                                         <div class="form-group" style="margin: 0;">
-                                            <label>URL Slug</label>
-                                            <div style="display: flex; gap: 8px; align-items: center;">
-                                                <span style="color: #6b7280; font-size: 14px;">piik.me/</span>
-                                                <input type="text" class="form-input" id="editorBioSlug" placeholder="your-username" style="flex: 1;">
+                                            <label for="editorBioSlug">Your Piik address</label>
+                                            <div class="bio-address-input">
+                                                <span>https://</span>
+                                                <input type="text" class="form-input" id="editorBioSlug" placeholder="your-name" autocomplete="off" style="flex: 1;">
+                                                <span>.piik.me</span>
                                             </div>
+                                            <small class="bio-address-help">Lowercase letters, numbers, and hyphens only.</small>
                                         </div>
                                         <div class="form-group" style="margin: 0;">
                                             <label>Bio Description</label>
@@ -1107,10 +1120,10 @@
                     <div class="empty-state-icon">
                         <i class="fas fa-link"></i>
                     </div>
-                    <h3>No bio link yet</h3>
-                    <p>Create your bio link page to showcase all your important links in one place</p>
+                    <h3>Claim your corner of Piik.</h3>
+                    <p>Your free <strong>[name].piik.me</strong> page is ready for every link, project, and social profile you want to share.</p>
                     <button class="btn btn-primary" onclick="openBioLinkModal()">
-                        <i class="fas fa-plus"></i> Create Your Bio Link
+                        <i class="fas fa-sparkles"></i> Claim your free address
                     </button>
                 </div>
             </section>
@@ -1497,13 +1510,14 @@
                         <input type="text" class="form-input" id="bioLinkName" placeholder="My Social Links">
                     </div>
                     <div class="form-group">
-                        <label>Custom URL Slug *</label>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: var(--text-tertiary);">piik.me/bio/</span>
-                            <input type="text" class="form-input" id="bioLinkSlug" placeholder="yourname" pattern="[a-zA-Z0-9_-]+" style="flex: 1;">
+                        <label for="bioLinkSlug">Your free Piik address *</label>
+                        <div class="bio-address-input">
+                            <span>https://</span>
+                            <input type="text" class="form-input" id="bioLinkSlug" placeholder="your-name" pattern="[a-z0-9-]{3,63}" autocomplete="off" style="flex: 1;">
+                            <span>.piik.me</span>
                         </div>
-                        <small style="color: var(--text-tertiary); font-size: 12px; margin-top: 4px; display: block;">
-                            Only letters, numbers, hyphens, and underscores
+                        <small class="bio-address-help">
+                            3–63 lowercase letters, numbers, or hyphens. This becomes the link in your bio.
                         </small>
                         <div id="bioSlugError" style="color: var(--accent-red); font-size: 12px; margin-top: 4px; display: none;"></div>
                         <div id="bioSlugSuccess" style="color: var(--accent-green); font-size: 12px; margin-top: 4px; display: none;">
