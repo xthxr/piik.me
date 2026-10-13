@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     syncThemeIcon();
     themeToggle?.addEventListener('click', () => {
         root.classList.toggle('dark');
-        localStorage.setItem('piik-theme', root.classList.contains('dark') ? 'dark' : 'light');
+        const theme = root.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('piik-theme', theme);
+        localStorage.setItem('piikme-theme', theme);
         syncThemeIcon();
     });
 

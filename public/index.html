@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>piik.me - Link Management & Analytics</title>
+    <script>(() => { try { const saved = localStorage.getItem('piik-theme') || localStorage.getItem('piikme-theme') || localStorage.getItem('theme'); document.documentElement.dataset.theme = saved === 'dark' ? 'dark' : 'light'; } catch (_) { document.documentElement.dataset.theme = 'light'; } })();</script>
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <meta name="description" content="piik.me - Intelligent link management platform with real-time analytics, custom domains, QR code generation, and bio link pages.">
     <meta name="keywords" content="link shortener, link management, URL shortener, analytics, QR code, bio link, piik.me">
@@ -138,12 +139,15 @@
                         <img src="" alt="User" class="user-avatar" id="topbarUserPhoto">
                     </button>
                     <div class="dropdown-menu" id="userDropdown">
-                        <a href="#profile" class="dropdown-item">
+                        <a href="/profile" class="dropdown-item">
                             <i class="fas fa-user"></i> Profile
                         </a>
-                        <a href="#settings" class="dropdown-item">
+                        <a href="/profile#account-settings" class="dropdown-item">
                             <i class="fas fa-cog"></i> Settings
                         </a>
+                        <button type="button" class="dropdown-item dropdown-action" id="themeToggleBtn" aria-label="Switch to dark theme" aria-pressed="false">
+                            <i class="fas fa-moon" aria-hidden="true"></i><span data-theme-label>Use dark theme</span>
+                        </button>
                         <hr class="dropdown-divider">
                         <a href="#logout" class="dropdown-item" id="logoutBtn">
                             <i class="fas fa-sign-out-alt"></i> Logout
@@ -1130,7 +1134,8 @@
                         <div class="card-body">
                             <div class="profile-avatar-section">
                                 <img src="" alt="Profile" class="profile-avatar" id="profileAvatar">
-                                <button class="btn btn-secondary btn-sm">Change Photo</button>
+                                <input type="file" id="profilePhotoInput" accept="image/png,image/jpeg,image/webp" hidden>
+                                <button type="button" class="btn btn-secondary btn-sm" id="profilePhotoBtn">Change Photo</button>
                             </div>
                             <div class="form-group">
                                 <label>Full Name</label>
@@ -1140,13 +1145,13 @@
                                 <label>Email</label>
                                 <input type="email" class="form-input" id="profileEmail" placeholder="your@email.com" readonly>
                             </div>
-                            <button class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
                         </div>
                     </div>
 
                     <!-- Account Settings -->
 
-                    <div class="profile-card">
+                    <div class="profile-card" id="account-settings">
                         <div class="card-header">
                             <h3><i class="fas fa-cog"></i> Account Settings</h3>
                         </div>
@@ -1154,30 +1159,30 @@
                             <div class="settings-item">
                                 <div class="settings-info">
                                     <h4>Email Notifications</h4>
-                                    <p>Receive email updates about your links</p>
+                                    <p>Email delivery is not configured yet.</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" disabled aria-label="Email notifications are not configured">
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
                             <div class="settings-item">
                                 <div class="settings-info">
                                     <h4>Weekly Reports</h4>
-                                    <p>Get weekly analytics summary</p>
+                                    <p>Weekly reports are not available yet.</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" disabled aria-label="Weekly reports are not available yet">
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
                             <div class="settings-item">
                                 <div class="settings-info">
                                     <h4>Public Profile</h4>
-                                    <p>Make your profile visible to others</p>
+                                    <p>Public account profiles are not available yet.</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox">
+                                    <input type="checkbox" disabled aria-label="Public account profiles are not available yet">
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>

@@ -69,29 +69,7 @@ FIREBASE_APP_ID=
 
 ---
 
-## Step 3: Configure Session Authentication
-
-Generate a secure session secret:
-
-```bash
-openssl rand -hex 32
-```
-
-Set:
-
-```env
-SESSION_SECRET=
-```
-
-Requirements:
-
-* Minimum 32 characters
-* Must remain private
-* Do not commit to version control
-
----
-
-## Step 4: Configure GitHub Integration
+## Step 3: Configure GitHub Integration
 
 Create a GitHub Personal Access Token.
 
@@ -116,7 +94,7 @@ GITHUB_TOKEN=
 
 ---
 
-## Step 5: Configure Upstash Redis
+## Step 4: Configure Upstash Redis
 
 ### Create Database
 
@@ -139,7 +117,7 @@ These values are used for:
 
 ---
 
-## Step 6: Configure Server Settings
+## Step 5: Configure Server Settings
 
 Local development:
 
@@ -152,7 +130,7 @@ Adjust if running on a different port.
 
 ---
 
-## Step 7: Verify Configuration
+## Step 6: Verify Configuration
 
 Install dependencies:
 

@@ -908,6 +908,18 @@ html[data-theme="light"] .app-orb {
     position: relative;
 }
 
+.dropdown-action {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+}
+
 .dropdown-item:first-child {
     margin-top: 4px;
 }

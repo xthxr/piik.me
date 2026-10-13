@@ -110,7 +110,6 @@ async function signOut() {
 // Event Listeners
 if (googleLoginBtn) googleLoginBtn.addEventListener('click', signInWithGoogle);
 if (promptLoginBtn) promptLoginBtn.addEventListener('click', signInWithGoogle);
-if (logoutBtn) logoutBtn.addEventListener('click', signOut);
 
 // Get Auth Token (for API calls)
 async function getAuthToken() {

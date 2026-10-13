@@ -4,7 +4,7 @@
 
 // State
 let currentPage = 'home';
-let currentTheme = 'dark';
+let currentTheme = 'light';
 let userLinks = [];
 // currentUser is declared in auth.js
 let userProfile = null; // Store user profile with username
@@ -36,6 +36,7 @@ const pageTitle = document.getElementById('pageTitle');
 // Theme Elements
 const themeBtns = document.querySelectorAll('.theme-btn');
 const html = document.documentElement;
+const themeToggleBtn = document.getElementById('themeToggleBtn');
 
 // User Elements
 const sidebarUser = document.getElementById('sidebarUser');
@@ -191,15 +192,33 @@ function checkForURLParameter() {
 }
 
 function initializeTheme() {
-    // Always use dark theme
-    setTheme('dark');
+    const savedTheme = localStorage.getItem('piik-theme') ||
+        localStorage.getItem('piikme-theme') ||
+        localStorage.getItem('theme');
+    setTheme(savedTheme === 'dark' ? 'dark' : 'light');
 }
 
 function setTheme(theme) {
-    // Force dark theme only
-    currentTheme = 'dark';
-    html.setAttribute('data-theme', 'dark');
-    localStorage.setItem('piikme-theme', 'dark');
+    currentTheme = theme === 'dark' ? 'dark' : 'light';
+    html.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('piik-theme', currentTheme);
+    localStorage.setItem('piikme-theme', currentTheme);
+
+    themeBtns.forEach((button) => {
+        const isActive = button.dataset.theme === currentTheme;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+    });
+
+    if (themeToggleBtn) {
+        const icon = themeToggleBtn.querySelector('i');
+        const label = themeToggleBtn.querySelector('[data-theme-label]');
+        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        if (icon) icon.className = `fas fa-${nextTheme === 'dark' ? 'moon' : 'sun'}`;
+        if (label) label.textContent = `Use ${nextTheme} theme`;
+        themeToggleBtn.setAttribute('aria-label', `Switch to ${nextTheme} theme`);
+        themeToggleBtn.setAttribute('aria-pressed', String(currentTheme === 'dark'));
+    }
 }
 
 // ================================
@@ -283,6 +302,9 @@ function navigateToPage(page, updateHistory = true) {
         loadAnalytics();
     } else if (page === 'profile') {
         loadProfile();
+        if (window.location.hash === '#account-settings') {
+            requestAnimationFrame(() => document.getElementById('account-settings')?.scrollIntoView({ block: 'start' }));
+        }
     } else if (page === 'qr-generator') {
         // QR Generator page
         setTimeout(() => {
@@ -310,6 +332,12 @@ function navigateToPage(page, updateHistory = true) {
 // ================================
 
 function initializeEventListeners() {
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+    }
+
     // Logo click handler
     const logoLink = document.getElementById('logoLink');
     if (logoLink) {
@@ -373,6 +401,99 @@ function initializeEventListeners() {
         // Close dropdown when clicking outside
         document.addEventListener('click', () => {
             userDropdown.classList.remove('show');
+        });
+    }
+
+    const settingsLink = document.querySelector('a[href="/profile#account-settings"]');
+    if (settingsLink) {
+        settingsLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            window.history.pushState({ page: 'profile' }, '', '/profile#account-settings');
+            navigateToPage('profile', false);
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+
+    const profilePhotoBtn = document.getElementById('profilePhotoBtn');
+    const profilePhotoInput = document.getElementById('profilePhotoInput');
+    if (profilePhotoBtn && profilePhotoInput) {
+        profilePhotoBtn.addEventListener('click', () => profilePhotoInput.click());
+        profilePhotoInput.addEventListener('change', async () => {
+            const file = profilePhotoInput.files?.[0];
+            if (!file) return;
+            if (!currentUser || typeof firebase === 'undefined' || !firebase.storage) {
+                showToast('Sign in is required to update your photo.', 'error');
+                profilePhotoInput.value = '';
+                return;
+            }
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                showToast('Choose a PNG, JPG, or WebP image under 5 MB.', 'error');
+                profilePhotoInput.value = '';
+                return;
+            }
+
+            const originalMarkup = profilePhotoBtn.innerHTML;
+            profilePhotoBtn.disabled = true;
+            profilePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Uploading…';
+            try {
+                const extension = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
+                const imageRef = firebase.storage().ref(`profile-photos/${currentUser.uid}/avatar-${Date.now()}.${extension}`);
+                await imageRef.put(file, { contentType: file.type });
+                const photoURL = await imageRef.getDownloadURL();
+                await currentUser.updateProfile({ photoURL });
+                currentUser = firebase.auth().currentUser || currentUser;
+                loadProfile();
+                showAuthenticatedUI();
+                showToast('Profile photo updated.', 'success');
+            } catch (error) {
+                console.error('Profile photo update failed:', error);
+                showToast('Could not update your photo. Please try again.', 'error');
+            } finally {
+                profilePhotoBtn.disabled = false;
+                profilePhotoBtn.innerHTML = originalMarkup;
+                profilePhotoInput.value = '';
+            }
+        });
+    }
+
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const profileName = document.getElementById('profileName');
+    if (saveProfileBtn && profileName) {
+        saveProfileBtn.addEventListener('click', async () => {
+            const displayName = profileName.value.trim();
+            if (!currentUser) {
+                showToast('Sign in is required to update your profile.', 'error');
+                return;
+            }
+            if (!displayName || displayName.length > 80) {
+                showToast('Enter a name between 1 and 80 characters.', 'error');
+                profileName.focus();
+                return;
+            }
+            if (displayName === (currentUser.displayName || '')) {
+                showToast('Your profile is already up to date.', 'info');
+                return;
+            }
+
+            const originalMarkup = saveProfileBtn.innerHTML;
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Saving…';
+            try {
+                await currentUser.updateProfile({ displayName });
+                currentUser = firebase.auth().currentUser || currentUser;
+                loadProfile();
+                showAuthenticatedUI();
+                showToast('Profile changes saved.', 'success');
+            } catch (error) {
+                console.error('Profile update failed:', error);
+                showToast('Could not save your profile. Please try again.', 'error');
+            } finally {
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.innerHTML = originalMarkup;
+            }
         });
     }
     
@@ -443,11 +564,6 @@ function initializeEventListeners() {
     
     if (skipUsernameBtn) {
         skipUsernameBtn.addEventListener('click', hideUsernameModal);
-    }
-    
-    // Logout
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
     }
     
     // Delete Account

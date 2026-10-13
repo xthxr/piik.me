@@ -45,7 +45,7 @@ require('dotenv').config();
 
 // Validate required environment variables on startup
 function validateEnv() {
-  const required = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY', 'SESSION_SECRET'];
+  const required = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'];
   const missing = required.filter(key => !process.env[key]);
   if (missing.length > 0) {
     if (process.env.NODE_ENV === 'production') {
@@ -60,11 +60,6 @@ function validateEnv() {
     // should still make the marketing site and configuration status testable.
     console.warn(`Local preview mode: Firebase features are unavailable (${missing.join(', ')}).`);
     return;
-  }
-  if (process.env.SESSION_SECRET && process.env.SESSION_SECRET.length < 32) {
-    console.error('FATAL: SESSION_SECRET must be at least 32 characters long for security.');
-    console.error('Generate a secure random string (e.g., using openssl rand -hex 32).');
-    process.exit(1);
   }
 }
 
