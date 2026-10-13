@@ -8,9 +8,9 @@
   "dev": "nodemon server.js",
   "lint": "eslint .",
   "lint:fix": "eslint --fix .",
-  "test": "jest",
-  "test:watch": "jest --watch",
-  "test:coverage": "jest --coverage"
+  "test": "node --test",
+  "test:watch": "node --test --watch",
+  "test:coverage": "node --test"
 },
   "keywords": [
     "utm",

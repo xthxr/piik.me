@@ -13,9 +13,11 @@ export default [
   {
     files: [
       "server.js",
+      "jest.config.js",
       "config/**/*.js",
       "scripts/**/*.js",
       "src/**/*.js",
+      "test/**/*.js",
       "public/api/**/*.js"
     ],
     languageOptions: {
