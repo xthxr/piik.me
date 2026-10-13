@@ -501,6 +501,11 @@ function initializeEventListeners() {
     if (createLinkBtn) {
         createLinkBtn.addEventListener('click', openCreateLinkModal);
     }
+
+    const viewAnalyticsBtn = document.getElementById('viewAnalyticsBtn');
+    if (viewAnalyticsBtn) {
+        viewAnalyticsBtn.addEventListener('click', () => navigateToPage('analytics'));
+    }
     
     if (createFirstBtn) {
         createFirstBtn.addEventListener('click', openCreateLinkModal);
@@ -1337,11 +1342,12 @@ async function loadLinks() {
         console.log('Total links loaded:', userLinks.length);
         console.log('Active links:', userLinks.filter(l => l.isActive !== false).length);
         console.log('Link details:', userLinks.map(l => ({ shortCode: l.shortCode, isActive: l.isActive })));
+        updateStats(userLinks);
         
         if (userLinks.length > 0) {
             // Check which filter tab is active
             let currentFilter = 'all';
-            const activeTab = document.querySelector('.filter-tab.active');
+            const activeTab = document.querySelector('#homePage .filter-tab.active');
             if (activeTab) {
                 currentFilter = activeTab.dataset.filter;
             }
@@ -1354,7 +1360,6 @@ async function loadLinks() {
                 return; // filterLinks handles display
             }
             
-            updateStats(userLinks);
             emptyState.style.display = 'none';
             linksContainer.style.display = 'grid';
         } else {
@@ -1654,7 +1659,11 @@ function updateStats(links) {
     totalClicksEl.textContent = totalClicks.toLocaleString();
     activeLinksEl.textContent = activeWithClicks;
     avgClickRateEl.textContent = avgRate;
-    avgClickRateEl.textContent = avgRate;
+
+    const homeLinkCount = document.getElementById('homeLinkCount');
+    if (homeLinkCount) {
+        homeLinkCount.textContent = `${links.length} ${links.length === 1 ? 'link' : 'links'}`;
+    }
 }
 
 function filterLinks(filter) {
@@ -1695,7 +1704,7 @@ function sortLinks(sortBy) {
     let sorted = applySortOrder(userLinks, sortBy);
     
     // Apply current filter
-    const filterTabs = document.querySelectorAll('.filter-tab');
+    const filterTabs = document.querySelectorAll('#homePage .filter-tab');
     let currentFilter = 'all';
     filterTabs.forEach(tab => {
         if (tab.classList.contains('active')) {

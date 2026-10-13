@@ -156,95 +156,97 @@
                 </div>
                 </div>
             </div>
-            <section class="page" id="homePage">
-                <div class="page-header">
-                    <div class="header-content">
-                        <h2>Your Links</h2>
-                        <p class="header-subtitle">Manage and track all your short links</p>
+            <section class="page home-dashboard" id="homePage">
+                <div class="home-intro">
+                    <div class="home-intro-copy">
+                        <p class="home-eyebrow"><span class="live-dot" aria-hidden="true"></span> Your link workspace</p>
+                        <h2>Keep every share <em>in motion.</em></h2>
+                        <p class="home-subtitle">Create, organize, and measure the links your audience sees—without losing the signal in the noise.</p>
                     </div>
-                    <button class="btn btn-primary" id="createLinkBtn">
-                        <i class="fas fa-plus"></i> Create New Link
-                    </button>
-                </div>
-
-                <!-- Stats Cards -->
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon purple">
-                            <i class="fas fa-link"></i>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value" id="totalLinks">0</span>
-                            <span class="stat-label">Total Links</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <i class="fas fa-mouse-pointer"></i>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value" id="totalClicks">0</span>
-                            <span class="stat-label">Total Clicks</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value" id="activeLinks">0</span>
-                            <span class="stat-label">Active Links</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon orange">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value" id="avgClickRate">0</span>
-                            <span class="stat-label">Avg Click Rate</span>
-                        </div>
+                    <div class="home-primary-actions">
+                        <button class="btn btn-secondary home-analytics-btn" id="viewAnalyticsBtn" type="button">
+                            <i class="fas fa-chart-line"></i> View analytics
+                        </button>
+                        <button class="btn btn-primary" id="createLinkBtn" type="button">
+                            <i class="fas fa-plus"></i> Create link
+                        </button>
                     </div>
                 </div>
 
-                <!-- Filters -->
-
-                <div class="filters-bar">
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" data-filter="all">All Links</button>
-                        <button class="filter-tab" data-filter="active">Active</button>
-                        <button class="filter-tab" data-filter="inactive">Inactive</button>
-                    </div>
-                    <div class="filter-actions">
-                        <select class="filter-select" id="sortSelect">
-                            <option value="recent">Most Recent</option>
-                            <option value="clicks">Most Clicks</option>
-                            <option value="oldest">Oldest First</option>
-                        </select>
-                    </div>
+                <div class="home-summary-grid" aria-label="Link performance summary">
+                    <article class="home-stat-card stat-links">
+                        <div class="home-stat-icon"><i class="fas fa-link"></i></div>
+                        <div class="home-stat-copy">
+                            <span class="home-stat-label">Total links</span>
+                            <strong class="home-stat-value" id="totalLinks">0</strong>
+                            <span class="home-stat-caption">Across your workspace</span>
+                        </div>
+                    </article>
+                    <article class="home-stat-card stat-clicks">
+                        <div class="home-stat-icon"><i class="fas fa-arrow-pointer"></i></div>
+                        <div class="home-stat-copy">
+                            <span class="home-stat-label">Total clicks</span>
+                            <strong class="home-stat-value" id="totalClicks">0</strong>
+                            <span class="home-stat-caption">From active links</span>
+                        </div>
+                    </article>
+                    <article class="home-stat-card stat-active">
+                        <div class="home-stat-icon"><i class="fas fa-sparkles"></i></div>
+                        <div class="home-stat-copy">
+                            <span class="home-stat-label">Links with activity</span>
+                            <strong class="home-stat-value" id="activeLinks">0</strong>
+                            <span class="home-stat-caption">Receiving clicks</span>
+                        </div>
+                    </article>
+                    <article class="home-stat-card stat-rate">
+                        <div class="home-stat-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="home-stat-copy">
+                            <span class="home-stat-label">Average clicks</span>
+                            <strong class="home-stat-value" id="avgClickRate">0</strong>
+                            <span class="home-stat-caption">Per active link</span>
+                        </div>
+                    </article>
                 </div>
 
-                <!-- Links Grid -->
+                <section class="link-workspace" aria-labelledby="linkLibraryTitle">
+                    <header class="link-workspace-header">
+                        <div>
+                            <div class="section-label-row">
+                                <p class="section-kicker">Link library</p>
+                                <span class="link-count" id="homeLinkCount">0 links</span>
+                            </div>
+                            <h3 id="linkLibraryTitle">Your links, organized.</h3>
+                            <p>Find the right destination, review performance, and take action in one place.</p>
+                        </div>
+                    </header>
 
-                <div class="links-container" id="linksContainer">
-
-                    <!-- Links will be populated here -->
-
-                </div>
-
-                <!-- Empty State -->
-
-                <div class="empty-state" id="emptyState" style="display: none;">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-link"></i>
+                    <div class="filters-bar home-filters">
+                        <div class="filter-tabs" aria-label="Filter links by status">
+                            <button class="filter-tab active" data-filter="all" type="button">All links</button>
+                            <button class="filter-tab" data-filter="active" type="button">Active</button>
+                            <button class="filter-tab" data-filter="inactive" type="button">Inactive</button>
+                        </div>
+                        <div class="filter-actions">
+                            <label class="sr-only" for="sortSelect">Sort links</label>
+                            <select class="filter-select" id="sortSelect">
+                                <option value="recent">Most recent</option>
+                                <option value="clicks">Most clicks</option>
+                                <option value="oldest">Oldest first</option>
+                            </select>
+                        </div>
                     </div>
-                    <h3>You haven't created any links yet</h3>
-                    <p>Shorten your first URL and start tracking clicks in real time.</p>
-                    <button class="btn btn-primary" id="createFirstBtn">
-                        <i class="fas fa-plus"></i> Create your first link
-                    </button>
-                </div>
+
+                    <div class="links-container" id="linksContainer"></div>
+
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <div class="empty-state-icon"><i class="fas fa-link"></i></div>
+                        <h3>Your first link starts here.</h3>
+                        <p>Create a short, trackable link and begin seeing what your audience responds to.</p>
+                        <button class="btn btn-primary" id="createFirstBtn" type="button">
+                            <i class="fas fa-plus"></i> Create your first link
+                        </button>
+                    </div>
+                </section>
             </section>
 
             <!-- Analytics Page -->
