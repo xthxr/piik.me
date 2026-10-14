@@ -27,3 +27,9 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+
+      - name: Server Smoke Test
+        run: |
+          npm start &
+          sleep 10
+          curl -f http://localhost:3000 || exit 1
