@@ -41,7 +41,7 @@ class VersionChecker {
         
         const versionText = isBeta ? 'Beta v0.2 is Now Live' : `${version} is Now Live`;
         
-        banner.innerHTML = `
+        banner.textContent = `
             <div class="version-banner-content">
                 <span class="version-text">${versionText}</span>
                 <button class="whats-new-btn" id="whatsNewBtn">
@@ -97,7 +97,7 @@ class VersionChecker {
         modal.className = 'modal changelog-modal';
         modal.style.display = 'flex';
 
-        modal.innerHTML = `
+        modal.textContent = `
             <div class="modal-content changelog-content">
                 <div class="modal-header">
                     <h2><i class="fas fa-rocket"></i> What's New</h2>
@@ -152,10 +152,10 @@ class VersionChecker {
             
             // Convert markdown to HTML (basic conversion)
             const html = this.markdownToHtml(markdown);
-            contentDiv.innerHTML = html;
+            contentDiv.textContent = html;
         } catch (error) {
             console.error('Error loading changelog:', error);
-            contentDiv.innerHTML = `
+            contentDiv.textContent = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>Could not load changelog. Please visit our 
