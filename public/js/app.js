@@ -643,7 +643,7 @@ function initializeEventListeners() {
     initializeCustomSelects();
     document.querySelectorAll('.date-range-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        const days = btn.dataset.days === 'all' ? 'all' : parseInt(btn.dataset.days);
+        const days = btn.dataset.days === 'all' ? 'all' : parseInt(btn.dataset.days, 10);
         filterClicksChart(days);
     });
 });
@@ -1269,7 +1269,7 @@ async function handleCreateLink() {
     expiresAt: document.getElementById('expiresAt')?.value || null,
 
     maxClicks: document.getElementById('maxClicks')?.value
-        ? parseInt(document.getElementById('maxClicks').value)
+        ? parseInt(document.getElementById('maxClicks', 10).value)
         : null
 })
 });
@@ -2068,7 +2068,7 @@ function updateWeightCalculations() {
     rows.forEach((row, i) => {
         const label = row.querySelector('.variant-label').value.trim();
         const url = row.querySelector('.variant-url').value.trim();
-        const weightVal = parseInt(row.querySelector('.variant-weight').value) || 0;
+        const weightVal = parseInt(row.querySelector('.variant-weight', 10).value) || 0;
         
         totalWeight += weightVal;
         
@@ -2174,7 +2174,7 @@ async function saveSplitTest() {
             rows.forEach(row => {
                 const label = row.querySelector('.variant-label').value.trim();
                 const url = row.querySelector('.variant-url').value.trim();
-                const weight = parseInt(row.querySelector('.variant-weight').value) || 0;
+                const weight = parseInt(row.querySelector('.variant-weight', 10).value) || 0;
                 variants.push({ label, url, weight });
             });
             
@@ -3003,7 +3003,7 @@ function processClicksOverTime(clickHistory) {
     // Convert to array and sort
     const sorted = Object.entries(grouped)
         .map(([timestamp, count]) => ({
-            timestamp: parseInt(timestamp),
+            timestamp: parseInt(timestamp, 10),
             count
         }))
         .sort((a, b) => a.timestamp - b.timestamp);
