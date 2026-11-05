@@ -12,6 +12,9 @@ async function checkLinkHealth(url) {
         timeout: 5000,
         maxRedirects: 5,
         validateStatus: () => true,
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+        },
       });
     } catch (headError) {
       // Fallback to GET request

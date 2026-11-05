@@ -90,8 +90,8 @@ try {
   db = admin.firestore();
   auth = admin.auth();
   firebaseState.enabled = true;
-firebaseState.mode = 'firestore';
-firebaseState.reason = 'Firebase connected successfully';
+  firebaseState.mode = 'firestore';
+  firebaseState.reason = 'Firebase connected successfully';
 
 
   
