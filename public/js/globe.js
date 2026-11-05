@@ -41,7 +41,8 @@ class GlobeVisualization {
     
     try {
       const response = await fetch(`/api/analytics/${shortCode}/locations`);
-      const data = await response.json();
+      if (!response.ok) throw new Error("Request failed");
+const data = await response.json();
       
       if (data.locations) {
         this.locations = data.locations.map(loc => ({
