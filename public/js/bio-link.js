@@ -1397,7 +1397,7 @@ function setupDragAndDrop() {
     items.forEach(item => {
         item.addEventListener('dragstart', (e) => {
             draggedItem = item;
-            draggedIndex = parseInt(item.getAttribute('data-index'));
+            draggedIndex = parseInt(item.getAttribute('data-index', 10));
             item.style.opacity = '0.5';
             e.dataTransfer.effectAllowed = 'move';
         });
@@ -1437,7 +1437,7 @@ function setupDragAndDrop() {
             item.style.borderBottom = '';
             
             if (draggedItem && draggedItem !== item) {
-                const dropIndex = parseInt(item.getAttribute('data-index'));
+                const dropIndex = parseInt(item.getAttribute('data-index', 10));
                 
                 // Reorder the array
                 const draggedItemData = editorBioLinkItems[draggedIndex];
