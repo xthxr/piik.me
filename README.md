@@ -427,6 +427,8 @@ The application is ready to serve bio pages from personal subdomains. In the Ver
 
 ### Production Checklist
 
+> **Note:** Before making the application publicly accessible, verify that authentication, Firestore security rules, HTTPS, environment variables, and API protection are properly configured.
+
 - [ ] Update Firestore security rules
 - [ ] Add production domain to Firebase authorized domains
 - [ ] Add `*.piik.me` as a wildcard domain in Vercel and configure its DNS record
