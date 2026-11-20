@@ -37,3 +37,23 @@ test('a partial profile reports the matching percent and missing ids', () => {
   assert.equal(r.percent, 33);
   assert.deepEqual(r.missing.map((m) => m.id), ['description', 'picture', 'social', 'links3']);
 });
+
+test('a dismissed id is still remembered when localStorage throws', () => {
+    const { dismiss, readDismissed } = require('../public/js/profile-completion.js');
+    const original = globalThis.localStorage;
+    globalThis.localStorage = {
+        getItem() {
+            throw new Error('blocked');
+        },
+        setItem() {
+            throw new Error('quota exceeded');
+        },
+    };
+    try {
+        dismiss('picture');
+        assert.ok(readDismissed().includes('picture'));
+    } finally {
+        if (original === undefined) delete globalThis.localStorage;
+        else globalThis.localStorage = original;
+    }
+});

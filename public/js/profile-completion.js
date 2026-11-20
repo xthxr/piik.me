@@ -41,22 +41,27 @@
         };
     }
 
+    // Dismissed ids for this page session, so a dismiss still sticks
+    // when localStorage is blocked or full.
+    const sessionDismissed = new Set();
+
     function readDismissed() {
+        let stored = [];
         try {
             const raw = JSON.parse(localStorage.getItem(DISMISS_KEY) || '[]');
-            return Array.isArray(raw) ? raw : [];
+            if (Array.isArray(raw)) stored = raw;
         } catch {
-            return [];
+            // unreadable storage: fall back to the in-memory set only
         }
+        return Array.from(new Set([...stored, ...sessionDismissed]));
     }
 
     function dismiss(id) {
-        const list = readDismissed();
-        if (!list.includes(id)) list.push(id);
+        sessionDismissed.add(id);
         try {
-            localStorage.setItem(DISMISS_KEY, JSON.stringify(list));
+            localStorage.setItem(DISMISS_KEY, JSON.stringify(readDismissed()));
         } catch {
-            // storage unavailable: the suggestion just comes back next time
+            // storage unavailable: the id stays hidden for this session only
         }
     }
 
@@ -121,5 +126,5 @@
         }
     }
 
-    return { computeProfileCompletion, renderProfileCompletion };
+    return { computeProfileCompletion, renderProfileCompletion, dismiss, readDismissed };
 });
