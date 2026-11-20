@@ -1478,7 +1478,27 @@ function removeEditorBioLinkItem(index) {
 }
 
 // Update live preview
+function updateProfileCompletion() {
+    if (!window.ProfileCompletion) return;
+    const val = (id) => document.getElementById(id)?.value || '';
+    window.ProfileCompletion.renderProfileCompletion({
+        name: val('editorBioName'),
+        description: val('editorBioDescription'),
+        profilePicture: val('editorProfilePicture'),
+        social: {
+            instagram: val('editorInstagram'),
+            twitter: val('editorTwitter'),
+            linkedin: val('editorLinkedIn'),
+            github: val('editorGithub'),
+            youtube: val('editorYoutube'),
+            website: val('editorWebsite')
+        },
+        links: editorBioLinkItems
+    }, document.getElementById('profileCompletion'));
+}
+
 function updateLivePreview() {
+    updateProfileCompletion();
     const iframe = document.getElementById('bioPreviewFrame');
     if (!iframe) {
         console.log('Preview iframe not found');
