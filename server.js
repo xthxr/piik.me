@@ -41,6 +41,8 @@ function getGeoFromIP(ip) {
     ll: geo.ll || null
   };
 }
+const rateLimit = require('express-rate-limit');
+const { isUniqueClick, isLikelyBot } = require('./src/services/analytics.service');
 require('dotenv').config();
 
 // Validate required environment variables on startup
@@ -134,6 +136,19 @@ function fromFirestoreId(firestoreId) {
 
   return firestoreId;
 }
+
+// Rate limiter for short link redirect endpoint.
+// Limits users to 30 redirects per minute per IP.
+const redirectLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // 30 redirects per IP per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: 'Too many redirect requests, please try again later.'
+  }
+});
 
 // Middleware
 
@@ -2030,6 +2045,17 @@ async function fetchGeolocation(clientIP) {
 // Core click-tracking and DB write function
 
 async function trackClickAndEmit(shortCode, req, variantLabel = null) {
+  // Filter out bots
+  if (isLikelyBot(req)) {
+    return;
+  }
+
+  // Deduplicate clicks (1 click per client per 24 hours)
+  const isUnique = await isUniqueClick(db, shortCode, req);
+  if (!isUnique) {
+    return;
+  }
+
   const userAgent = req.headers['user-agent'] || 'Unknown';
   const utmSource = req.query.utm_source;
   const clientIP = req.headers['x-forwarded-for']?.split(',')[0] || 
@@ -2192,8 +2218,7 @@ async function trackClickAndEmit(shortCode, req, variantLabel = null) {
 }
 
 // Redirect username/slug format links (e.g., /xthxr/my-link)
-
-app.get('/:username/:slug', async (req, res) => {
+app.get('/:username/:slug', redirectLimiter, async (req, res) => {
   const { username, slug } = req.params;
   const shortCode = `${username}/${slug}`;
   const { link } = await resolveLinkForRedirect(shortCode);
@@ -2221,8 +2246,7 @@ app.get('/:username/:slug', async (req, res) => {
 });
 
 // Redirect short link and track click (also handles bio links)
-
-app.get('/:shortCode', async (req, res) => {
+app.get('/:shortCode', redirectLimiter, async (req, res) => {
   const { shortCode } = req.params;
   
   // First check if it's a bio link
