@@ -19,6 +19,7 @@ const redisUtils = require('./src/utils/redis.utils');
 const redirectCache = require('./src/utils/redirect-cache.utils');
 const { securityHeaders, apiLimiter, bugReportLimiter } = require('./src/middleware/security.middleware');
 const splitTestService = require('./src/services/splitTest.service');
+const { validateUrl } = require('./src/utils/url.utils');
 const geoip = require('geoip-lite');
 
 /**
@@ -420,28 +421,10 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  // Validate URL structure and block dangerous schemes.
-  // new URL() only checks syntactic correctness; it accepts javascript:, data:,
-  // vbscript:, and other schemes that are unsafe as redirect destinations.
-  // Enforce an explicit allowlist so only http and https links can be shortened.
-
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      return res.status(400).json({ error: 'Only http and https URLs are allowed' });
-    }
-  } catch (e) {
-    return res.status(400).json({ error: 'Invalid URL' });
-  }
-
-  // Block dangerous URL schemes
-
-  const blockedSchemes = ['javascript:', 'data:', 'vbscript:'];
-  const urlLower = url.toLowerCase();
-  for (const scheme of blockedSchemes) {
-    if (urlLower.startsWith(scheme)) {
-      return res.status(400).json({ error: 'Invalid URL: dangerous URL scheme blocked' });
-    }
+  // Validate URL structure and block dangerous schemes
+  const urlValidation = validateUrl(url);
+  if (!urlValidation.valid) {
+    return res.status(400).json({ error: urlValidation.error });
   }
 
   // Validate custom short code if provided
