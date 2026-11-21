@@ -62,4 +62,27 @@ async function verifyToken(req, res, next) {
   }
 }
 
-module.exports = { verifyToken };
+/**
+ * Middleware to optionally verify Firebase authentication token if provided
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+async function optionalAuth(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+    const token = authHeader.substring(7);
+    const auth = getAuth();
+    const decodedToken = await auth.verifyIdToken(token, true);
+    req.user = decodedToken;
+  } catch (error) {
+    // If token verification fails, proceed as unauthenticated without throwing
+    console.debug('Optional auth token check failed:', error.code || error.message);
+  }
+  next();
+}
+
+module.exports = { verifyToken, optionalAuth };
