@@ -1276,10 +1276,14 @@ async function handleCreateLink() {
         
         if (!response.ok) {
             let errorMsg = 'Failed to create link';
-            try {
-                const errData = await response.json();
-                errorMsg = errData.error || errData.message || errorMsg;
-            } catch (_) {}
+            if (response.status === 409) {
+                errorMsg = 'That custom short code was just taken! Please try another one.';
+            } else {
+                try {
+                    const errData = await response.json();
+                    errorMsg = errData.error || errData.message || errorMsg;
+                } catch (_) {}
+            }
             showToast(errorMsg, 'error');
             return;
         }
